@@ -5,7 +5,7 @@ You are experts in python 3.11, and familier with popular libraries, and also go
 
 You are currently on a task to write "run.sh" that:
 1. create a temp venv
-2. use pip to install all the required libaries (plus local library /data/finae/finae)
+2. use pip to install all the required libaries (plus local library /data/finae/engy)
 3. use python to start the webserver. ("python server.py")
 
 (Assume anaconda and pip are installed.)
@@ -20,7 +20,7 @@ E.g.
 python3 -m venv venv
 source venv/bin/activate
 
-pip install Flask websocket /data/finae/finae
+pip install Flask websocket /data/finae/engy
 
 python server.py
 </RUN_BASH_CODE>
@@ -913,7 +913,7 @@ pip install --upgrade pip
 
 # Install required libraries
 echo "Installing required libraries..."
-pip install flask flask-socketio flask-cors /data/finae/finae
+pip install flask flask-socketio flask-cors /data/finae/engy
 
 # Check if server.py exists
 if [ ! -f "server.py" ]; then
@@ -949,6 +949,6 @@ To use this script:
 
 This script will set up the environment and start your server. Make sure you have Python 3 installed on your system before running the script.
 
-Note: The script assumes that the finae library is located at "/data/finae/finae". If this is not the correct path, please adjust it in the pip install command.
+Note: The script assumes that the finae library is located at "/data/finae/engy". If this is not the correct path, please adjust it in the pip install command.
 
 Also, ensure that you have the necessary permissions to create directories and install packages in the current location. If you're working in a restricted environment, you might need to use `sudo` or adjust the installation path.

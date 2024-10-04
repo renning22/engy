@@ -1,29 +1,29 @@
 Traceback (most recent call last):
-  File "/data/finae/finae/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 1498, in __call__
+  File "/data/finae/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 1498, in __call__
     return self.wsgi_app(environ, start_response)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/data/finae/finae/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 1476, in wsgi_app
+  File "/data/finae/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 1476, in wsgi_app
     response = self.handle_exception(e)
                ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/data/finae/finae/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask_cors/extension.py", line 178, in wrapped_function
+  File "/data/finae/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask_cors/extension.py", line 178, in wrapped_function
     return cors_after_request(app.make_response(f(*args, **kwargs)))
                                                 ^^^^^^^^^^^^^^^^^^^^
-  File "/data/finae/finae/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 1473, in wsgi_app
+  File "/data/finae/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 1473, in wsgi_app
     response = self.full_dispatch_request()
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/data/finae/finae/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 882, in full_dispatch_request
+  File "/data/finae/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 882, in full_dispatch_request
     rv = self.handle_user_exception(e)
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/data/finae/finae/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask_cors/extension.py", line 178, in wrapped_function
+  File "/data/finae/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask_cors/extension.py", line 178, in wrapped_function
     return cors_after_request(app.make_response(f(*args, **kwargs)))
                                                 ^^^^^^^^^^^^^^^^^^^^
-  File "/data/finae/finae/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 880, in full_dispatch_request
+  File "/data/finae/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 880, in full_dispatch_request
     rv = self.dispatch_request()
          ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/data/finae/finae/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 865, in dispatch_request
+  File "/data/finae/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 865, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/data/finae/finae/demo/retool/account_manager_1/server.py", line 79, in add_transaction
+  File "/data/finae/engy/demo/retool/account_manager_1/server.py", line 79, in add_transaction
     return transaction_schema.jsonify(new_transaction), 201
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 AttributeError: 'TransactionSchema' object has no attribute 'jsonify'

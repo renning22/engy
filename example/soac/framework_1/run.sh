@@ -16,7 +16,7 @@ source venv/bin/activate
 
 # Install required packages
 echo "Installing required packages..."
-pip install Flask flask-cors /data/finae/finae
+pip install Flask flask-cors /data/finae/engy
 
 # Start the server
 echo "Starting the server..."

@@ -23,9 +23,9 @@ echo "Installing required libraries..."
 pip install flask flask_sqlalchemy flask_cors
 
 # Install local library if it exists
-if [ -d "/data/finae/finae" ]; then
+if [ -d "/data/finae/engy" ]; then
     echo "Installing local finae library..."
-    pip install /data/finae/finae
+    pip install /data/finae/engy
 else
     echo "Local finae library not found, skipping..."
 fi

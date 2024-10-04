@@ -13,8 +13,8 @@ pip install --upgrade pip
 # Install required libraries
 pip install Flask Flask-CORS
 
-# Install local library (assuming it's in /data/finae/finae)
-pip install /data/finae/finae
+# Install local library (assuming it's in /data/finae/engy)
+pip install /data/finae/engy
 
 # Start the server
 python server.py

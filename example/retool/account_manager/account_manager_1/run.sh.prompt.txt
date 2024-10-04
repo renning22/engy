@@ -5,7 +5,7 @@ You are experts in python 3.11, and familier with popular libraries, and also go
 
 You are currently on a task to write "run.sh" that:
 1. create a temp venv
-2. use pip to install all the required libaries (plus local library /data/finae/finae)
+2. use pip to install all the required libaries (plus local library /data/finae/engy)
 3. use python to start the webserver. ("python server.py")
 
 (Assume anaconda and pip are installed.)
@@ -20,7 +20,7 @@ E.g.
 python3 -m venv venv
 source venv/bin/activate
 
-pip install Flask websocket /data/finae/finae
+pip install Flask websocket /data/finae/engy
 
 python server.py
 </RUN_BASH_CODE>
@@ -1334,10 +1334,10 @@ pip install --upgrade pip
 echo "Installing required packages..."
 pip install Flask Flask-SQLAlchemy Flask-CORS marshmallow
 
-# Check if /data/finae/finae exists and install it if it does
-if [ -d "/data/finae/finae" ]; then
+# Check if /data/finae/engy exists and install it if it does
+if [ -d "/data/finae/engy" ]; then
     echo "Installing local finae package..."
-    pip install /data/finae/finae
+    pip install /data/finae/engy
 fi
 
 # Run the server
@@ -1351,7 +1351,7 @@ This script does the following:
 2. Activates the virtual environment.
 3. Upgrades pip to the latest version.
 4. Installs the required packages: Flask, Flask-SQLAlchemy, Flask-CORS, and marshmallow.
-5. Checks if the local package `/data/finae/finae` exists and installs it if it does.
+5. Checks if the local package `/data/finae/engy` exists and installs it if it does.
 6. Starts the server by running `python server.py`.
 
 To use this script:
