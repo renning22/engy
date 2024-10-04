@@ -137,11 +137,11 @@ test = ["coverage"]
 # maintainers, and where to support the project financially. The key is
 # what's used to render the link text on PyPI.
 [project.urls]  # Optional
-"Homepage" = "https://github.com/finae/finae"
-"Bug Reports" = "https://github.com/finae/finae/issues"
-"Funding" = "https://github.com/finae/finae"
-"Say Thanks!" = "https://github.com/finae/finae"
-"Source" = "https://github.com/finae/finae"
+"Homepage" = "https://github.com/renning22/engy"
+"Bug Reports" = "https://github.com/renning22/engy/issues"
+"Funding" = "https://github.com/renning22/engy"
+"Say Thanks!" = "https://github.com/renning22/engy"
+"Source" = "https://github.com/renning22/engy"
 
 # The following would provide a command line executable called `sample`
 # which executes the function `main` from this package when invoked.
