@@ -1,0 +1,86 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software architecture.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend).
+You only write the design doc with high-level structure and psudocode, no need to write actual code.  
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+# The problem to solve:
+<PROBLEM>
+create a calculator.
+</PROBLEM>
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's a high-level design for a calculator app with a Python backend and HTML/JavaScript frontend:
+
+<BACKEND_DESIGN>
+Python Flask server:
+
+1. Set up Flask app
+2. Define route for calculator operations:
+   @app.route('/calculate', methods=['POST'])
+   def calculate():
+       # Get operation and numbers from request
+       # Perform calculation based on operation
+       # Return result as JSON
+
+3. Implement calculation functions:
+   - add(a, b)
+   - subtract(a, b)
+   - multiply(a, b)
+   - divide(a, b)
+
+4. Error handling:
+   - Check for invalid operations
+   - Handle division by zero
+
+5. Run Flask app
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+Single HTML page with embedded JavaScript:
+
+1. HTML structure:
+   - Calculator display
+   - Number buttons (0-9)
+   - Operation buttons (+, -, *, /)
+   - Equals button (=)
+   - Clear button (C)
+
+2. CSS styling:
+   - Grid layout for calculator buttons
+   - Responsive design for different screen sizes
+
+3. JavaScript functions:
+   - updateDisplay(): Update calculator display
+   - appendNumber(number): Add number to current input
+   - setOperation(op): Set current operation
+   - clearCalculator(): Reset calculator state
+   - calculateResult(): Send calculation request to backend
+
+4. AJAX request to backend:
+   - Use fetch() to send POST request to /calculate endpoint
+   - Send operation and numbers as JSON
+   - Update display with result from backend
+
+5. Event listeners:
+   - Add click events for all buttons
+   - Add keyboard support for numbers and operations
+
+6. Error handling:
+   - Display error messages from backend
+   - Handle network errors
+</FRONTEND_DESIGN>

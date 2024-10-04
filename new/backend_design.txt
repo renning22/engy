@@ -1,0 +1,22 @@
+
+Python Flask server:
+
+1. Set up Flask app
+2. Define route for calculator operations:
+   @app.route('/calculate', methods=['POST'])
+   def calculate():
+       # Get operation and numbers from request
+       # Perform calculation based on operation
+       # Return result as JSON
+
+3. Implement calculation functions:
+   - add(a, b)
+   - subtract(a, b)
+   - multiply(a, b)
+   - divide(a, b)
+
+4. Error handling:
+   - Check for invalid operations
+   - Handle division by zero
+
+5. Run Flask app

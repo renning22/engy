@@ -1,0 +1,33 @@
+
+Single HTML page with embedded JavaScript:
+
+1. HTML structure:
+   - Calculator display
+   - Number buttons (0-9)
+   - Operation buttons (+, -, *, /)
+   - Equals button (=)
+   - Clear button (C)
+
+2. CSS styling:
+   - Grid layout for calculator buttons
+   - Responsive design for different screen sizes
+
+3. JavaScript functions:
+   - updateDisplay(): Update calculator display
+   - appendNumber(number): Add number to current input
+   - setOperation(op): Set current operation
+   - clearCalculator(): Reset calculator state
+   - calculateResult(): Send calculation request to backend
+
+4. AJAX request to backend:
+   - Use fetch() to send POST request to /calculate endpoint
+   - Send operation and numbers as JSON
+   - Update display with result from backend
+
+5. Event listeners:
+   - Add click events for all buttons
+   - Add keyboard support for numbers and operations
+
+6. Error handling:
+   - Display error messages from backend
+   - Handle network errors
