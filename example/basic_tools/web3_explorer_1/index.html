@@ -1,0 +1,209 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETH Balance Checker</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #f0f0f0;
+            --text-color: #333;
+            --card-bg: #fff;
+            --border-color: #ddd;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        #transactionList {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .transaction {
+            border-bottom: 1px solid var(--border-color);
+            padding: 10px 0;
+            cursor: pointer;
+        }
+        .transaction:last-child {
+            border-bottom: none;
+        }
+        .loading {
+            text-align: center;
+            font-style: italic;
+        }
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.8em;
+        }
+        .dark-mode {
+            --bg-color: #333;
+            --text-color: #f0f0f0;
+            --card-bg: #444;
+            --border-color: #555;
+        }
+        #darkModeToggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ETH Balance Checker</h1>
+            <button id="connectButton">Connect to MetaMask</button>
+            <button id="darkModeToggle">Toggle Dark Mode</button>
+        </header>
+        <main>
+            <div id="balanceCard" class="card">
+                <h2>ETH Balance</h2>
+                <p id="balance">Connect to MetaMask to view balance</p>
+            </div>
+            <div id="transactionsCard" class="card">
+                <h2>Recent Transactions</h2>
+                <div id="transactionList"></div>
+            </div>
+        </main>
+        <footer>
+            <p>&copy; 2023 ETH Balance Checker. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:7112/api';
+        let web3;
+        let currentAccount;
+
+        const connectButton = document.getElementById('connectButton');
+        const balanceElement = document.getElementById('balance');
+        const transactionList = document.getElementById('transactionList');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+
+        async function connectToMetaMask() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    web3 = new Web3(window.ethereum);
+                    const accounts = await web3.eth.getAccounts();
+                    currentAccount = accounts[0];
+                    connectButton.textContent = `Connected: ${currentAccount.slice(0, 6)}...${currentAccount.slice(-4)}`;
+                    fetchBalanceAndTransactions();
+                } catch (error) {
+                    console.error('Failed to connect to MetaMask:', error);
+                }
+            } else {
+                console.error('MetaMask not detected');
+            }
+        }
+
+        async function fetchBalanceAndTransactions() {
+            if (!currentAccount) return;
+
+            // Fetch balance
+            try {
+                const response = await fetch(`${API_BASE_URL}/balance/${currentAccount}`);
+                const data = await response.json();
+                balanceElement.textContent = `${data.balance} ETH`;
+            } catch (error) {
+                console.error('Failed to fetch balance:', error);
+                balanceElement.textContent = 'Failed to fetch balance';
+            }
+
+            // Fetch transactions
+            try {
+                const response = await fetch(`${API_BASE_URL}/transactions/${currentAccount}`);
+                const data = await response.json();
+                displayTransactions(data.transactions);
+            } catch (error) {
+                console.error('Failed to fetch transactions:', error);
+                transactionList.innerHTML = '<p>Failed to fetch transactions</p>';
+            }
+        }
+
+        function displayTransactions(transactions) {
+            transactionList.innerHTML = '';
+            transactions.forEach(tx => {
+                const txElement = document.createElement('div');
+                txElement.className = 'transaction';
+                txElement.innerHTML = `
+                    <p>From: ${tx.from}</p>
+                    <p>To: ${tx.to}</p>
+                    <p>Value: ${tx.value} ETH</p>
+                `;
+                txElement.addEventListener('click', () => {
+                    alert(`Transaction Hash: ${tx.hash}`);
+                });
+                transactionList.appendChild(txElement);
+            });
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        }
+
+        // Event listeners
+        connectButton.addEventListener('click', connectToMetaMask);
+        darkModeToggle.addEventListener('click', toggleDarkMode);
+
+        // Check for saved dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // Check for MetaMask account changes
+        if (typeof window.ethereum !== 'undefined') {
+            window.ethereum.on('accountsChanged', (accounts) => {
+                currentAccount = accounts[0];
+                connectButton.textContent = `Connected: ${currentAccount.slice(0, 6)}...${currentAccount.slice(-4)}`;
+                fetchBalanceAndTransactions();
+            });
+        }
+    </script>
+</body>
+</html>

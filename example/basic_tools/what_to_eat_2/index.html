@@ -1,0 +1,222 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SF Bay Area Chinese Restaurant Picker</title>
+    <style>
+        :root {
+            --primary-color: #c41e3a;
+            --secondary-color: #ffd700;
+            --text-color: #333;
+            --background-color: #f5f5f5;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        h2 {
+            margin: 0.5rem 0 0;
+            font-size: 1rem;
+            font-weight: normal;
+        }
+
+        main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        #pickButton {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        #pickButton:hover {
+            transform: scale(1.05);
+        }
+
+        #pickButton:active {
+            transform: scale(0.95);
+        }
+
+        #restaurantInfo {
+            margin-top: 2rem;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s, transform 0.5s;
+        }
+
+        #restaurantInfo.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #restaurantName {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        #restaurantImage {
+            max-width: 100%;
+            height: auto;
+            margin: 1rem 0;
+            border-radius: 8px;
+        }
+
+        #yelpButton {
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 1rem;
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: auto;
+        }
+
+        #loadingSpinner {
+            display: none;
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--secondary-color);
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #errorMessage {
+            color: var(--primary-color);
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            h2 {
+                font-size: 0.9rem;
+            }
+
+            #pickButton {
+                font-size: 1rem;
+                padding: 0.8rem 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SF Bay Area Chinese Restaurant Picker</h1>
+        <h2>Let us decide where you'll have dinner tonight!</h2>
+    </header>
+
+    <main>
+        <button id="pickButton">Pick a Restaurant</button>
+        <div id="loadingSpinner"></div>
+        <div id="errorMessage"></div>
+        <div id="restaurantInfo">
+            <h3 id="restaurantName"></h3>
+            <p id="restaurantAddress"></p>
+            <p id="restaurantRating"></p>
+            <p id="restaurantPrice"></p>
+            <p id="restaurantPhone"></p>
+            <img id="restaurantImage" src="" alt="Restaurant Image">
+            <a id="yelpButton" href="" target="_blank">View on Yelp</a>
+        </div>
+    </main>
+
+    <footer>
+        <p>Created by [Your Name]</p>
+        <p>Powered by Yelp</p>
+    </footer>
+
+    <script>
+        const pickButton = document.getElementById('pickButton');
+        const restaurantInfo = document.getElementById('restaurantInfo');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const errorMessage = document.getElementById('errorMessage');
+
+        pickButton.addEventListener('click', getRestaurant);
+
+        function getRestaurant() {
+            loadingSpinner.style.display = 'block';
+            restaurantInfo.classList.remove('visible');
+            errorMessage.textContent = '';
+
+            fetch('http://localhost:5816/get_restaurant')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayRestaurantInfo(data);
+                    loadingSpinner.style.display = 'none';
+                    restaurantInfo.classList.add('visible');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loadingSpinner.style.display = 'none';
+                    errorMessage.textContent = 'An error occurred while fetching restaurant data. Please try again.';
+                });
+        }
+
+        function displayRestaurantInfo(restaurant) {
+            document.getElementById('restaurantName').textContent = restaurant.name;
+            document.getElementById('restaurantAddress').textContent = restaurant.address;
+            document.getElementById('restaurantRating').textContent = `Rating: ${restaurant.rating} stars`;
+            document.getElementById('restaurantPrice').textContent = `Price: ${restaurant.price}`;
+            document.getElementById('restaurantPhone').textContent = restaurant.phone;
+            document.getElementById('restaurantImage').src = restaurant.image_url;
+            document.getElementById('restaurantImage').alt = `${restaurant.name} image`;
+            document.getElementById('yelpButton').href = restaurant.yelp_url;
+        }
+    </script>
+</body>
+</html>

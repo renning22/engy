@@ -1,0 +1,31 @@
+
+The frontend will be a single HTML page with embedded JavaScript and CSS. It will have the following components:
+
+1. HTML Structure:
+   - Header with app title
+   - Contacts list section
+   - Email composition section
+   - Status/notification area
+
+2. CSS Styling:
+   - Responsive design for various screen sizes
+   - Modern, clean look with a color scheme
+   - Styled buttons and input fields
+   - Animations for loading and sending actions
+
+3. JavaScript Functionality:
+   - Fetch contacts from the backend on page load
+   - Display contacts in a scrollable list
+   - Click event on contact to populate email recipient
+   - Form for composing email (recipient, subject, body)
+   - Send button to trigger email sending
+   - Display loading spinner while sending
+   - Show success/error messages after sending
+
+4. Features:
+   - Search/filter functionality for contacts
+   - Auto-save draft emails
+   - Email templates for quick sending
+   - Dark/light mode toggle
+
+The frontend will provide an intuitive interface for users to view their contacts and send emails efficiently.

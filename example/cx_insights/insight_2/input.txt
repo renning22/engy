@@ -1,0 +1,4 @@
+The app is great! Now:
+1. Make insighs "Summary" short, like 2-3 words so similar "Summary" can be merged/clustered.
+2. Remove "Generate Insights" button, when generate review, auto trigger analysis and insert to insights database.
+3. Make similar "Summary" merged and clustered into same entry. And add a counter showing how many reviews fall in under this insight.

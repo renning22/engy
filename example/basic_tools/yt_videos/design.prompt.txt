@@ -1,0 +1,113 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+create video album that I can add and collect my favorate youtube videos. Better to have way to play in place and overview the content, or some tags. 
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's a design for the video album app based on your description:
+
+<BACKEND_DESIGN>
+Backend Design (Python Flask server):
+
+1. Database:
+   - Use SQLite for simplicity
+   - Table: videos
+     - id (primary key)
+     - youtube_id (string)
+     - title (string)
+     - description (text)
+     - tags (string, comma-separated)
+     - added_date (datetime)
+
+2. Routes:
+   - GET /: Serve the main HTML page
+   - GET /videos: Return all videos in JSON format
+   - POST /videos: Add a new video to the collection
+   - DELETE /videos/<id>: Remove a video from the collection
+   - GET /videos/search: Search videos by title or tags
+
+3. Functions:
+   - fetch_video_info(youtube_id): Use YouTube Data API to fetch video title and description
+   - parse_tags(description): Extract potential tags from video description
+
+4. Dependencies:
+   - Flask
+   - SQLite3
+   - requests (for YouTube API calls)
+
+5. Configuration:
+   - YouTube Data API key (for fetching video information)
+
+The server will handle CRUD operations for the video collection, including fetching video information from YouTube and managing tags.
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+Frontend Design (Single HTML page with JavaScript):
+
+1. Layout:
+   - Header with app title "My YouTube Video Album"
+   - Main content area with a grid of video thumbnails
+   - Sidebar for filtering and adding new videos
+
+2. Components:
+   a. Add Video Form:
+      - Input field for YouTube URL
+      - "Add Video" button
+   
+   b. Search and Filter:
+      - Search input for title/tag search
+      - Tag cloud for quick filtering
+   
+   c. Video Grid:
+      - Responsive grid of video thumbnails
+      - Each thumbnail shows:
+        - Video title
+        - Thumbnail image
+        - Tags
+        - Play button overlay
+   
+   d. Video Player Modal:
+      - Embedded YouTube player
+      - Video title and description
+      - Tags (editable)
+      - Close button
+
+3. Functionality (JavaScript):
+   - Fetch and display all videos on page load
+   - Add new videos (send POST request to backend)
+   - Remove videos (send DELETE request to backend)
+   - Search and filter videos
+   - Play videos in-place using YouTube embed API
+   - Edit tags (update in backend)
+
+4. Styling:
+   - Use CSS Grid for responsive layout
+   - Modern, minimalist design with a dark theme
+   - Smooth animations for video hover and modal open/close
+
+5. Libraries/Frameworks:
+   - Vanilla JavaScript (no framework for simplicity)
+   - YouTube Embed API
+   - FontAwesome for icons
+
+This single-page design allows users to easily add, view, and manage their favorite YouTube videos with a sleek, responsive interface.
+</FRONTEND_DESIGN>

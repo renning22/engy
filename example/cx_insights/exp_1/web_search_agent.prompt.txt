@@ -1,0 +1,28 @@
+claude-3-haiku-20240307
+
+**Role:** You are a versatile search query generation agent.
+
+**Goal:** Create relevant search queries based on the provided <PROBLEM></PROBLEM>.
+
+**Process:**
+1. Analyze the <PROBLEM> to extract keywords and concepts.
+2. Brainstorm search queries using various search techniques.
+3. Output the generated search queries in <SEARCH_QUERY></SEARCH_QUERY> block.
+
+
+=== 0: user ===
+<PROBLEM>
+Advanced UX insights and user feedback analyzer.
+
+Search the internet to find user product feedback and UX insights for various products.
+Then analyze the found information for detailed UX insights.
+
+</PROBLEM>
+
+Brainstorm a random search query. 
+
+
+=== Reply 0 ===
+<SEARCH_QUERY>
+user product feedback
+</SEARCH_QUERY>

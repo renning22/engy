@@ -1,0 +1,99 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+create an console that use `kubectl` to list all current k8s nodes and pods.
+Let me have buttons to `ssh`, `kill` or `view detial` to these pods and nodes.
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's my design for the Kubernetes management console app based on your description:
+
+<BACKEND_DESIGN>
+The backend will be a Python Flask server that interfaces with kubectl and provides API endpoints:
+
+1. GET /nodes - List all K8s nodes
+   - Uses subprocess to run "kubectl get nodes"
+   - Returns JSON list of node info
+
+2. GET /pods - List all K8s pods
+   - Uses subprocess to run "kubectl get pods --all-namespaces" 
+   - Returns JSON list of pod info
+
+3. POST /ssh
+   - Accepts node/pod name and command
+   - Uses paramiko library to SSH and execute command
+   - Returns command output
+
+4. POST /kill
+   - Accepts pod name
+   - Uses subprocess to run "kubectl delete pod <name>"
+   - Returns success/failure status
+
+5. GET /details/<resource_type>/<name>
+   - Uses subprocess to run "kubectl describe <resource_type> <name>"
+   - Returns formatted details as text
+
+The server will use error handling and input validation to ensure security. It will require authentication to access the API endpoints.
+
+Key Python libraries:
+- Flask for web server
+- subprocess for running kubectl commands
+- paramiko for SSH functionality
+- json for parsing kubectl output
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+The frontend will be a single HTML page with JavaScript for dynamic updates:
+
+1. Header with title "Kubernetes Management Console"
+
+2. Two main sections: Nodes and Pods
+
+3. Each section has:
+   - A table listing resources (nodes/pods)
+   - Columns: Name, Status, IP, Actions
+   - Action buttons for each row: SSH, Kill, View Details
+
+4. Modal dialogs for:
+   - SSH: Command input and output display
+   - Kill confirmation
+   - Resource details view
+
+5. Refresh button to update node/pod lists
+
+6. Search/filter functionality for both tables
+
+7. Responsive design for mobile/desktop
+
+JavaScript functionality:
+- Fetch data from backend API endpoints
+- Populate and update tables dynamically
+- Handle button clicks and modal interactions
+- Implement search/filter for tables
+
+CSS styling:
+- Clean, modern look with a dark theme
+- Responsive grid layout
+- Styled tables and buttons
+- Smooth transitions for modals
+
+The page will use vanilla JavaScript for simplicity, with the option to later refactor to a framework like Vue.js if needed for scalability.
+</FRONTEND_DESIGN>

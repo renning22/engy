@@ -1,0 +1,27 @@
+
+The backend will be a Python Flask server that interacts with the Docker daemon to retrieve container information and perform actions. Key components:
+
+1. Docker API Integration:
+   - Use the `docker` Python library to interact with Docker
+   - Implement functions to:
+     - List all running containers
+     - Kill a container
+     - Get container details for inspection
+     - Execute commands in a container (for SSH-like functionality)
+
+2. API Endpoints:
+   - GET /containers: Return list of all running containers
+   - POST /container/<container_id>/kill: Kill specified container
+   - GET /container/<container_id>/inspect: Get detailed info about container
+   - POST /container/<container_id>/exec: Execute command in container
+
+3. WebSocket Support:
+   - Implement WebSocket connection to push real-time updates about container status
+
+4. Authentication:
+   - Basic authentication system to ensure only authorized users can access and control containers
+
+5. Logging:
+   - Implement logging for all actions performed on containers
+
+The server will run on port 5000 and serve the single HTML page for the frontend.

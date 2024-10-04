@@ -1,0 +1,88 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+I have a list of contacts in Airtable. I need to pull them out, and have a way to send them email one by one.
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's my design for the app based on your description:
+
+<BACKEND_DESIGN>
+The backend will be a Python Flask server with the following components:
+
+1. Dependencies:
+   - Flask
+   - Airtable-python-wrapper
+   - smtplib (for sending emails)
+
+2. Routes:
+   - GET /contacts: Fetches all contacts from Airtable
+   - POST /send-email: Sends an email to a specific contact
+
+3. Functions:
+   - get_contacts(): Connects to Airtable API and retrieves all contacts
+   - send_email(recipient, subject, body): Sends an email using SMTP
+
+4. Configuration:
+   - Airtable API key and base ID
+   - SMTP server settings for sending emails
+
+5. Main app structure:
+   - Initialize Flask app
+   - Set up Airtable client
+   - Define routes and their corresponding functions
+   - Run the app
+
+The server will handle requests from the frontend, fetch data from Airtable, and send emails as requested.
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+The frontend will be a single HTML page with embedded JavaScript and CSS. It will have the following components:
+
+1. HTML Structure:
+   - Header with app title
+   - Contacts list section
+   - Email composition section
+   - Status/notification area
+
+2. CSS Styling:
+   - Responsive design for various screen sizes
+   - Modern, clean look with a color scheme
+   - Styled buttons and input fields
+   - Animations for loading and sending actions
+
+3. JavaScript Functionality:
+   - Fetch contacts from the backend on page load
+   - Display contacts in a scrollable list
+   - Click event on contact to populate email recipient
+   - Form for composing email (recipient, subject, body)
+   - Send button to trigger email sending
+   - Display loading spinner while sending
+   - Show success/error messages after sending
+
+4. Features:
+   - Search/filter functionality for contacts
+   - Auto-save draft emails
+   - Email templates for quick sending
+   - Dark/light mode toggle
+
+The frontend will provide an intuitive interface for users to view their contacts and send emails efficiently.
+</FRONTEND_DESIGN>

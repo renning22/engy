@@ -1,0 +1,206 @@
+ that connects to the server we've implemented. This HTML file will include the necessary JavaScript to interact with the server's API and WebSocket connections. We'll use Vue.js for reactivity and Axios for API calls to keep the implementation simple and self-contained.
+
+Here's the "index.html" file:
+
+<INDEX_HTML_CODE>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent Research System</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.5.0/dist/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background: #f4f4f4;
+            margin-bottom: 5px;
+            padding: 10px;
+            border-radius: 3px;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #e0e0e0;
+            padding: 3px;
+            border-radius: 3px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, .2);
+        }
+        .progress-bar-fill {
+            display: block;
+            height: 22px;
+            background-color: #659cef;
+            border-radius: 3px;
+            transition: width 500ms ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container">
+        <h1>Multi-Agent Research System</h1>
+        
+        <div v-if="!currentJobId">
+            <h2>Start New Research</h2>
+            <input v-model="researchTopic" type="text" placeholder="Enter research topic">
+            <button @click="startResearch">Start Research</button>
+        </div>
+
+        <div v-if="currentJobId">
+            <h2>Research Status</h2>
+            <p>Job ID: {{ currentJobId }}</p>
+            <p>Status: {{ researchStatus }}</p>
+            <p>Current Step: {{ currentStep }} / {{ totalSteps }}</p>
+            <div class="progress-bar">
+                <span class="progress-bar-fill" :style="{ width: progressPercentage + '%' }"></span>
+            </div>
+            <p>Step Description: {{ stepDescription }}</p>
+            <h3>Latest Update:</h3>
+            <pre>{{ latestUpdate }}</pre>
+        </div>
+
+        <h2>Agents</h2>
+        <ul>
+            <li v-for="agent in agents" :key="agent.name">
+                <strong>{{ agent.name }}</strong>: {{ agent.role }}
+            </li>
+        </ul>
+
+        <h2>Workflow</h2>
+        <ol>
+            <li v-for="step in workflow" :key="step">{{ step }}</li>
+        </ol>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                researchTopic: '',
+                currentJobId: null,
+                researchStatus: '',
+                currentStep: 0,
+                totalSteps: 0,
+                stepDescription: '',
+                latestUpdate: '',
+                agents: [],
+                workflow: [],
+                socket: null
+            },
+            computed: {
+                progressPercentage() {
+                    return (this.currentStep / this.totalSteps) * 100;
+                }
+            },
+            methods: {
+                startResearch() {
+                    axios.post('http://localhost:5901/api/research', { topic: this.researchTopic })
+                        .then(response => {
+                            this.currentJobId = response.data.job_id;
+                            this.connectWebSocket();
+                        })
+                        .catch(error => console.error('Error starting research:', error));
+                },
+                connectWebSocket() {
+                    this.socket = io('http://localhost:5901');
+                    this.socket.on('research_update', (data) => {
+                        if (data.job_id === this.currentJobId) {
+                            this.researchStatus = data.status;
+                            this.currentStep = data.current_step;
+                            this.totalSteps = data.total_steps;
+                            this.stepDescription = data.step_description;
+                            this.latestUpdate = JSON.stringify(data.result, null, 2);
+                        }
+                    });
+                },
+                fetchAgents() {
+                    axios.get('http://localhost:5901/api/agents')
+                        .then(response => this.agents = response.data)
+                        .catch(error => console.error('Error fetching agents:', error));
+                },
+                fetchWorkflow() {
+                    axios.get('http://localhost:5901/api/workflow')
+                        .then(response => this.workflow = response.data)
+                        .catch(error => console.error('Error fetching workflow:', error));
+                }
+            },
+            mounted() {
+                this.fetchAgents();
+                this.fetchWorkflow();
+            }
+        });
+    </script>
+</body>
+</html>
+</INDEX_HTML_CODE>
+
+This "index.html" file implements the frontend design we discussed earlier. Here are the key features:
+
+1. It uses Vue.js for reactivity, Axios for API calls, and Socket.IO for real-time updates.
+
+2. The page is divided into sections:
+   - Research input form (when no job is running)
+   - Research status display (when a job is running)
+   - List of agents
+   - Workflow steps
+
+3. When a user starts a new research job:
+   - The topic is sent to the server via a POST request.
+   - A WebSocket connection is established to receive real-time updates.
+
+4. The research status section displays:
+   - Current job ID
+   - Research status
+   - Current step and total steps
+   - A progress bar
+   - The current step description
+   - The latest update received from the server
+
+5. The agents and workflow are fetched from the server when the page loads.
+
+6. The design is responsive and user-friendly, with a clean and simple layout.
+
+To use this frontend:
+
+1. Save this HTML file in the same directory as your "server.py" file.
+2. Make sure your server is running on `localhost:5901`.
+3. Open this HTML file in a web browser.
+
+The page will connect to your server, allowing users to start research jobs, view real-time progress updates, and see information about the agents and workflow involved in the research process.

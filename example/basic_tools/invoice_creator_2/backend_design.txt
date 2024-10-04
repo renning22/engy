@@ -1,0 +1,29 @@
+
+The backend will be a Python Flask server with the following key components:
+
+1. Routes:
+   - POST /upload_image: Handle image upload
+   - POST /generate_invoice: Generate invoice based on user input
+   - GET /invoices: Retrieve list of generated invoices
+   - GET /invoice/<id>: Retrieve a specific invoice
+   - GET /download/<id>: Download invoice as PDF or PNG
+
+2. Database:
+   - Use SQLite to store invoice data and metadata
+
+3. Libraries:
+   - Pillow: For image processing
+   - ReportLab: For PDF generation
+   - Flask-SQLAlchemy: For database operations
+
+4. Key functions:
+   - process_image(): Resize and optimize uploaded image
+   - generate_invoice(): Create invoice based on user input
+   - create_pdf(): Generate PDF version of invoice
+   - create_png(): Generate PNG version of invoice
+   - save_invoice(): Save invoice data to database
+
+5. Data models:
+   - Invoice: Store invoice details (items, prices, company info, image path)
+
+The server will handle image uploads, invoice generation, and storage. It will provide APIs for the frontend to interact with, including invoice creation, retrieval, and download functionality.

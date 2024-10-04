@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Search LLM Agent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="h-full bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-2 text-indigo-600 dark:text-indigo-400">Personal Search LLM Agent</h1>
+            <p class="text-xl text-gray-600 dark:text-gray-400">Powered by LiteLLM and Claude 3.5 Haiku</p>
+        </header>
+
+        <button id="mode-toggle" class="fixed top-4 right-4 p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors duration-300" aria-label="Toggle dark mode">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+        </button>
+
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row gap-4">
+                <input type="text" id="search-input" placeholder="Enter your search query" aria-label="Search query" class="flex-grow p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-colors duration-300">
+                <button id="search-button" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-colors duration-300 flex items-center justify-center">
+                    <span>Search</span>
+                    <svg class="animate-spin ml-2 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="error-message" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-8" role="alert"></div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8 transition-colors duration-300">
+            <h2 class="text-2xl font-semibold mb-4">Results</h2>
+            <div id="results" class="prose dark:prose-invert max-w-none"></div>
+            <div id="token-info" class="mt-4 text-sm text-gray-600 dark:text-gray-400"></div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8 transition-colors duration-300">
+            <h2 class="text-2xl font-semibold mb-4">Total Cost</h2>
+            <p id="total-cost" class="text-lg font-semibold text-indigo-600 dark:text-indigo-400"></p>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors duration-300">
+            <h2 class="text-2xl font-semibold mb-4">Search History</h2>
+            <div class="overflow-x-auto">
+                <table id="history-table" class="w-full">
+                    <thead>
+                        <tr class="bg-gray-100 dark:bg-gray-700">
+                            <th class="p-3 text-left">Timestamp</th>
+                            <th class="p-3 text-left">Query</th>
+                            <th class="p-3 text-left">Tokens (In/Out)</th>
+                            <th class="p-3 text-left">Cost</th>
+                            <th class="p-3 text-left">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+        const resultsDiv = document.getElementById('results');
+        const tokenInfo = document.getElementById('token-info');
+        const totalCostDiv = document.getElementById('total-cost');
+        const historyTable = document.getElementById('history-table').getElementsByTagName('tbody')[0];
+        const spinner = searchButton.querySelector('svg');
+        const modeToggle = document.getElementById('mode-toggle');
+        const errorMessage = document.getElementById('error-message');
+
+        searchButton.addEventListener('click', performSearch);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performSearch();
+        });
+
+        modeToggle.addEventListener('click', toggleDarkMode);
+
+        async function performSearch() {
+            const query = searchInput.value.trim();
+            if (!query) return;
+
+            showSpinner();
+            hideError();
+            try {
+                const response = await fetch('/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Search request failed');
+                }
+
+                const data = await response.json();
+                displayResults(data);
+                await fetchHistory();
+                await updateTotalCost();
+            } catch (error) {
+                displayError('An error occurred while searching. Please try again.');
+            } finally {
+                hideSpinner();
+            }
+        }
+
+        function displayResults(data) {
+            resultsDiv.innerHTML = `<p>${data.response}</p>`;
+            tokenInfo.innerHTML = `Input tokens: ${data.input_tokens} | Output tokens: ${data.output_tokens} | Cost: $${data.cost.toFixed(6)}`;
+            if (resultsDiv.scrollHeight > 300) {
+                resultsDiv.classList.add('max-h-72', 'overflow-y-auto');
+                const expandButton = document.createElement('button');
+                expandButton.className = 'mt-4 text-indigo-600 dark:text-indigo-400 hover:underline focus:outline-none';
+                expandButton.textContent = 'Show more';
+                expandButton.addEventListener('click', () => {
+                    resultsDiv.classList.toggle('max-h-72');
+                    expandButton.textContent = resultsDiv.classList.contains('max-h-72') ? 'Show more' : 'Show less';
+                });
+                resultsDiv.appendChild(expandButton);
+            }
+        }
+
+        async function fetchHistory() {
+            try {
+                const response = await fetch('/history');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch history');
+                }
+                const history = await response.json();
+                displayHistory(history);
+            } catch (error) {
+                displayError('Failed to load search history.');
+            }
+        }
+
+        function displayHistory(history) {
+            historyTable.innerHTML = '';
+            history.forEach(item => {
+                const row = historyTable.insertRow();
+                row.className = 'border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-200';
+                row.insertCell(0).textContent = new Date(item.timestamp).toLocaleString();
+                row.insertCell(1).textContent = item.query;
+                row.insertCell(2).textContent = `${item.input_tokens} / ${item.output_tokens}`;
+                row.insertCell(3).textContent = `$${item.cost.toFixed(6)}`;
+                const actionCell = row.insertCell(4);
+                const rerunButton = document.createElement('button');
+                rerunButton.textContent = 'Re-run';
+                rerunButton.className = 'px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded transition-colors duration-300';
+                rerunButton.addEventListener('click', () => {
+                    searchInput.value = item.query;
+                    performSearch();
+                });
+                actionCell.appendChild(rerunButton);
+            });
+        }
+
+        async function updateTotalCost() {
+            try {
+                const response = await fetch('/total_cost');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch total cost');
+                }
+                const data = await response.json();
+                totalCostDiv.textContent = `$${data.total_cost.toFixed(6)}`;
+            } catch (error) {
+                console.error('Error fetching total cost:', error);
+            }
+        }
+
+        function showSpinner() {
+            spinner.classList.remove('hidden');
+            searchButton.disabled = true;
+        }
+
+        function hideSpinner() {
+            spinner.classList.add('hidden');
+            searchButton.disabled = false;
+        }
+
+        function displayError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+        }
+
+        function hideError() {
+            errorMessage.classList.add('hidden');
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            updateModeToggleIcon();
+        }
+
+        function updateModeToggleIcon() {
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            modeToggle.innerHTML = isDarkMode
+                ? '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>'
+                : '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>';
+        }
+
+        // Initial history fetch, total cost update, and mode toggle icon update
+        fetchHistory();
+        updateTotalCost();
+        updateModeToggleIcon();
+    </script>
+</body>
+</html>

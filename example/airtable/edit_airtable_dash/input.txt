@@ -1,0 +1,5 @@
+Using Airtable API, and create a table dashboard where I can edit data a data source and sync up. 
+Give me input to the datasource name, and my personal token, and BaseID.
+Use plot dash libary to view and edit the data.
+Give me button that I can dump the table to CSV
+Give me button that I can refresh the table from datasource.

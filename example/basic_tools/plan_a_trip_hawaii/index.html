@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hawaii Trip Planner</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pikaday/css/pikaday.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #e6f3ff;
+            background-image: url('https://example.com/hawaii-background.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+        }
+        h1 {
+            color: #0066cc;
+            text-align: center;
+        }
+        form {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #0066cc;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0052a3;
+        }
+        #results {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .hidden {
+            display: none;
+        }
+        #error-message {
+            color: red;
+            margin-bottom: 10px;
+        }
+        .loading {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .day-plan {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 5px;
+        }
+        .day-plan h3 {
+            margin-top: 0;
+            color: #0066cc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hawaii Trip Planner</h1>
+    
+    <form id="trip-form">
+        <label for="start-date">Start Date:</label>
+        <input type="text" id="start-date" required>
+        
+        <label for="duration">Duration (days):</label>
+        <input type="number" id="duration" min="1" max="30" value="7" required>
+        
+        <label>Interests:</label>
+        <div>
+            <input type="checkbox" id="beaches" name="interests" value="beaches">
+            <label for="beaches">Beaches</label>
+        </div>
+        <div>
+            <input type="checkbox" id="hiking" name="interests" value="hiking">
+            <label for="hiking">Hiking</label>
+        </div>
+        <div>
+            <input type="checkbox" id="cultural" name="interests" value="cultural">
+            <label for="cultural">Cultural Activities</label>
+        </div>
+        
+        <label for="budget">Budget ($):</label>
+        <input type="number" id="budget" min="0" step="100" value="1000">
+        
+        <button type="submit">Plan My Trip</button>
+    </form>
+    
+    <div id="error-message" class="hidden"></div>
+    
+    <div id="loading" class="loading hidden">
+        <p>Planning your dream Hawaii trip...</p>
+    </div>
+    
+    <div id="results" class="hidden"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pikaday/pikaday.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Initialize Pikaday date picker
+            new Pikaday({
+                field: document.getElementById('start-date'),
+                minDate: new Date(),
+                format: 'YYYY-MM-DD'
+            });
+
+            // Form submission
+            $('#trip-form').on('submit', function(e) {
+                e.preventDefault();
+                
+                // Clear previous results and errors
+                $('#results').empty().addClass('hidden');
+                $('#error-message').empty().addClass('hidden');
+                
+                // Show loading indicator
+                $('#loading').removeClass('hidden');
+                
+                // Get form data
+                var startDate = $('#start-date').val();
+                var duration = $('#duration').val();
+                var interests = $('input[name="interests"]:checked').map(function() {
+                    return this.value;
+                }).get();
+                var budget = $('#budget').val();
+                
+                // Validate form data
+                if (!startDate) {
+                    showError('Please select a start date.');
+                    return;
+                }
+                
+                // Prepare data for API request
+                var requestData = {
+                    start_date: startDate,
+                    duration: parseInt(duration),
+                    preferences: interests,
+                    budget: parseInt(budget)
+                };
+                
+                // Send AJAX request to server
+                $.ajax({
+                    url: 'http://localhost:7399/plan',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(requestData),
+                    success: function(response) {
+                        displayResults(response.trip_plan);
+                    },
+                    error: function(xhr, status, error) {
+                        showError('An error occurred while planning your trip. Please try again.');
+                        console.error('Error:', error);
+                    },
+                    complete: function() {
+                        $('#loading').addClass('hidden');
+                    }
+                });
+            });
+
+            function displayResults(tripPlan) {
+                var resultsHtml = '<h2>Your Hawaii Trip Plan</h2>';
+                
+                tripPlan.forEach(function(day) {
+                    resultsHtml += '<div class="day-plan">';
+                    resultsHtml += '<h3>' + day.date + '</h3>';
+                    resultsHtml += '<ul>';
+                    day.activities.forEach(function(activity) {
+                        resultsHtml += '<li>' + activity.name + ' (' + activity.location + ')</li>';
+                    });
+                    resultsHtml += '</ul>';
+                    resultsHtml += '</div>';
+                });
+                
+                $('#results').html(resultsHtml).removeClass('hidden');
+            }
+
+            function showError(message) {
+                $('#error-message').text(message).removeClass('hidden');
+                $('#loading').addClass('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

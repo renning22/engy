@@ -1,0 +1,502 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dota 2 Hero Analyzer and Picker</title>
+    <style>
+        :root {
+            --primary-color: #1a1a1a;
+            --secondary-color: #2c2c2c;
+            --accent-color: #c23c2a;
+            --text-color: #ffffff;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: normal;
+            margin-bottom: 20px;
+        }
+
+        .filters {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        #search-bar {
+            flex-grow: 1;
+            margin-right: 10px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        select, button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        button {
+            background-color: var(--accent-color);
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .hero-card {
+            background-color: var(--secondary-color);
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .hero-card:hover {
+            transform: scale(1.05);
+        }
+
+        .hero-card img {
+            width: 100%;
+            height: auto;
+        }
+
+        .hero-card-info {
+            padding: 10px;
+        }
+
+        .hero-card-info h3 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+        }
+
+        .hero-card-info p {
+            margin: 0;
+            font-size: 0.8rem;
+        }
+
+        .hero-details {
+            display: none;
+            background-color: var(--secondary-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .hero-details.active {
+            display: block;
+        }
+
+        .hero-details-content {
+            display: flex;
+            gap: 20px;
+        }
+
+        .hero-details-image {
+            flex: 0 0 200px;
+        }
+
+        .hero-details-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .hero-details-info {
+            flex: 1;
+        }
+
+        .hero-abilities {
+            margin-top: 20px;
+        }
+
+        .ability {
+            background-color: var(--primary-color);
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .ai-section {
+            margin-top: 30px;
+        }
+
+        #question-input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        #ask-button {
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        #ai-response {
+            background-color: var(--secondary-color);
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 100px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loading::after {
+            content: "Loading...";
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% {
+                content: "Loading";
+            }
+            40% {
+                content: "Loading.";
+            }
+            60% {
+                content: "Loading..";
+            }
+            80%, 100% {
+                content: "Loading...";
+            }
+        }
+
+        #update-status {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .hero-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+
+            .hero-details-content {
+                flex-direction: column;
+            }
+
+            .hero-details-image {
+                flex: 0 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dota 2 Hero Analyzer and Picker</h1>
+            <h2>Explore heroes and get AI-powered insights</h2>
+            <button id="update-heroes-button">Update Heroes</button>
+            <div id="update-status"></div>
+        </header>
+
+        <div class="filters">
+            <input type="text" id="search-bar" placeholder="Search heroes...">
+            <select id="attribute-filter">
+                <option value="">All Attributes</option>
+                <option value="strength">Strength</option>
+                <option value="agility">Agility</option>
+                <option value="intelligence">Intelligence</option>
+            </select>
+            <select id="role-filter">
+                <option value="">All Roles</option>
+                <!-- Roles will be populated dynamically -->
+            </select>
+        </div>
+
+        <div class="hero-grid" id="hero-grid">
+            <!-- Hero cards will be populated dynamically -->
+        </div>
+
+        <div class="hero-details" id="hero-details">
+            <div class="hero-details-content">
+                <div class="hero-details-image">
+                    <img id="hero-portrait" src="" alt="Hero Portrait">
+                </div>
+                <div class="hero-details-info">
+                    <h2 id="hero-name"></h2>
+                    <p id="hero-title"></p>
+                    <p id="hero-attributes"></p>
+                    <p id="hero-roles"></p>
+                    <div class="hero-abilities" id="hero-abilities">
+                        <!-- Abilities will be populated dynamically -->
+                    </div>
+                    <p id="hero-lore"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="ai-section">
+            <h3>Ask AI about the selected hero</h3>
+            <input type="text" id="question-input" placeholder="Enter your question...">
+            <button id="ask-button">Ask</button>
+            <div id="ai-response"></div>
+            <div class="loading" id="loading"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5557';
+        let heroes = [];
+        let selectedHero = null;
+
+        // Fetch heroes from the server
+        async function fetchHeroes() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/heroes`);
+                heroes = await response.json();
+                renderHeroGrid();
+                populateRoleFilter();
+            } catch (error) {
+                console.error('Error fetching heroes:', error);
+            }
+        }
+
+        // Render hero grid
+        function renderHeroGrid() {
+            const heroGrid = document.getElementById('hero-grid');
+            heroGrid.innerHTML = '';
+
+            heroes.forEach(hero => {
+                const heroCard = document.createElement('div');
+                heroCard.className = 'hero-card';
+                heroCard.innerHTML = `
+                    <img src="https://api.opendota.com/apps/dota2/images/heroes/${hero.name.toLowerCase().replace(' ', '_')}_full.png" alt="${hero.name}">
+                    <div class="hero-card-info">
+                        <h3>${hero.name}</h3>
+                        <p>${hero.primary_attribute}</p>
+                    </div>
+                `;
+                heroCard.addEventListener('click', () => selectHero(hero.id));
+                heroGrid.appendChild(heroCard);
+            });
+        }
+
+        // Populate role filter
+        function populateRoleFilter() {
+            const roleFilter = document.getElementById('role-filter');
+            const roles = new Set();
+
+            heroes.forEach(hero => {
+                if (hero.roles) {
+                    hero.roles.split(',').forEach(role => roles.add(role.trim()));
+                }
+            });
+
+            roles.forEach(role => {
+                const option = document.createElement('option');
+                option.value = role.toLowerCase();
+                option.textContent = role;
+                roleFilter.appendChild(option);
+            });
+        }
+
+        // Select hero and show details
+        async function selectHero(heroId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/hero/${heroId}`);
+                selectedHero = await response.json();
+                renderHeroDetails();
+            } catch (error) {
+                console.error('Error fetching hero details:', error);
+            }
+        }
+
+        // Render hero details
+        function renderHeroDetails() {
+            const heroDetails = document.getElementById('hero-details');
+            const heroPortrait = document.getElementById('hero-portrait');
+            const heroName = document.getElementById('hero-name');
+            const heroTitle = document.getElementById('hero-title');
+            const heroAttributes = document.getElementById('hero-attributes');
+            const heroRoles = document.getElementById('hero-roles');
+            const heroAbilities = document.getElementById('hero-abilities');
+            const heroLore = document.getElementById('hero-lore');
+
+            heroPortrait.src = `https://api.opendota.com/apps/dota2/images/heroes/${selectedHero.name.toLowerCase().replace(' ', '_')}_full.png`;
+            heroName.textContent = selectedHero.name;
+            heroTitle.textContent = selectedHero.title || '';
+            heroAttributes.textContent = `${selectedHero.primary_attribute} | Attack: ${selectedHero.attack_type}`;
+            heroRoles.textContent = `Roles: ${selectedHero.roles}`;
+
+            heroAbilities.innerHTML = '';
+            selectedHero.abilities.forEach(ability => {
+                const abilityElement = document.createElement('div');
+                abilityElement.className = 'ability';
+                abilityElement.innerHTML = `
+                    <h4>${ability.name}</h4>
+                    <p>${ability.description}</p>
+                `;
+                heroAbilities.appendChild(abilityElement);
+            });
+
+            heroLore.textContent = selectedHero.lore || 'No lore available.';
+
+            heroDetails.classList.add('active');
+        }
+
+        // Filter heroes
+        function filterHeroes() {
+            const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+            const attributeFilter = document.getElementById('attribute-filter').value;
+            const roleFilter = document.getElementById('role-filter').value;
+
+            const filteredHeroes = heroes.filter(hero => {
+                const nameMatch = hero.name.toLowerCase().includes(searchTerm);
+                const attributeMatch = !attributeFilter || hero.primary_attribute.toLowerCase() === attributeFilter;
+                const roleMatch = !roleFilter || (hero.roles && hero.roles.toLowerCase().includes(roleFilter));
+                return nameMatch && attributeMatch && roleMatch;
+            });
+
+            renderFilteredHeroes(filteredHeroes);
+        }
+
+        // Render filtered heroes
+        function renderFilteredHeroes(filteredHeroes) {
+            const heroGrid = document.getElementById('hero-grid');
+            heroGrid.innerHTML = '';
+
+            filteredHeroes.forEach(hero => {
+                const heroCard = document.createElement('div');
+                heroCard.className = 'hero-card';
+                heroCard.innerHTML = `
+                    <img src="https://api.opendota.com/apps/dota2/images/heroes/${hero.name.toLowerCase().replace(' ', '_')}_full.png" alt="${hero.name}">
+                    <div class="hero-card-info">
+                        <h3>${hero.name}</h3>
+                        <p>${hero.primary_attribute}</p>
+                    </div>
+                `;
+                heroCard.addEventListener('click', () => selectHero(hero.id));
+                heroGrid.appendChild(heroCard);
+            });
+        }
+
+        // Ask AI about the selected hero
+        async function askAI() {
+            if (!selectedHero) {
+                alert('Please select a hero first.');
+                return;
+            }
+
+            const question = document.getElementById('question-input').value;
+            if (!question) {
+                alert('Please enter a question.');
+                return;
+            }
+
+            const loading = document.getElementById('loading');
+            const aiResponse = document.getElementById('ai-response');
+
+            loading.style.display = 'block';
+            aiResponse.textContent = '';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/ask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        hero_id: selectedHero.id,
+                        question: question,
+                    }),
+                });
+
+                const result = await response.json();
+                aiResponse.textContent = result.answer;
+            } catch (error) {
+                console.error('Error asking AI:', error);
+                aiResponse.textContent = 'An error occurred while processing your question. Please try again.';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // Update heroes
+        async function updateHeroes() {
+            const updateStatus = document.getElementById('update-status');
+            const updateButton = document.getElementById('update-heroes-button');
+
+            updateButton.disabled = true;
+            updateStatus.textContent = 'Updating heroes...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/update_heroes`, {
+                    method: 'POST',
+                });
+
+                const result = await response.json();
+                updateStatus.textContent = result.message;
+
+                // Refresh the hero list
+                await fetchHeroes();
+            } catch (error) {
+                console.error('Error updating heroes:', error);
+                updateStatus.textContent = 'An error occurred while updating heroes. Please try again.';
+            } finally {
+                updateButton.disabled = false;
+                setTimeout(() => {
+                    updateStatus.textContent = '';
+                }, 5000);
+            }
+        }
+
+        // Event listeners
+        document.getElementById('search-bar').addEventListener('input', filterHeroes);
+        document.getElementById('attribute-filter').addEventListener('change', filterHeroes);
+        document.getElementById('role-filter').addEventListener('change', filterHeroes);
+        document.getElementById('ask-button').addEventListener('click', askAI);
+        document.getElementById('update-heroes-button').addEventListener('click', updateHeroes);
+
+        // Initialize
+        fetchHeroes();
+    </script>
+</body>
+</html>

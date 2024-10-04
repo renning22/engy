@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Finae AI</title>
+    <meta name="description" content="Generate fully working AI tools in seconds"/>
+    <link rel="icon" href="/favicon.ico"/>
+    <meta property="og:title" content="Finae AI"/>
+    <meta property="og:description" content="Generate fully working AI tools in seconds"/>
+    <meta property="og:url" content="https://finae.ai/"/>
+    <meta property="og:image" content="https://finae.ai/og-image.png"/>
+    <meta name="twitter:title" content="Finae AI"/>
+    <meta name="twitter:description" content="Generate fully working AI tools in seconds"/>
+    <meta name="twitter:image" content="/og-image.png"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            transition: filter 0.3s ease-in-out;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .nav-buttons a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .nav-buttons a:hover {
+            background-color: #333;
+        }
+        .nav-buttons a.signup {
+            background-color: #4CAF50;
+        }
+        .nav-buttons a.signup:hover {
+            background-color: #45a049;
+        }
+        .hero {
+            text-align: center;
+            padding: 50px 0;
+        }
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .subtitle {
+            font-size: 24px;
+            color: #bbb;
+            margin-bottom: 40px;
+        }
+        .input-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border-radius: 5px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .examples {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 40px;
+        }
+        .example-chip {
+            background-color: #333;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .example-chip:hover {
+            background-color: #444;
+        }
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            color: #bbb;
+        }
+
+        #output-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 20, 40, 0.9);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #output-container.visible {
+            opacity: 1;
+            display: flex;
+        }
+
+        #output-area {
+            width: 80%;
+            height: 80%;
+            max-width: 800px;
+            margin: auto;
+            background-color: rgba(0, 20, 40, 0.9);
+            color: #00ff00;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-y: auto;
+            box-sizing: border-box;
+            border: none;
+            outline: none;
+            border-radius: 10px;
+        }
+
+        #close-output {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: transparent;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">Finae AI</div>
+            <div class="nav-buttons">
+                <a href="/login">Log In</a>
+                <a href="/signup" class="signup">Sign Up</a>
+            </div>
+        </header>
+        <main>
+            <section class="hero">
+                <h1>Finae AI</h1>
+                <p class="subtitle">Tell us about the app you're building.</p>
+                <div class="input-container">
+                    <textarea id="idea-input" rows="4" placeholder="E.g. an app to create customer invoice"></textarea>
+                    <button id="generate-button">Generate</button>
+                </div>
+                <div class="examples">
+                    <div class="example-chip">Merge PDFs</div>
+                    <div class="example-chip">Invoice Creator</div>
+                    <div class="example-chip">Create transcript from video</div>
+                    <div class="example-chip">Visualize data with a dashboard</div>
+                    <div class="example-chip">Write content for social media</div>
+                    <div class="example-chip">Manage to-dos</div>
+                    <div class="example-chip">Create a personalized fitness coach</div>
+                    <div class="example-chip">Enhance images</div>
+                </div>
+            </section>
+            <section id="output-container">
+                <button id="close-output">&times;</button>
+                <pre id="output-area"></pre>
+            </section>
+        </main>
+        <footer>
+            <p>&copy; 2024, Finae Labs Inc.</p>
+            <p>Contact us at <a href="mailto:founders@finae.ai">founders@finae.ai</a></p>
+        </footer>
+    </div>
+    <script>
+        const exampleDescriptions = {
+            "Merge PDFs": "Create an app, I can upload multiple pdf/docs and merge into one.",
+            "Invoice Creator": "Invoice creator.\nUpload a picture, input items and price, generate an invoice and I can download in PDF or PNG.\nThe invoice should have a table in center, the picture in left top.\nThe invoice also has footer, say my company name and address (I can type somewhere).\nIt can have preview view to show just generated invoice (in PNG format maybe).\nIt also has a list of already generated invoices, preview all of them and have PDF download buttons.",
+            "Create transcript from video": "Create an app that I can upload a voice file (audio file). The app output transcription/notes in the audio speech.",
+            "Visualize data with a dashboard": "Build a dynamic data visualization dashboard that can connect to various data sources like CSV files or databases, offering a range of chart types and customization options.",
+            "Write content for social media": "Design an AI-driven content writing assistant that can generate engaging social media posts based on user-provided topics and brand voice.",
+            "Manage to-dos": "Create an intelligent task management system that uses AI to prioritize tasks, suggest optimal schedules, and provide insights on productivity patterns.",
+            "Create a personalized fitness coach": "Develop an AI fitness coach application that creates personalized workout plans and nutrition advice based on user goals, fitness level, and preferences.",
+            "Enhance images": "Build an advanced image enhancement tool using AI algorithms to improve image quality, remove noise, increase resolution, and apply artistic filters."
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const textarea = document.getElementById('idea-input');
+            const generateButton = document.getElementById('generate-button');
+            const outputContainer = document.getElementById('output-container');
+            const outputArea = document.getElementById('output-area');
+            const closeOutputButton = document.getElementById('close-output');
+            const exampleChips = document.querySelectorAll('.example-chip');
+
+            const socket = io();
+
+            function showOutput() {
+                outputContainer.style.display = 'flex';
+                setTimeout(() => {
+                    outputContainer.classList.add('visible');
+                }, 50);
+                document.body.style.overflow = 'hidden';
+            }
+
+            function hideOutput() {
+                outputContainer.classList.remove('visible');
+                setTimeout(() => {
+                    outputContainer.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }, 300);
+            }
+
+            generateButton.addEventListener('click', function() {
+                const idea = textarea.value;
+                socket.emit('generate', {idea: idea});
+                showOutput();
+                outputArea.textContent = 'Generating... Please wait.\n';
+                generateButton.disabled = true;
+            });
+
+            closeOutputButton.addEventListener('click', function() {
+                hideOutput();
+                generateButton.disabled = false;
+            });
+
+            socket.on('output', function(data) {
+                outputArea.textContent += data.output + '\n';
+                outputArea.scrollTop = outputArea.scrollHeight;
+            });
+
+            socket.on('generation_complete', function() {
+                generateButton.disabled = false;
+            });
+
+            exampleChips.forEach(chip => {
+                chip.addEventListener('click', function() {
+                    const chipText = this.textContent;
+                    if (exampleDescriptions[chipText]) {
+                        textarea.value = exampleDescriptions[chipText];
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

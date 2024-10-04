@@ -1,0 +1,89 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+create an app that I can upload a voice file (audio file).
+The app output transcription/notes in the audio speech.
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's a design for the app based on your description:
+
+<BACKEND_DESIGN>
+The backend will be a Python Flask server with the following key components:
+
+1. Flask app setup:
+   - Import necessary libraries (Flask, speech_recognition, werkzeug)
+   - Initialize Flask app
+
+2. File upload route ('/upload'):
+   - Accept POST requests with audio file
+   - Save uploaded file temporarily
+   - Use speech_recognition library to transcribe audio
+   - Return transcription as JSON response
+
+3. Main route ('/'):
+   - Serve the HTML page
+
+4. Error handling:
+   - Handle file format errors
+   - Handle transcription errors
+
+5. Run the Flask app
+
+Key libraries:
+- Flask for the web server
+- SpeechRecognition for audio transcription
+- Werkzeug for file handling
+
+The server will listen on localhost:5000 by default.
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+The frontend will be a single HTML page with embedded CSS and JavaScript:
+
+1. HTML structure:
+   - Header with app title
+   - File input for audio upload
+   - Button to trigger upload
+   - Loading spinner (hidden by default)
+   - Results area to display transcription
+
+2. CSS styling:
+   - Modern, clean design
+   - Responsive layout
+   - Styled file input and button
+   - Animated loading spinner
+
+3. JavaScript functionality:
+   - Handle file selection
+   - Perform AJAX upload to server
+   - Show/hide loading spinner
+   - Display transcription results
+   - Error handling and user feedback
+
+4. Features:
+   - Drag and drop file upload
+   - File type validation (audio only)
+   - Copy transcription to clipboard button
+   - Character/word count display
+
+The page will be fully responsive and work well on both desktop and mobile devices.
+</FRONTEND_DESIGN>

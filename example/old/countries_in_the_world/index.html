@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country Data Admin Console</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input, button {
+            margin: 5px 0;
+            padding: 5px;
+        }
+        #message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>Country Data Admin Console</h1>
+    
+    <div>
+        <input type="text" id="searchInput" placeholder="Search countries...">
+        <button onclick="searchCountries()">Search</button>
+    </div>
+
+    <table id="countriesTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Population</th>
+                <th>Location</th>
+                <th>Language</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="countriesTableBody"></tbody>
+    </table>
+
+    <h2>Add/Edit Country</h2>
+    <form id="countryForm">
+        <input type="hidden" id="countryId">
+        <input type="text" id="countryName" placeholder="Name" required>
+        <input type="number" id="countryPopulation" placeholder="Population" required>
+        <input type="text" id="countryLocation" placeholder="Location" required>
+        <input type="text" id="countryLanguage" placeholder="Language" required>
+        <button type="submit">Save Country</button>
+    </form>
+
+    <div id="message"></div>
+
+    <script>
+        const API_URL = 'http://localhost:7668';
+
+        async function fetchCountries() {
+            const response = await fetch(`${API_URL}/countries`);
+            const countries = await response.json();
+            displayCountries(countries);
+        }
+
+        function displayCountries(countries) {
+            const tableBody = document.getElementById('countriesTableBody');
+            tableBody.innerHTML = '';
+            countries.forEach(country => {
+                const row = tableBody.insertRow();
+                row.innerHTML = `
+                    <td>${country.id}</td>
+                    <td>${country.name}</td>
+                    <td>${country.population}</td>
+                    <td>${country.location}</td>
+                    <td>${country.language}</td>
+                    <td>
+                        <button onclick="editCountry(${country.id})">Edit</button>
+                        <button onclick="deleteCountry(${country.id})">Delete</button>
+                    </td>
+                `;
+            });
+        }
+
+        async function searchCountries() {
+            const query = document.getElementById('searchInput').value;
+            const response = await fetch(`${API_URL}/countries/search?q=${query}`);
+            const countries = await response.json();
+            displayCountries(countries);
+        }
+
+        async function editCountry(id) {
+            const response = await fetch(`${API_URL}/countries/${id}`);
+            const country = await response.json();
+            document.getElementById('countryId').value = country.id;
+            document.getElementById('countryName').value = country.name;
+            document.getElementById('countryPopulation').value = country.population;
+            document.getElementById('countryLocation').value = country.location;
+            document.getElementById('countryLanguage').value = country.language;
+        }
+
+        async function deleteCountry(id) {
+            if (confirm('Are you sure you want to delete this country?')) {
+                const response = await fetch(`${API_URL}/countries/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    showMessage('Country deleted successfully', 'success');
+                    fetchCountries();
+                } else {
+                    showMessage('Error deleting country', 'error');
+                }
+            }
+        }
+
+        document.getElementById('countryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const countryId = document.getElementById('countryId').value;
+            const countryData = {
+                name: document.getElementById('countryName').value,
+                population: parseInt(document.getElementById('countryPopulation').value),
+                location: document.getElementById('countryLocation').value,
+                language: document.getElementById('countryLanguage').value
+            };
+
+            let url = `${API_URL}/countries`;
+            let method = 'POST';
+            if (countryId) {
+                url += `/${countryId}`;
+                method = 'PUT';
+            }
+
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(countryData)
+            });
+
+            if (response.ok) {
+                showMessage('Country saved successfully', 'success');
+                fetchCountries();
+                document.getElementById('countryForm').reset();
+                document.getElementById('countryId').value = '';
+            } else {
+                showMessage('Error saving country', 'error');
+            }
+        });
+
+        function showMessage(message, type) {
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = message;
+            messageElement.className = type;
+            setTimeout(() => {
+                messageElement.textContent = '';
+                messageElement.className = '';
+            }, 3000);
+        }
+
+        fetchCountries();
+    </script>
+</body>
+</html>

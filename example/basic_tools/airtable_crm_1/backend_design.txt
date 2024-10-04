@@ -1,0 +1,27 @@
+
+The backend will be a Python Flask server with the following components:
+
+1. Dependencies:
+   - Flask
+   - Airtable-python-wrapper
+   - smtplib (for sending emails)
+
+2. Routes:
+   - GET /contacts: Fetches all contacts from Airtable
+   - POST /send-email: Sends an email to a specific contact
+
+3. Functions:
+   - get_contacts(): Connects to Airtable API and retrieves all contacts
+   - send_email(recipient, subject, body): Sends an email using SMTP
+
+4. Configuration:
+   - Airtable API key and base ID
+   - SMTP server settings for sending emails
+
+5. Main app structure:
+   - Initialize Flask app
+   - Set up Airtable client
+   - Define routes and their corresponding functions
+   - Run the app
+
+The server will handle requests from the frontend, fetch data from Airtable, and send emails as requested.

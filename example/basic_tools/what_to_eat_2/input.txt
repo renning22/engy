@@ -1,0 +1,3 @@
+Pick which restarunt to have dinner is always a question in every day life.
+Why not create an app that automatically decide and pickup one for me?
+I'm living in SF Bay Area. I love Chinese food most.

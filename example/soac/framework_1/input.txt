@@ -1,0 +1,10 @@
+imagine there a bunch of local web server already running.
+Each of them is at "localhost:xxx" serving a web page (dashboard).
+Now I want a hub page, left-side is navi bar (tab), put some agent name. Right-side is corresponded iframe point to "localhost:xxx".
+
+E.g.
+"Web Search Agent" -> localhost:5000
+"Web Scraper Agent" -> localhost:5001
+"Social Media Agent" -> localhost:5002
+"Research Agent" -> localhost:5003
+"Trend Analysis Agent" -> localhost:5004

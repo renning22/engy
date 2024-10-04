@@ -1,0 +1,5 @@
+Great!
+Make the "Summary" even shorter, maybe only 2 words to easily merge similar comments.
+
+Now separate Actions to another table.
+Add yet another table for "Product Decision".

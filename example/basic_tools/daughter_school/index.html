@@ -1,0 +1,245 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fremont Art-Focused Elementary Schools</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+        }
+        h1 {
+            margin: 0;
+        }
+        #map {
+            height: 400px;
+            margin-bottom: 20px;
+        }
+        #schoolList {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+        }
+        .school-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Fremont Art-Focused Elementary Schools</h1>
+        <p>Find the perfect school for your creative 4-year-old</p>
+    </header>
+
+    <div class="container">
+        <div id="userInput">
+            <input type="text" id="address" value="Fremont, CA" placeholder="Enter your address">
+            <button onclick="findSchools()">Find Schools</button>
+        </div>
+
+        <div id="map"></div>
+
+        <div id="sortOptions">
+            <button onclick="sortSchools('distance')">Sort by Distance</button>
+            <button onclick="sortSchools('overall_rating')">Sort by Overall Rating</button>
+            <button onclick="sortSchools('art_program_rating')">Sort by Art Program Rating</button>
+        </div>
+
+        <div id="schoolList"></div>
+
+        <div id="comparison">
+            <h2>Compare Schools</h2>
+            <div id="comparisonList"></div>
+        </div>
+    </div>
+
+    <div id="schoolModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="schoolDetails"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Disclaimer: Data is for demonstration purposes only.</p>
+        <p>Last updated: <span id="lastUpdated"></span></p>
+        <p>Contact: info@example.com</p>
+    </footer>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOHsKT_ic9TsXvr3Kzam6EG7r51HM34Ew"></script>
+    <script>
+        let schools = [];
+        let map;
+        let markers = [];
+
+        // Fetch schools data from the server
+        async function fetchSchools() {
+            try {
+                const response = await fetch('http://localhost:7847/schools');
+                schools = await response.json();
+                displaySchools();
+                initMap();
+            } catch (error) {
+                console.error('Error fetching schools:', error);
+            }
+        }
+
+        // Initialize Google Map
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: {lat: 37.5485, lng: -121.9886},
+                zoom: 12
+            });
+
+            schools.forEach(school => {
+                const marker = new google.maps.Marker({
+                    position: {lat: school.latitude, lng: school.longitude},
+                    map: map,
+                    title: school.name
+                });
+
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `<h3>${school.name}</h3><p>${school.address}</p>`
+                });
+
+                marker.addListener('click', () => {
+                    infoWindow.open(map, marker);
+                });
+
+                markers.push(marker);
+            });
+        }
+
+        // Display schools in the list
+        function displaySchools() {
+            const schoolList = document.getElementById('schoolList');
+            schoolList.innerHTML = '';
+
+            schools.forEach(school => {
+                const schoolItem = document.createElement('div');
+                schoolItem.className = 'school-item';
+                schoolItem.innerHTML = `
+                    <h3>${school.name}</h3>
+                    <p>Overall Rating: ${'★'.repeat(school.overall_rating)}</p>
+                    <p>Art Program Rating: ${'🎨'.repeat(school.art_program_rating)}</p>
+                    <p>${school.art_program_description}</p>
+                    <button onclick="showSchoolDetails(${schools.indexOf(school)})">More Details</button>
+                    <button onclick="addToComparison(${schools.indexOf(school)})">Compare</button>
+                `;
+                schoolList.appendChild(schoolItem);
+            });
+        }
+
+        // Sort schools
+        function sortSchools(criteria) {
+            schools.sort((a, b) => b[criteria] - a[criteria]);
+            displaySchools();
+        }
+
+        // Show school details in modal
+        function showSchoolDetails(index) {
+            const school = schools[index];
+            const modal = document.getElementById('schoolModal');
+            const details = document.getElementById('schoolDetails');
+            details.innerHTML = `
+                <h2>${school.name}</h2>
+                <p>Address: ${school.address}</p>
+                <p>Overall Rating: ${'★'.repeat(school.overall_rating)}</p>
+                <p>Art Program Rating: ${'🎨'.repeat(school.art_program_rating)}</p>
+                <p>${school.art_program_description}</p>
+            `;
+            modal.style.display = 'block';
+        }
+
+        // Close modal
+        document.querySelector('.close').onclick = function() {
+            document.getElementById('schoolModal').style.display = 'none';
+        }
+
+        // Comparison tool
+        let comparisonList = [];
+
+        function addToComparison(index) {
+            if (comparisonList.length < 3 && !comparisonList.includes(index)) {
+                comparisonList.push(index);
+                updateComparison();
+            }
+        }
+
+        function updateComparison() {
+            const comparisonDiv = document.getElementById('comparisonList');
+            comparisonDiv.innerHTML = '';
+            comparisonList.forEach(index => {
+                const school = schools[index];
+                const schoolDiv = document.createElement('div');
+                schoolDiv.innerHTML = `
+                    <h3>${school.name}</h3>
+                    <p>Overall Rating: ${'★'.repeat(school.overall_rating)}</p>
+                    <p>Art Program Rating: ${'🎨'.repeat(school.art_program_rating)}</p>
+                    <button onclick="removeFromComparison(${index})">Remove</button>
+                `;
+                comparisonDiv.appendChild(schoolDiv);
+            });
+        }
+
+        function removeFromComparison(index) {
+            comparisonList = comparisonList.filter(i => i !== index);
+            updateComparison();
+        }
+
+        // Set last updated date
+        document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString();
+
+        // Initial fetch of schools
+        fetchSchools();
+    </script>
+</body>
+</html>

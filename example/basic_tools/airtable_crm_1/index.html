@@ -1,0 +1,332 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Email Manager</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --background-color: #f5f5f5;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        main {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .contacts-section, .email-section {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .contacts-list {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: white;
+        }
+
+        .contact-item {
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .contact-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #27ae60;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .dark-mode {
+            --background-color: #333;
+            --text-color: #f5f5f5;
+        }
+
+        .mode-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .contacts-section, .email-section {
+                flex: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Contact Email Manager</h1>
+        <button class="mode-toggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+    </header>
+    <div class="container">
+        <main>
+            <section class="contacts-section">
+                <h2>Contacts</h2>
+                <input type="text" id="search-contacts" placeholder="Search contacts...">
+                <div class="contacts-list" id="contacts-list"></div>
+            </section>
+            <section class="email-section">
+                <h2>Compose Email</h2>
+                <input type="email" id="recipient" placeholder="Recipient">
+                <input type="text" id="subject" placeholder="Subject">
+                <textarea id="body" rows="5" placeholder="Email body"></textarea>
+                <button onclick="sendEmail()">Send Email</button>
+                <button onclick="saveTemplate()">Save as Template</button>
+                <select id="templates" onchange="loadTemplate()">
+                    <option value="">Select a template</option>
+                </select>
+            </section>
+        </main>
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        let contacts = [];
+        let templates = [];
+
+        // Fetch contacts from the server
+        async function fetchContacts() {
+            try {
+                const response = await fetch('http://localhost:8580/contacts');
+                contacts = await response.json();
+                displayContacts();
+            } catch (error) {
+                showStatus('Error fetching contacts', 'error');
+            }
+        }
+
+        // Display contacts in the list
+        function displayContacts() {
+            const contactsList = document.getElementById('contacts-list');
+            contactsList.innerHTML = '';
+            contacts.forEach(contact => {
+                const contactItem = document.createElement('div');
+                contactItem.className = 'contact-item';
+                contactItem.textContent = `${contact.name} (${contact.email})`;
+                contactItem.onclick = () => {
+                    document.getElementById('recipient').value = contact.email;
+                };
+                contactsList.appendChild(contactItem);
+            });
+        }
+
+        // Send email
+        async function sendEmail() {
+            const recipient = document.getElementById('recipient').value;
+            const subject = document.getElementById('subject').value;
+            const body = document.getElementById('body').value;
+
+            if (!recipient || !subject || !body) {
+                showStatus('Please fill all fields', 'error');
+                return;
+            }
+
+            showStatus('<div class="loading"></div>Sending email...', '');
+
+            try {
+                const response = await fetch('http://localhost:8580/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ recipient, subject, body }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showStatus('Email sent successfully', 'success');
+                    clearEmailForm();
+                } else {
+                    showStatus(result.error, 'error');
+                }
+            } catch (error) {
+                showStatus('Error sending email', 'error');
+            }
+        }
+
+        // Show status message
+        function showStatus(message, type) {
+            const statusElement = document.getElementById('status');
+            statusElement.innerHTML = message;
+            statusElement.className = `status ${type}`;
+        }
+
+        // Clear email form
+        function clearEmailForm() {
+            document.getElementById('recipient').value = '';
+            document.getElementById('subject').value = '';
+            document.getElementById('body').value = '';
+        }
+
+        // Search contacts
+        document.getElementById('search-contacts').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredContacts = contacts.filter(contact => 
+                contact.name.toLowerCase().includes(searchTerm) || 
+                contact.email.toLowerCase().includes(searchTerm)
+            );
+            displayFilteredContacts(filteredContacts);
+        });
+
+        // Display filtered contacts
+        function displayFilteredContacts(filteredContacts) {
+            const contactsList = document.getElementById('contacts-list');
+            contactsList.innerHTML = '';
+            filteredContacts.forEach(contact => {
+                const contactItem = document.createElement('div');
+                contactItem.className = 'contact-item';
+                contactItem.textContent = `${contact.name} (${contact.email})`;
+                contactItem.onclick = () => {
+                    document.getElementById('recipient').value = contact.email;
+                };
+                contactsList.appendChild(contactItem);
+            });
+        }
+
+        // Auto-save draft
+        setInterval(() => {
+            const recipient = document.getElementById('recipient').value;
+            const subject = document.getElementById('subject').value;
+            const body = document.getElementById('body').value;
+            localStorage.setItem('emailDraft', JSON.stringify({ recipient, subject, body }));
+        }, 5000);
+
+        // Load draft
+        function loadDraft() {
+            const draft = JSON.parse(localStorage.getItem('emailDraft'));
+            if (draft) {
+                document.getElementById('recipient').value = draft.recipient;
+                document.getElementById('subject').value = draft.subject;
+                document.getElementById('body').value = draft.body;
+            }
+        }
+
+        // Save template
+        function saveTemplate() {
+            const subject = document.getElementById('subject').value;
+            const body = document.getElementById('body').value;
+            if (subject && body) {
+                templates.push({ subject, body });
+                updateTemplateSelect();
+                showStatus('Template saved', 'success');
+            } else {
+                showStatus('Please fill subject and body to save template', 'error');
+            }
+        }
+
+        // Load template
+        function loadTemplate() {
+            const templateSelect = document.getElementById('templates');
+            const selectedTemplate = templates[templateSelect.selectedIndex - 1];
+            if (selectedTemplate) {
+                document.getElementById('subject').value = selectedTemplate.subject;
+                document.getElementById('body').value = selectedTemplate.body;
+            }
+        }
+
+        // Update template select
+        function updateTemplateSelect() {
+            const templateSelect = document.getElementById('templates');
+            templateSelect.innerHTML = '<option value="">Select a template</option>';
+            templates.forEach((template, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = template.subject;
+                templateSelect.appendChild(option);
+            });
+        }
+
+        // Toggle dark mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        // Initialize
+        fetchContacts();
+        loadDraft();
+    </script>
+</body>
+</html>

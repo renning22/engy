@@ -1,0 +1,106 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+create an app connect to my MetaMask wallet and manage my web3 assets.
+Show my ETH balance. List all my ETH transactions.
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's a design for the app based on your description:
+
+<BACKEND_DESIGN>
+The backend will be a Python Flask server that interacts with the Ethereum blockchain and serves API endpoints for the frontend. Key components:
+
+1. Flask server setup:
+   - Import necessary libraries (Flask, web3, etc.)
+   - Initialize Flask app
+
+2. Web3 integration:
+   - Connect to Ethereum network using Web3.py
+   - Function to validate Ethereum addresses
+
+3. API endpoints:
+   - GET /api/balance/<address>: Retrieve ETH balance for given address
+   - GET /api/transactions/<address>: Fetch list of transactions for given address
+
+4. Transaction processing:
+   - Function to fetch and process transaction data
+   - Pagination support for large transaction lists
+
+5. Error handling:
+   - Custom error responses for invalid addresses, network issues, etc.
+
+6. CORS support:
+   - Enable CORS to allow frontend requests
+
+7. Environment variables:
+   - Store sensitive data (e.g., Ethereum node URL) in environment variables
+
+8. Serve static files:
+   - Serve the HTML/CSS/JS files for the frontend
+
+The server will run on localhost:5000 and provide the necessary API endpoints for the frontend to interact with the Ethereum blockchain.
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+The frontend will be a single HTML page with embedded JavaScript to interact with the MetaMask wallet and the backend API. Key components:
+
+1. HTML structure:
+   - Header with app title and MetaMask connection button
+   - Main content area with two sections:
+     a. ETH balance display
+     b. Transaction list
+   - Footer with app information
+
+2. CSS styling:
+   - Modern, responsive design
+   - Dark mode for better readability of crypto data
+   - Custom styles for balance and transaction list
+
+3. JavaScript functionality:
+   - MetaMask integration:
+     - Function to connect to MetaMask
+     - Event listeners for account changes
+   - API interactions:
+     - Fetch balance from backend
+     - Fetch and display transactions
+   - Dynamic content updates:
+     - Update balance in real-time
+     - Infinite scroll for transaction list
+   - Error handling and user notifications
+
+4. Web3 integration:
+   - Use Web3.js library to interact with MetaMask
+
+5. Responsive design:
+   - Ensure proper display on both desktop and mobile devices
+
+6. Loading indicators:
+   - Show loading spinners while fetching data
+
+7. Transaction details:
+   - Clickable transactions to show more details
+
+8. Local storage:
+   - Store user preferences (e.g., dark mode setting)
+
+The frontend will provide a user-friendly interface for connecting to MetaMask, displaying the ETH balance, and browsing through transactions, all within a single, responsive HTML page.
+</FRONTEND_DESIGN>

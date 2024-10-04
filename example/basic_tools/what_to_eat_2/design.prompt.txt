@@ -1,0 +1,101 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software architecture designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+Pick which restarunt to have dinner is always a question in every day life.
+Why not create an app that automatically decide and pickup one for me?
+I'm living in SF Bay Area. I love Chinese food most.
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's my design for the restaurant picker app based on your description:
+
+<BACKEND_DESIGN>
+Python Flask server:
+
+1. Main route ('/'):
+   - Serve the HTML page
+
+2. API route ('/get_restaurant'):
+   - Use Yelp Fusion API to search for restaurants
+   - Parameters:
+     - location: "SF Bay Area"
+     - categories: "chinese"
+     - limit: 50 (to get a good variety)
+   - Randomly select one restaurant from the results
+   - Return JSON with restaurant details:
+     - name
+     - address
+     - rating
+     - price
+     - phone
+     - image_url
+     - yelp_url
+
+3. Dependencies:
+   - Flask
+   - requests (for API calls)
+   - python-dotenv (for managing API keys)
+
+4. Configuration:
+   - Store Yelp API key in .env file
+
+5. Error handling:
+   - Handle API errors and return appropriate error messages
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+Single HTML page with embedded CSS and JavaScript:
+
+1. Header:
+   - Title: "SF Bay Area Chinese Restaurant Picker"
+   - Subtitle: "Let us decide where you'll have dinner tonight!"
+
+2. Main content:
+   - Large "Pick a Restaurant" button
+   - Restaurant info display area (initially hidden):
+     - Restaurant name (large font)
+     - Address
+     - Rating (with stars)
+     - Price range
+     - Phone number
+     - Restaurant image
+     - "View on Yelp" button (links to Yelp page)
+
+3. Footer:
+   - Created by [Your Name]
+   - Powered by Yelp
+
+4. Styling:
+   - Use a clean, modern design with a Chinese-inspired color scheme (red and gold)
+   - Responsive layout for mobile and desktop
+   - Animations for button press and restaurant info reveal
+
+5. JavaScript functionality:
+   - onClick event for "Pick a Restaurant" button:
+     - Show loading spinner
+     - Make AJAX call to backend '/get_restaurant' endpoint
+     - Hide loading spinner
+     - Display restaurant information in the info area
+     - Animate the reveal of the info area
+
+6. Error handling:
+   - Display error messages if the API call fails
+</FRONTEND_DESIGN>

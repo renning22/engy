@@ -1,0 +1,50 @@
+
+Frontend Design (Single HTML page with JavaScript):
+
+1. Layout:
+   - Header with app title "My YouTube Video Album"
+   - Main content area with a grid of video thumbnails
+   - Sidebar for filtering and adding new videos
+
+2. Components:
+   a. Add Video Form:
+      - Input field for YouTube URL
+      - "Add Video" button
+   
+   b. Search and Filter:
+      - Search input for title/tag search
+      - Tag cloud for quick filtering
+   
+   c. Video Grid:
+      - Responsive grid of video thumbnails
+      - Each thumbnail shows:
+        - Video title
+        - Thumbnail image
+        - Tags
+        - Play button overlay
+   
+   d. Video Player Modal:
+      - Embedded YouTube player
+      - Video title and description
+      - Tags (editable)
+      - Close button
+
+3. Functionality (JavaScript):
+   - Fetch and display all videos on page load
+   - Add new videos (send POST request to backend)
+   - Remove videos (send DELETE request to backend)
+   - Search and filter videos
+   - Play videos in-place using YouTube embed API
+   - Edit tags (update in backend)
+
+4. Styling:
+   - Use CSS Grid for responsive layout
+   - Modern, minimalist design with a dark theme
+   - Smooth animations for video hover and modal open/close
+
+5. Libraries/Frameworks:
+   - Vanilla JavaScript (no framework for simplicity)
+   - YouTube Embed API
+   - FontAwesome for icons
+
+This single-page design allows users to easily add, view, and manage their favorite YouTube videos with a sleek, responsive interface.

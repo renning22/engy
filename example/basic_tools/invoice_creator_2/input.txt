@@ -1,0 +1,6 @@
+invoice creator.
+Upload a picture, input items and price, generate an invoice and I can download in PDF or PNG.
+The invoice should have a table in center, the picture in left top.
+The invoice also has footer, say my company name and address (I can type somewhere).
+It can have preview view to show just generated invoice (in PNG format maybe).
+It also has a list of already generated invoices, preview all of them and have PDF download buttons. 

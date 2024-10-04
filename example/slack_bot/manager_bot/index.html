@@ -1,0 +1,461 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kim - Slack Bot Manager Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.js"></script>
+    <style>
+        :root {
+            --slack-color: #611f69;
+            --slack-color-light: #F06A6A;
+            --slack-color-button: #366ce0;
+            --asana-color-button: #366ce0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f7;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: var(--slack-color);
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+        }
+        h1 {
+            margin: 0;
+        }
+        h2 {
+            color: var(--slack-color);
+        }
+        .section {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        input[type="file"], input[type="text"], select, button {
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: var(--slack-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: var(--slack-color-light);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: var(--slack-color);
+            color: white;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .progress {
+            width: 0;
+            height: 20px;
+            background-color: var(--slack-color);
+            border-radius: 5px;
+            transition: width 0.3s;
+        }
+        #slackStatus {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .online {
+            background-color: #36a64f;
+            color: white;
+        }
+        .offline {
+            background-color: #e01e5a;
+            color: white;
+        }
+        .integration-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .integration-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .integration-button:hover {
+            opacity: 0.8;
+        }
+        .asana-button {
+            background-color: var(--asana-color-button);
+        }
+        .slack-button {
+            background-color: var(--slack-color-button);
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            .section {
+                padding: 10px;
+            }
+            .integration-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Kim - Slack Bot Manager Assistant</h1>
+        <p>Weekly Report Check-in System</p>
+        <div class="integration-buttons">
+            <button class="integration-button asana-button" onclick="signInAsana()">Sign in with Asana</button>
+            <button class="integration-button slack-button" onclick="signInSlack()">Sign in with Slack</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="section">
+            <h2>Test Message</h2>
+            <button onclick="sendTestMessages()">Send Test Messages to All Members</button>
+        </div>
+
+        <div class="section">
+            <h2>Document Upload</h2>
+            <input type="file" id="fileUpload" accept=".pdf,.doc,.docx,.txt">
+            <button onclick="uploadDocument()">Upload Document</button>
+            <div class="progress-bar">
+                <div id="uploadProgress" class="progress"></div>
+            </div>
+            <ul id="uploadedFiles"></ul>
+        </div>
+
+        <div class="section">
+            <h2>Schedule Configuration</h2>
+            <select id="interval">
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="bi-weekly">Bi-weekly</option>
+                <option value="monthly">Monthly</option>
+            </select>
+            <select id="dayOfWeek" style="display:none;">
+                <option value="monday">Monday</option>
+                <option value="tuesday">Tuesday</option>
+                <option value="wednesday">Wednesday</option>
+                <option value="thursday">Thursday</option>
+                <option value="friday">Friday</option>
+                <option value="saturday">Saturday</option>
+                <option value="sunday">Sunday</option>
+            </select>
+            <button onclick="updateSchedule()">Update Schedule</button>
+        </div>
+
+        <div class="section">
+            <h2>Calendar View</h2>
+            <div id="calendar"></div>
+        </div>
+
+        <div class="section">
+            <h2>Team Member Management</h2>
+            <input type="text" id="memberName" placeholder="Name">
+            <input type="text" id="slackId" placeholder="Slack ID">
+            <button onclick="addMember()">Add Member</button>
+        </div>
+
+        <div class="section">
+            <h2>Team Member Summary</h2>
+            <button onclick="refreshMembers()">Refresh</button>
+            <table id="memberTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Slack ID</th>
+                        <th>Last Check-in Date</th>
+                        <th>Current Weekly Report Status</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Slack Bot Status</h2>
+            <p>Status: <span id="slackStatus" class="online">Online</span></p>
+            <p>Last Activity: <span id="lastActivity"></span></p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5030';
+        let calendar;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCalendar();
+            getSchedule();
+            refreshMembers();
+            simulateSlackStatus();
+
+            document.getElementById('interval').addEventListener('change', function() {
+                document.getElementById('dayOfWeek').style.display = 
+                    this.value === 'weekly' ? 'block' : 'none';
+            });
+        });
+
+        function initializeCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: []
+            });
+            calendar.render();
+            updateCalendar();
+        }
+
+        async function updateCalendar() {
+            try {
+                const response = await fetch(`${API_URL}/get_calendar`);
+                const dates = await response.json();
+                const events = dates.map(date => ({
+                    title: 'Check-in',
+                    start: date,
+                    allDay: true,
+                    color: '#4A154B'
+                }));
+                calendar.removeAllEvents();
+                calendar.addEventSource(events);
+            } catch (error) {
+                console.error('Error updating calendar:', error);
+            }
+        }
+
+        async function uploadDocument() {
+            const fileInput = document.getElementById('fileUpload');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select a file to upload.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch(`${API_URL}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert(result.message);
+                    updateUploadedFiles(file.name);
+                } else {
+                    throw new Error('File upload failed');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while uploading the file.');
+            }
+        }
+
+        function updateUploadedFiles(fileName) {
+            const filesList = document.getElementById('uploadedFiles');
+            const listItem = document.createElement('li');
+            listItem.textContent = fileName;
+            filesList.appendChild(listItem);
+        }
+
+        async function updateSchedule() {
+            const interval = document.getElementById('interval').value;
+            const dayOfWeek = document.getElementById('dayOfWeek').value;
+
+            const scheduleData = {
+                interval_days: getIntervalDays(interval),
+                day_of_week: interval === 'weekly' ? dayOfWeek : ''
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/update_schedule`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(scheduleData)
+                });
+
+                if (response.ok) {
+                    alert('Schedule updated successfully');
+                    updateCalendar();
+                } else {
+                    throw new Error('Failed to update schedule');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while updating the schedule.');
+            }
+        }
+
+        function getIntervalDays(interval) {
+            switch (interval) {
+                case 'daily': return 1;
+                case 'weekly': return 7;
+                case 'bi-weekly': return 14;
+                case 'monthly': return 30;
+                default: return 7;
+            }
+        }
+
+        async function addMember() {
+            const name = document.getElementById('memberName').value;
+            const slackId = document.getElementById('slackId').value;
+
+            if (!name || !slackId) {
+                alert('Please enter both name and Slack ID.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/add_member`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, slack_id: slackId })
+                });
+
+                if (response.ok) {
+                    alert('Member added successfully');
+                    document.getElementById('memberName').value = '';
+                    document.getElementById('slackId').value = '';
+                    refreshMembers();
+                } else {
+                    throw new Error('Failed to add member');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while adding the member.');
+            }
+        }
+
+        async function refreshMembers() {
+            try {
+                const response = await fetch(`${API_URL}/get_members`);
+                const members = await response.json();
+                updateMemberTable(members);
+            } catch (error) {
+                console.error('Error refreshing members:', error);
+            }
+        }
+
+        function updateMemberTable(members) {
+            const tableBody = document.querySelector('#memberTable tbody');
+            tableBody.innerHTML = '';
+            members.forEach(member => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).textContent = member.name;
+                row.insertCell(1).textContent = member.slack_id;
+                row.insertCell(2).textContent = member.last_check_in || 'N/A';
+                row.insertCell(3).textContent = member.current_report || 'Not submitted';
+            });
+        }
+
+        async function getSchedule() {
+            try {
+                const response = await fetch(`${API_URL}/get_schedule`);
+                if (response.ok) {
+                    const schedule = await response.json();
+                    updateScheduleUI(schedule);
+                }
+            } catch (error) {
+                console.error('Error getting schedule:', error);
+            }
+        }
+
+        function updateScheduleUI(schedule) {
+            const intervalSelect = document.getElementById('interval');
+            const dayOfWeekSelect = document.getElementById('dayOfWeek');
+
+            if (schedule.interval_days === 1) intervalSelect.value = 'daily';
+            else if (schedule.interval_days === 7) intervalSelect.value = 'weekly';
+            else if (schedule.interval_days === 14) intervalSelect.value = 'bi-weekly';
+            else if (schedule.interval_days === 30) intervalSelect.value = 'monthly';
+
+            if (schedule.day_of_week) {
+                dayOfWeekSelect.value = schedule.day_of_week.toLowerCase();
+                dayOfWeekSelect.style.display = 'block';
+            }
+        }
+
+        function simulateSlackStatus() {
+            const statusElement = document.getElementById('slackStatus');
+            const lastActivityElement = document.getElementById('lastActivity');
+
+            setInterval(() => {
+                const isOnline = Math.random() < 0.8; // 80% chance of being online
+                statusElement.textContent = isOnline ? 'Online' : 'Offline';
+                statusElement.className = isOnline ? 'online' : 'offline';
+                lastActivityElement.textContent = new Date().toLocaleString();
+            }, 5000); // Update every 5 seconds
+        }
+
+        function signInAsana() {
+            window.location.href = `${API_URL}/signin/asana`;
+        }
+
+        function signInSlack() {
+            window.location.href = `${API_URL}/signin/slack`;
+        }
+
+        async function sendTestMessages() {
+            try {
+                const response = await fetch(`${API_URL}/send_test_messages`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert(result.message);
+                } else {
+                    throw new Error('Failed to send test messages');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while sending test messages.');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,378 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Management Console</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --text-color: #f0f0f0;
+            --primary-color: #4a90e2;
+            --secondary-color: #50e3c2;
+            --danger-color: #e74c3c;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid var(--text-color);
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary-color);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .danger {
+            background-color: var(--danger-color);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: var(--bg-color);
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid var(--text-color);
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .close {
+            color: var(--text-color);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: var(--danger-color);
+        }
+
+        #sshOutput {
+            white-space: pre-wrap;
+            background-color: #2a2a2a;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .search-container {
+            margin-bottom: 10px;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 768px) {
+            table {
+                font-size: 14px;
+            }
+
+            button {
+                padding: 3px 6px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kubernetes Management Console</h1>
+
+        <div class="section">
+            <h2>Nodes</h2>
+            <div class="search-container">
+                <input type="text" id="nodeSearch" placeholder="Search nodes...">
+            </div>
+            <table id="nodesTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>IP</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Pods</h2>
+            <div class="search-container">
+                <input type="text" id="podSearch" placeholder="Search pods...">
+            </div>
+            <table id="podsTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>IP</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <button id="refreshButton">Refresh</button>
+    </div>
+
+    <div id="sshModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>SSH Command</h2>
+            <input type="text" id="sshCommand" placeholder="Enter command...">
+            <button id="sshExecute">Execute</button>
+            <pre id="sshOutput"></pre>
+        </div>
+    </div>
+
+    <div id="killModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Confirm Kill</h2>
+            <p>Are you sure you want to kill this pod?</p>
+            <button id="killConfirm" class="danger">Confirm</button>
+            <button id="killCancel">Cancel</button>
+        </div>
+    </div>
+
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Resource Details</h2>
+            <pre id="detailsContent"></pre>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:6478';
+        let currentResource = null;
+
+        // Fetch data from the server
+        async function fetchData(endpoint) {
+            const response = await fetch(`${API_URL}${endpoint}`, {
+                headers: {
+                    'Authorization': 'Basic ' + btoa('admin:password123')
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return await response.json();
+        }
+
+        // Populate table with data
+        function populateTable(tableId, data, resourceType) {
+            const table = document.getElementById(tableId);
+            const tbody = table.querySelector('tbody');
+            tbody.innerHTML = '';
+
+            data.items.forEach(item => {
+                const row = tbody.insertRow();
+                row.insertCell().textContent = item.metadata.name;
+                row.insertCell().textContent = item.status.phase || 'N/A';
+                row.insertCell().textContent = item.status.podIP || item.status.addresses?.[0]?.address || 'N/A';
+
+                const actionsCell = row.insertCell();
+                const sshButton = document.createElement('button');
+                sshButton.textContent = 'SSH';
+                sshButton.onclick = () => openSSHModal(item.metadata.name, resourceType);
+                actionsCell.appendChild(sshButton);
+
+                if (resourceType === 'pod') {
+                    const killButton = document.createElement('button');
+                    killButton.textContent = 'Kill';
+                    killButton.onclick = () => openKillModal(item.metadata.name);
+                    killButton.classList.add('danger');
+                    actionsCell.appendChild(killButton);
+                }
+
+                const detailsButton = document.createElement('button');
+                detailsButton.textContent = 'Details';
+                detailsButton.onclick = () => openDetailsModal(resourceType, item.metadata.name);
+                actionsCell.appendChild(detailsButton);
+            });
+        }
+
+        // Fetch and update data
+        async function updateData() {
+            try {
+                const nodesData = await fetchData('/nodes');
+                populateTable('nodesTable', nodesData, 'node');
+
+                const podsData = await fetchData('/pods');
+                populateTable('podsTable', podsData, 'pod');
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                alert('Failed to fetch data. Please try again.');
+            }
+        }
+
+        // Modal functionality
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function openSSHModal(resourceName, resourceType) {
+            currentResource = { name: resourceName, type: resourceType };
+            openModal('sshModal');
+        }
+
+        function openKillModal(podName) {
+            currentResource = { name: podName, type: 'pod' };
+            openModal('killModal');
+        }
+
+        async function openDetailsModal(resourceType, resourceName) {
+            try {
+                const details = await fetchData(`/details/${resourceType}/${resourceName}`);
+                document.getElementById('detailsContent').textContent = details.details;
+                openModal('detailsModal');
+            } catch (error) {
+                console.error('Error fetching details:', error);
+                alert('Failed to fetch resource details. Please try again.');
+            }
+        }
+
+        // Event listeners
+        document.getElementById('refreshButton').addEventListener('click', updateData);
+
+        document.getElementById('sshExecute').addEventListener('click', async () => {
+            const command = document.getElementById('sshCommand').value;
+            try {
+                const response = await fetch(`${API_URL}/ssh`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Basic ' + btoa('admin:password123')
+                    },
+                    body: JSON.stringify({ target: currentResource.name, command: command })
+                });
+                const data = await response.json();
+                document.getElementById('sshOutput').textContent = data.output;
+            } catch (error) {
+                console.error('Error executing SSH command:', error);
+                alert('Failed to execute SSH command. Please try again.');
+            }
+        });
+
+        document.getElementById('killConfirm').addEventListener('click', async () => {
+            try {
+                const response = await fetch(`${API_URL}/kill`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Basic ' + btoa('admin:password123')
+                    },
+                    body: JSON.stringify({ pod_name: currentResource.name })
+                });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    alert('Pod killed successfully');
+                    closeModal('killModal');
+                    updateData();
+                } else {
+                    alert('Failed to kill pod: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error killing pod:', error);
+                alert('Failed to kill pod. Please try again.');
+            }
+        });
+
+        document.getElementById('killCancel').addEventListener('click', () => closeModal('killModal'));
+
+        // Close modals when clicking on the close button or outside the modal
+        document.querySelectorAll('.modal .close').forEach(closeBtn => {
+            closeBtn.addEventListener('click', () => closeModal(closeBtn.closest('.modal').id));
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target.classList.contains('modal')) {
+                closeModal(event.target.id);
+            }
+        });
+
+        // Search functionality
+        function setupSearch(inputId, tableId) {
+            document.getElementById(inputId).addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const table = document.getElementById(tableId);
+                const rows = table.querySelectorAll('tbody tr');
+
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+        }
+
+        setupSearch('nodeSearch', 'nodesTable');
+        setupSearch('podSearch', 'podsTable');
+
+        // Initial data load
+        updateData();
+    </script>
+</body>
+</html>

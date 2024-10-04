@@ -1,0 +1,3 @@
+Similar to the example.
+But change the data to be "customer review", including columns "Name", "Data", "Platform", "Review Content".
+Remove Agent, but add a button "Generate Random Review" to generate one row of mock data.

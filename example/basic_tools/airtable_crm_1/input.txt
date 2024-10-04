@@ -1,0 +1,1 @@
+I have a list of contacts in Airtable. I need to pull them out, and have a way to send them email one by one.

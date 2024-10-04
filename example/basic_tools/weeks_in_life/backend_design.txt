@@ -1,0 +1,27 @@
+
+The backend will be a Python Flask server with the following components:
+
+1. Main Flask app:
+   - Import necessary libraries (Flask, datetime, math)
+   - Create a Flask app instance
+
+2. Route: "/"
+   - Serve the main HTML page
+
+3. Route: "/calculate_weeks"
+   - Accept POST request with user's birthdate
+   - Calculate total weeks in 100 years
+   - Calculate weeks lived based on birthdate
+   - Calculate weeks remaining
+   - Return JSON response with calculated data
+
+4. Helper function: calculate_weeks(birthdate)
+   - Parse birthdate string to datetime object
+   - Calculate weeks lived using current date and birthdate
+   - Calculate total weeks in 100 years
+   - Calculate remaining weeks
+   - Return dictionary with weeks lived, total weeks, and remaining weeks
+
+5. Run the Flask app
+
+The backend will handle date calculations and provide data to the frontend via an API endpoint.

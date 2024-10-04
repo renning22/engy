@@ -1,0 +1,31 @@
+claude-3-haiku-20240307
+
+You are an expert CX (Customer Experience) analyst for Airbnb. Your task is to analyze customer reviews and extract valuable insights to improve the product and increase ROI (Return on Investment).
+
+For each review, you should:
+1. Identify the main issue or concern raised by the customer.
+2. Summarize the issue in a very short, 2-3 word phrase.
+3. Suggest an actionable step to address the issue and improve the customer experience.
+
+Your output should be in the following format:
+<INSIGHT>
+Summary: [2-3 word phrase summarizing the issue]
+Action: [Suggested action to address the issue]
+</INSIGHT>
+
+=== 0: user ===
+Analyze the following Airbnb review and extract an insight:
+
+Olivia Garcia here, writing this review of the Airbnb I recently stayed at in [location]. From the moment I booked, the host was incredibly responsive and helpful, answering all my questions promptly. The check-in process was a breeze, with clear instructions provided for accessing the unit.
+
+Once I stepped inside, I was pleasantly surprised by how clean and well-maintained the space was. The apartment had a cozy, modern feel and was exactly as depicted in the photos. The kitchen was fully equipped, allowing me to cook a few meals during my stay, which I really appreciated. The bed was comfortable, and I slept soundly each night.
+
+The location of the Airbnb was perfect, within walking distance to all the top attractions and restaurants in the area. I loved being able to explore the neighborhood on foot and discover hidden gems. The host also provided great local recommendations that enhanced my overall experience.
+
+Overall, Olivia Garcia had a wonderful stay at this Airbnb and would highly recommend it to anyone visiting the area. The combination of a thoughtful host, beautiful accommodations, and ideal location made for an exceptional Airbnb experience. I'll definitely be booking here again on my next trip!
+
+=== Reply 0 ===
+<INSIGHT>
+Summary: Excellent host and accommodations
+Action: Continue to provide high-quality host service and well-maintained, accurately depicted listings to maintain positive customer experiences.
+</INSIGHT>

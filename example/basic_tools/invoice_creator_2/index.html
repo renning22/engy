@@ -1,0 +1,279 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.min.css">
+    <style>
+        body {
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .dropzone {
+            border: 2px dashed #ccc;
+            border-radius: 4px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .dropzone.dragover {
+            background-color: #f0f0f0;
+        }
+        #previewImage {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 10px;
+        }
+        .invoice-items {
+            margin-bottom: 20px;
+        }
+        .invoice-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Invoice Generator</h1>
+        
+        <h2>Upload Image</h2>
+        <div id="dropzone" class="dropzone">
+            <p>Drag and drop an image here, or click to select a file</p>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+        </div>
+        <img id="previewImage" src="" alt="Preview" style="display: none;">
+        
+        <h2>Invoice Details</h2>
+        <form id="invoiceForm">
+            <label for="companyInfo">Company Info:</label>
+            <textarea id="companyInfo" name="companyInfo" required></textarea>
+            
+            <h3>Invoice Items</h3>
+            <div id="invoiceItems" class="invoice-items">
+                <div class="invoice-item">
+                    <input type="text" name="itemName[]" placeholder="Item name" required>
+                    <input type="number" name="itemQuantity[]" placeholder="Quantity" required min="1">
+                    <input type="number" name="itemPrice[]" placeholder="Price" required min="0" step="0.01">
+                    <button type="button" class="button-outline" onclick="removeItem(this)">Remove</button>
+                </div>
+            </div>
+            <button type="button" onclick="addItem()">Add Item</button>
+            
+            <button type="submit">Generate Invoice</button>
+        </form>
+        
+        <h2>Generated Invoices</h2>
+        <table id="invoiceList">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Company Info</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Invoice Preview</h2>
+            <img id="previewInvoice" src="" alt="Invoice Preview" style="max-width: 100%;">
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:7527';
+        let uploadedImagePath = '';
+
+        // Drag and drop functionality
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const previewImage = document.getElementById('previewImage');
+
+        dropzone.addEventListener('click', () => fileInput.click());
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+        });
+        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+        dropzone.addEventListener('drop', handleDrop);
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleDrop(e) {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            handleImageUpload(file);
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            handleImageUpload(file);
+        }
+
+        async function handleImageUpload(file) {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetch(`${API_URL}/upload_image`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                uploadedImagePath = data.image_path;
+                previewImage.src = URL.createObjectURL(file);
+                previewImage.style.display = 'block';
+            } catch (error) {
+                console.error('Error uploading image:', error);
+            }
+        }
+
+        // Invoice form handling
+        const invoiceForm = document.getElementById('invoiceForm');
+        invoiceForm.addEventListener('submit', generateInvoice);
+
+        async function generateInvoice(e) {
+            e.preventDefault();
+            const formData = new FormData(invoiceForm);
+            const invoiceData = {
+                company_info: formData.get('companyInfo'),
+                items: [],
+                image_path: uploadedImagePath
+            };
+
+            const itemNames = formData.getAll('itemName[]');
+            const itemQuantities = formData.getAll('itemQuantity[]');
+            const itemPrices = formData.getAll('itemPrice[]');
+
+            for (let i = 0; i < itemNames.length; i++) {
+                invoiceData.items.push({
+                    name: itemNames[i],
+                    quantity: parseInt(itemQuantities[i]),
+                    price: parseFloat(itemPrices[i])
+                });
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/generate_invoice`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(invoiceData)
+                });
+                const data = await response.json();
+                displayInvoicePreview(data.id);
+                loadInvoiceList();
+            } catch (error) {
+                console.error('Error generating invoice:', error);
+            }
+        }
+
+        async function displayInvoicePreview(invoiceId) {
+            const previewModal = document.getElementById('previewModal');
+            const previewInvoice = document.getElementById('previewInvoice');
+            const closeBtn = document.getElementsByClassName('close')[0];
+
+            previewInvoice.src = `${API_URL}/download/${invoiceId}?format=png`;
+            previewModal.style.display = 'block';
+
+            closeBtn.onclick = () => previewModal.style.display = 'none';
+            window.onclick = (event) => {
+                if (event.target == previewModal) {
+                    previewModal.style.display = 'none';
+                }
+            };
+        }
+
+        async function loadInvoiceList() {
+            try {
+                const response = await fetch(`${API_URL}/invoices`);
+                const invoices = await response.json();
+                const tbody = document.querySelector('#invoiceList tbody');
+                tbody.innerHTML = '';
+
+                invoices.forEach(invoice => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td>${invoice.id}</td>
+                        <td>${invoice.company_info}</td>
+                        <td>$${invoice.total.toFixed(2)}</td>
+                        <td>
+                            <button onclick="downloadInvoice('${invoice.id}', 'pdf')">Download PDF</button>
+                            <button onclick="downloadInvoice('${invoice.id}', 'png')">Download PNG</button>
+                        </td>
+                    `;
+                });
+            } catch (error) {
+                console.error('Error loading invoice list:', error);
+            }
+        }
+
+        function downloadInvoice(invoiceId, format) {
+            window.open(`${API_URL}/download/${invoiceId}?format=${format}`, '_blank');
+        }
+
+        function addItem() {
+            const invoiceItems = document.getElementById('invoiceItems');
+            const newItem = document.createElement('div');
+            newItem.className = 'invoice-item';
+            newItem.innerHTML = `
+                <input type="text" name="itemName[]" placeholder="Item name" required>
+                <input type="number" name="itemQuantity[]" placeholder="Quantity" required min="1">
+                <input type="number" name="itemPrice[]" placeholder="Price" required min="0" step="0.01">
+                <button type="button" class="button-outline" onclick="removeItem(this)">Remove</button>
+            `;
+            invoiceItems.appendChild(newItem);
+        }
+
+        function removeItem(button) {
+            button.parentElement.remove();
+        }
+
+        // Load invoice list on page load
+        loadInvoiceList();
+    </script>
+</body>
+</html>

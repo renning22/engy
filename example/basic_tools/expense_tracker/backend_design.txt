@@ -1,0 +1,34 @@
+
+The backend will be a Python Flask server with the following components:
+
+1. Database:
+   - Use SQLite for simplicity
+   - Two tables:
+     a. Expenses: id, date, amount, description, category, is_recurring
+     b. Categories: id, name
+
+2. API Endpoints:
+   - GET /expenses: Retrieve all expenses
+   - POST /expenses: Add a new expense
+   - PUT /expenses/<id>: Update an existing expense
+   - DELETE /expenses/<id>: Delete an expense
+   - GET /categories: Retrieve all categories
+   - POST /categories: Add a new category
+
+3. Data Processing:
+   - Calculate total expenses by category
+   - Calculate monthly recurring expenses
+   - Calculate one-time expenses
+
+4. Dependencies:
+   - Flask
+   - SQLAlchemy (for database ORM)
+   - Flask-RESTful (for API endpoints)
+
+5. Main app structure:
+   - app.py: Main Flask application
+   - models.py: Database models
+   - routes.py: API route definitions
+   - utils.py: Helper functions for data processing
+
+The server will handle all CRUD operations for expenses and categories, as well as provide processed data for the frontend to display in charts and tables.

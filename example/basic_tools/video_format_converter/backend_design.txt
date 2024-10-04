@@ -1,0 +1,31 @@
+
+The backend will be a Python Flask server with the following key components:
+
+1. Flask app setup:
+   - Import necessary libraries (Flask, FFmpeg-python, os, etc.)
+   - Initialize Flask app
+
+2. File upload route (/upload):
+   - Accept POST requests with video file
+   - Save uploaded file temporarily
+   - Return a unique job ID
+
+3. Conversion route (/convert):
+   - Accept POST requests with job ID, desired speed, and resolution
+   - Use FFmpeg-python to convert the video:
+     - Change format to MP4
+     - Adjust playback speed
+     - Resize to selected resolution
+   - Save converted video
+   - Return download link
+
+4. Download route (/download/<job_id>):
+   - Serve the converted video file
+
+5. Status route (/status/<job_id>):
+   - Return current status of conversion job
+
+6. Cleanup function:
+   - Periodically remove old temporary and converted files
+
+The server will use FFmpeg-python for video processing, which allows for easy manipulation of video properties like format, speed, and resolution.

@@ -1,0 +1,29 @@
+
+1. Flask web server
+2. Database (SQLite) to store Dota 2 hero information
+3. API endpoints:
+   - GET /heroes: Retrieve all heroes with basic info
+   - GET /hero/<hero_id>: Get detailed info for a specific hero
+   - POST /ask: Submit a question about a selected hero
+4. CrewAI integration:
+   - Create an agent using Claude 3.5 model
+   - Implement question-answering functionality for hero-related queries
+5. Data scraping script to populate the database with up-to-date Dota 2 hero information
+6. Hero class to represent Dota 2 heroes and their attributes
+7. Utility functions for data processing and API response formatting
+
+Key Python libraries:
+- Flask
+- SQLAlchemy
+- CrewAI
+- Anthropic (for Claude 3.5 integration)
+- Requests (for data scraping)
+- BeautifulSoup (for parsing hero data)
+
+Main components:
+- app.py: Flask application and route handlers
+- models.py: SQLAlchemy models for Hero class
+- database.py: Database connection and initialization
+- crewai_agent.py: CrewAI agent setup and question-answering logic
+- scraper.py: Data scraping functionality to update hero information
+- utils.py: Utility functions for data processing and formatting

@@ -1,0 +1,36 @@
+
+The backend will be a Python Flask server that interacts with Google Cloud Platform APIs. Key components:
+
+1. Flask app setup:
+   - Import necessary libraries (Flask, google-auth, google-auth-httplib2, googleapiclient)
+   - Initialize Flask app
+
+2. GCP authentication:
+   - Use service account credentials or application default credentials
+   - Authenticate with GCP APIs
+
+3. Routes:
+   a. GET /instances
+      - Retrieve list of GCE instances using Compute Engine API
+      - Return JSON with instance details (name, status, zone, etc.)
+
+   b. POST /ssh
+      - Receive instance name and zone
+      - Generate SSH command for the instance
+      - Return SSH command as response
+
+   c. POST /kill
+      - Receive instance name and zone
+      - Use Compute Engine API to stop the instance
+      - Return success/failure status
+
+4. Helper functions:
+   - get_compute_client(): Initialize and return GCP Compute Engine client
+   - list_instances(): Fetch and format instance data
+   - stop_instance(name, zone): Stop a specific instance
+
+5. Error handling:
+   - Implement try/except blocks for API calls
+   - Return appropriate error messages and status codes
+
+6. Run the Flask app with debug mode enabled for development

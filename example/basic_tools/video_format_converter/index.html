@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .upload-area {
+            border: 2px dashed #3498db;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+            background-color: #ecf0f1;
+        }
+        .upload-area:hover {
+            background-color: #e0e6e8;
+        }
+        .options {
+            margin-bottom: 20px;
+        }
+        .options label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        #progress-bar {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        #progress {
+            width: 0%;
+            height: 20px;
+            background-color: #3498db;
+            border-radius: 5px;
+            transition: width 0.3s ease-in-out;
+        }
+        #status {
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Video Converter</h1>
+        <p>Upload your video, adjust settings, and download the converted file.</p>
+    </header>
+
+    <main>
+        <div id="upload-area" class="upload-area">
+            <p>Drag and drop your video file here or click to select</p>
+            <input type="file" id="file-input" accept="video/*" style="display: none;">
+        </div>
+
+        <div class="options">
+            <label for="speed">Playback Speed:</label>
+            <input type="range" id="speed" min="0.5" max="2" step="0.1" value="1">
+            <span id="speed-value">1x</span>
+
+            <label for="resolution">Resolution:</label>
+            <select id="resolution">
+                <option value="360p">360p</option>
+                <option value="480p">480p</option>
+                <option value="720p" selected>720p</option>
+                <option value="1080p">1080p</option>
+            </select>
+        </div>
+
+        <button id="convert-btn" disabled>Convert</button>
+
+        <div id="progress-bar">
+            <div id="progress"></div>
+        </div>
+        <div id="status"></div>
+
+        <button id="download-btn" style="display: none;">Download Converted Video</button>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Video Converter. All rights reserved.</p>
+        <p><a href="https://example.com" target="_blank">Developer's Website</a></p>
+    </footer>
+
+    <script>
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const speedSlider = document.getElementById('speed');
+        const speedValue = document.getElementById('speed-value');
+        const resolutionSelect = document.getElementById('resolution');
+        const convertBtn = document.getElementById('convert-btn');
+        const progressBar = document.getElementById('progress');
+        const statusDiv = document.getElementById('status');
+        const downloadBtn = document.getElementById('download-btn');
+
+        let selectedFile = null;
+        let jobId = null;
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', (e) => e.preventDefault());
+        uploadArea.addEventListener('drop', handleFileDrop);
+        fileInput.addEventListener('change', handleFileSelect);
+        speedSlider.addEventListener('input', updateSpeedValue);
+        convertBtn.addEventListener('click', startConversion);
+        downloadBtn.addEventListener('click', downloadConvertedVideo);
+
+        function handleFileDrop(e) {
+            e.preventDefault();
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('video/')) {
+                setSelectedFile(file);
+            } else {
+                alert('Please drop a valid video file.');
+            }
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                setSelectedFile(file);
+            }
+        }
+
+        function setSelectedFile(file) {
+            selectedFile = file;
+            uploadArea.textContent = `Selected file: ${file.name}`;
+            convertBtn.disabled = false;
+        }
+
+        function updateSpeedValue() {
+            speedValue.textContent = `${speedSlider.value}x`;
+        }
+
+        async function startConversion() {
+            if (!selectedFile) return;
+
+            convertBtn.disabled = true;
+            statusDiv.textContent = 'Uploading...';
+            progressBar.style.width = '0%';
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            try {
+                const uploadResponse = await fetch('http://localhost:8667/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!uploadResponse.ok) throw new Error('Upload failed');
+
+                const uploadData = await uploadResponse.json();
+                jobId = uploadData.job_id;
+
+                statusDiv.textContent = 'Converting...';
+                progressBar.style.width = '50%';
+
+                const convertResponse = await fetch('http://localhost:8667/convert', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        job_id: jobId,
+                        speed: parseFloat(speedSlider.value),
+                        resolution: resolutionSelect.value
+                    })
+                });
+
+                if (!convertResponse.ok) throw new Error('Conversion failed');
+
+                checkStatus();
+            } catch (error) {
+                statusDiv.textContent = `Error: ${error.message}`;
+                convertBtn.disabled = false;
+            }
+        }
+
+        async function checkStatus() {
+            try {
+                const response = await fetch(`http://localhost:8667/status/${jobId}`);
+                if (!response.ok) throw new Error('Status check failed');
+
+                const data = await response.json();
+                statusDiv.textContent = `Status: ${data.status}`;
+
+                if (data.status === 'completed') {
+                    progressBar.style.width = '100%';
+                    downloadBtn.style.display = 'block';
+                } else if (data.status === 'failed') {
+                    throw new Error('Conversion failed');
+                } else {
+                    setTimeout(checkStatus, 2000);
+                }
+            } catch (error) {
+                statusDiv.textContent = `Error: ${error.message}`;
+                convertBtn.disabled = false;
+            }
+        }
+
+        function downloadConvertedVideo() {
+            window.location.href = `http://localhost:8667/download/${jobId}`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent Research System</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.5.0/dist/socket.io.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div id="app" class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-center text-indigo-600 mb-8">Multi-Agent Research System</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Agents</h2>
+                <ul class="space-y-2">
+                    <li v-for="agent in agents" :key="agent.name" 
+                        :class="{'bg-indigo-100': agent.name === currentAgent, 'bg-gray-50': agent.name !== currentAgent}"
+                        class="p-3 rounded-md transition-colors duration-300">
+                        <span class="font-semibold text-indigo-600">{{ agent.name }}</span>: {{ agent.role }}
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Workflow</h2>
+                <ol class="list-decimal list-inside space-y-2">
+                    <li v-for="(step, index) in workflow" :key="step" 
+                        :class="{'text-indigo-600 font-semibold': index + 1 === currentStep, 'text-gray-600': index + 1 !== currentStep}"
+                        class="transition-colors duration-300">
+                        {{ step }}
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <div v-if="!currentJobId" class="bg-white shadow-md rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Start New Research</h2>
+            <input v-model="researchTopic" type="text" placeholder="Enter research topic" class="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
+            <button @click="startResearch" :disabled="isResearchRunning" 
+                    :class="{'bg-indigo-600 hover:bg-indigo-700': !isResearchRunning, 'bg-gray-400 cursor-not-allowed': isResearchRunning}"
+                    class="w-full text-white py-2 px-4 rounded-md transition duration-300">
+                {{ isResearchRunning ? 'Research in Progress...' : 'Start Research' }}
+            </button>
+        </div>
+
+        <div v-if="currentJobId" class="bg-white shadow-md rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Research Status</h2>
+            <p class="text-gray-600 mb-2"><span class="font-semibold">Job ID:</span> {{ currentJobId }}</p>
+            <p class="text-gray-600 mb-2"><span class="font-semibold">Status:</span> {{ researchStatus }}</p>
+            <p class="text-gray-600 mb-2"><span class="font-semibold">Time Elapsed:</span> {{ formattedElapsedTime }}</p>
+            <p class="text-gray-600 mb-2"><span class="font-semibold">Progress:</span> {{ currentStep }} / {{ totalSteps }}</p>
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                <div class="bg-indigo-600 h-2.5 rounded-full" :style="{ width: progressPercentage + '%' }"></div>
+            </div>
+            <p class="text-gray-600 mb-2"><span class="font-semibold">Current Step:</span> {{ stepDescription }}</p>
+            <h3 class="text-xl font-semibold text-gray-800 mt-4 mb-2">Step Results:</h3>
+            <div v-for="(result, index) in stepResults" :key="index" class="mb-4">
+                <button @click="toggleStepResult(index)" class="w-full text-left p-2 bg-gray-200 rounded-md hover:bg-gray-300 transition duration-300">
+                    <span class="font-semibold">Step {{ index + 1 }}:</span> {{ getResultPreview(result) }}
+                </button>
+                <pre v-if="expandedSteps[index]" class="bg-gray-100 p-4 rounded-md overflow-x-auto whitespace-pre-wrap mt-2">{{ result }}</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                researchTopic: '',
+                currentJobId: null,
+                researchStatus: '',
+                currentStep: 0,
+                totalSteps: 0,
+                stepDescription: '',
+                stepResults: [],
+                expandedSteps: {},
+                agents: [],
+                workflow: [],
+                socket: null,
+                currentAgent: null,
+                isResearchRunning: false,
+                startTime: null,
+                elapsedTime: 0,
+                timerInterval: null
+            },
+            computed: {
+                progressPercentage() {
+                    return (this.currentStep / this.totalSteps) * 100;
+                },
+                formattedElapsedTime() {
+                    const seconds = Math.floor(this.elapsedTime / 1000);
+                    const minutes = Math.floor(seconds / 60);
+                    const hours = Math.floor(minutes / 60);
+                    return `${hours.toString().padStart(2, '0')}:${(minutes % 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}`;
+                }
+            },
+            methods: {
+                startResearch() {
+                    if (this.isResearchRunning) return;
+                    
+                    this.isResearchRunning = true;
+                    this.stepResults = [];
+                    this.expandedSteps = {};
+                    this.startTime = Date.now();
+                    this.elapsedTime = 0;
+                    this.startTimer();
+
+                    axios.post('http://localhost:5901/api/research', { topic: this.researchTopic })
+                        .then(response => {
+                            this.currentJobId = response.data.job_id;
+                            this.connectWebSocket();
+                        })
+                        .catch(error => {
+                            console.error('Error starting research:', error);
+                            this.isResearchRunning = false;
+                            this.stopTimer();
+                        });
+                },
+                connectWebSocket() {
+                    this.socket = io('http://localhost:5901');
+                    this.socket.on('research_update', (data) => {
+                        if (data.job_id === this.currentJobId) {
+                            this.researchStatus = data.status;
+                            this.currentStep = data.current_step;
+                            this.totalSteps = data.total_steps;
+                            this.stepDescription = data.step_description;
+                            this.currentAgent = data.current_agent;
+                            
+                            if (data.result) {
+                                const formattedResult = typeof data.result === 'object' 
+                                    ? JSON.stringify(data.result, null, 2) 
+                                    : data.result;
+                                this.stepResults.push(formattedResult);
+                                this.$set(this.expandedSteps, this.stepResults.length - 1, false);
+                            }
+
+                            if (data.status === 'completed') {
+                                this.isResearchRunning = false;
+                                this.stopTimer();
+                            }
+                        }
+                    });
+                },
+                fetchAgents() {
+                    axios.get('http://localhost:5901/api/agents')
+                        .then(response => this.agents = response.data)
+                        .catch(error => console.error('Error fetching agents:', error));
+                },
+                fetchWorkflow() {
+                    axios.get('http://localhost:5901/api/workflow')
+                        .then(response => this.workflow = response.data)
+                        .catch(error => console.error('Error fetching workflow:', error));
+                },
+                toggleStepResult(index) {
+                    this.$set(this.expandedSteps, index, !this.expandedSteps[index]);
+                },
+                getResultPreview(result) {
+                    return result.length > 50 ? result.substring(0, 50) + '...' : result;
+                },
+                startTimer() {
+                    this.timerInterval = setInterval(() => {
+                        this.elapsedTime = Date.now() - this.startTime;
+                    }, 1000);
+                },
+                stopTimer() {
+                    clearInterval(this.timerInterval);
+                }
+            },
+            mounted() {
+                this.fetchAgents();
+                this.fetchWorkflow();
+            }
+        });
+    </script>
+</body>
+</html>

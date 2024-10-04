@@ -1,0 +1,30 @@
+
+The frontend will be a single HTML page with embedded CSS and JavaScript:
+
+1. HTML structure:
+   - Header with app title
+   - File input for audio upload
+   - Button to trigger upload
+   - Loading spinner (hidden by default)
+   - Results area to display transcription
+
+2. CSS styling:
+   - Modern, clean design
+   - Responsive layout
+   - Styled file input and button
+   - Animated loading spinner
+
+3. JavaScript functionality:
+   - Handle file selection
+   - Perform AJAX upload to server
+   - Show/hide loading spinner
+   - Display transcription results
+   - Error handling and user feedback
+
+4. Features:
+   - Drag and drop file upload
+   - File type validation (audio only)
+   - Copy transcription to clipboard button
+   - Character/word count display
+
+The page will be fully responsive and work well on both desktop and mobile devices.

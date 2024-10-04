@@ -1,0 +1,103 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+invoice creator.
+Upload a picture, input items and price, generate an invoice and I can download in PDF or PNG.
+The invoice should have a table in center, the picture in left top.
+The invoice also has footer, say my company name and address (I can type somewhere).
+It can have preview view to show just generated invoice (in PNG format maybe).
+It also has a list of already generated invoices, preview all of them and have PDF download buttons. 
+
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's my design for the invoice creator app based on your description:
+
+<BACKEND_DESIGN>
+The backend will be a Python Flask server with the following key components:
+
+1. Routes:
+   - POST /upload_image: Handle image upload
+   - POST /generate_invoice: Generate invoice based on user input
+   - GET /invoices: Retrieve list of generated invoices
+   - GET /invoice/<id>: Retrieve a specific invoice
+   - GET /download/<id>: Download invoice as PDF or PNG
+
+2. Database:
+   - Use SQLite to store invoice data and metadata
+
+3. Libraries:
+   - Pillow: For image processing
+   - ReportLab: For PDF generation
+   - Flask-SQLAlchemy: For database operations
+
+4. Key functions:
+   - process_image(): Resize and optimize uploaded image
+   - generate_invoice(): Create invoice based on user input
+   - create_pdf(): Generate PDF version of invoice
+   - create_png(): Generate PNG version of invoice
+   - save_invoice(): Save invoice data to database
+
+5. Data models:
+   - Invoice: Store invoice details (items, prices, company info, image path)
+
+The server will handle image uploads, invoice generation, and storage. It will provide APIs for the frontend to interact with, including invoice creation, retrieval, and download functionality.
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+The frontend will be a single HTML page with embedded JavaScript and CSS. Key components include:
+
+1. HTML structure:
+   - Header with app title
+   - Image upload section
+   - Invoice input form (items, prices, company info)
+   - Preview section
+   - Generated invoices list
+   - Footer
+
+2. CSS:
+   - Responsive design for various screen sizes
+   - Styling for form elements, buttons, and invoice preview
+   - Grid layout for invoice table
+
+3. JavaScript functions:
+   - handleImageUpload(): Process and display uploaded image
+   - generateInvoice(): Send form data to backend and display preview
+   - displayInvoicePreview(): Show generated invoice in PNG format
+   - loadInvoiceList(): Fetch and display list of generated invoices
+   - downloadInvoice(): Trigger invoice download (PDF or PNG)
+
+4. API interactions:
+   - Use fetch() for AJAX calls to backend APIs
+
+5. Libraries:
+   - Use vanilla JavaScript for DOM manipulation
+   - Consider using a lightweight CSS framework like Milligram for basic styling
+
+6. Key features:
+   - Real-time preview of invoice as user inputs data
+   - Drag-and-drop image upload
+   - Responsive table for invoice items
+   - Modal for displaying invoice preview
+   - Sortable and filterable list of generated invoices
+
+The frontend will provide an intuitive interface for users to create invoices, preview them in real-time, and manage previously generated invoices. It will communicate with the backend via API calls to handle data processing and storage.
+</FRONTEND_DESIGN>

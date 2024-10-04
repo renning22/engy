@@ -1,0 +1,42 @@
+
+The frontend will be a single HTML page with embedded JavaScript for dynamic content and interactions. Key components:
+
+1. HTML structure:
+   - Header with app title "GCP Instance Manager"
+   - Main content area for instance list
+   - Modal for SSH command display
+   - Loading spinner
+
+2. CSS styling:
+   - Use a modern CSS framework (e.g., Bootstrap) for responsive design
+   - Custom styles for instance cards, buttons, and modal
+
+3. JavaScript functionality:
+   - Fetch and display instances on page load
+   - Implement refresh button to update instance list
+   - SSH button on each instance card to show SSH command in modal
+   - Kill button on each instance card to stop the instance
+   - Error handling and display for failed API calls
+
+4. Instance display:
+   - Create cards for each instance showing:
+     - Instance name
+     - Status (with color-coding)
+     - Zone
+     - SSH and Kill buttons
+
+5. Modal for SSH command:
+   - Display generated SSH command
+   - Provide a copy-to-clipboard button
+
+6. Responsive design:
+   - Ensure the layout works well on both desktop and mobile devices
+
+7. Error messages:
+   - Display error notifications for failed API calls or actions
+
+8. Confirmation dialogs:
+   - Add confirmation step before killing an instance
+
+9. Auto-refresh:
+   - Implement periodic auto-refresh of instance list (e.g., every 30 seconds)

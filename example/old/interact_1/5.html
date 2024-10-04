@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rich Editor with WYSIWYG Viewer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #282a36;
+            color: #f8f8f2;
+            display: flex;
+            height: 100vh;
+        }
+        #editor-container {
+            flex: 1;
+            background-color: #282a36;
+            border-right: 1px solid #44475a;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #viewer-container {
+            flex: 1;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #viewer {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: white;
+        }
+        .cm-special-word {
+            background-color: rgba(255, 12, 69, 0.832);
+            border-radius: 3px;
+            padding: 2px 4px;
+            cursor: pointer;
+            animation: rainbow-bg 4s linear infinite, blink 1s ease-in-out infinite alternate;
+        }
+        .cm-special-word_2 {
+            background-color: rgba(255, 105, 180, 0.3);
+            border-radius: 5px;
+            padding: 3px 6px;
+            cursor: help;
+            animation: pulse 2s ease-in-out infinite, rotate 8s linear infinite;
+        }
+        .cm-special-word_3 {
+            background-color: rgba(50, 205, 50, 0.2);
+            border-radius: 8px;
+            padding: 1px 5px;
+            cursor: crosshair;
+            animation: slide-in 1.5s ease-out, glow 3s ease-in-out infinite;
+        }
+        /* ... (keep all the existing keyframe animations) ... */
+        .dropdown {
+            position: absolute;
+            background-color: #44475a;
+            border: 1px solid #6272a4;
+            border-radius: 3px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            display: none;
+        }
+        .dropdown-item {
+            padding: 5px 10px;
+            cursor: pointer;
+            color: #f8f8f2;
+        }
+        .dropdown-item:hover {
+            background-color: #6272a4;
+        }
+    </style>
+</head>
+<body>
+    <div id="editor-container"></div>
+    <div id="viewer-container">
+        <iframe id="viewer"></iframe>
+    </div>
+    <div id="dropdown" class="dropdown"></div>
+
+    <script>
+        const specialWords_1 = ['john', 'ning', 'emma', 'danny', 'titian', 'tommy', 'andy', 'three kingdoms'];
+        const specialWords_2 = ['10.0.10.1', '10.0.10.2', '10.0.10.3', '10.0.10.4', '10.0.10.5', '10.0.10.6', '10.0.10.7', '10.0.10.8'];
+        const specialWords_3 = ['command', 'send file', 'connect', 'close', 'send email', 'progress', 'summary', 'website'];
+
+        const editor = CodeMirror(document.getElementById('editor-container'), {
+            mode: 'htmlmixed',
+            lineNumbers: true,
+            theme: 'dracula',
+            value: 'three kingdoms'
+        });
+
+        const viewer = document.getElementById('viewer');
+        let updateTimer;
+
+        function updateViewer(content) {
+            viewer.srcdoc = content;
+        }
+
+        function submitPrompt() {
+            viewer.srcdoc = editor.content;
+        }
+
+        function debounceUpdate() {
+            clearTimeout(updateTimer);
+            updateTimer = setTimeout(submitPrompt, 2000);
+        }
+
+        // Create a WebSocket connection
+        const socket = new WebSocket('ws://localhost:5678');
+
+        // Connection opened
+        socket.addEventListener('open', (event) => {
+            console.log('Connected to WebSocket server');
+        });
+
+        // Listen for messages
+        socket.addEventListener('message', (event) => {
+            const data = JSON.parse(event.data);
+
+            console.log('Message');
+            console.log(data);
+            
+            if (data.type === 'codeSnippet') {
+                insertCodeSnippet(data.code, data.targetId);
+            } else if (data.type === 'html') {
+                updateViewer(data.code)
+            }
+        });
+
+        // Connection closed
+        socket.addEventListener('close', (event) => {
+            console.log('Disconnected from WebSocket server');
+        });
+
+        // Error handling
+        socket.addEventListener('error', (event) => {
+            console.error('WebSocket error:', event);
+        });
+
+        editor.on('change', function(cm, change) {
+            debounceUpdate();
+            cm.operation(() => {
+                cm.getAllMarks().forEach(mark => mark.clear());
+                
+                for (let i = 0; i < cm.lineCount(); i++) {
+                    const line = cm.getLine(i);
+                    specialWords_1.forEach(word => {
+                        let startIndex = 0;
+                        while ((startIndex = line.indexOf(word, startIndex)) !== -1) {
+                            const endIndex = startIndex + word.length;
+                            cm.markText(
+                                {line: i, ch: startIndex},
+                                {line: i, ch: endIndex},
+                                {className: 'cm-special-word'}
+                            );
+                            startIndex = endIndex;
+                        }
+                    });
+                }
+                for (let i = 0; i < cm.lineCount(); i++) {
+                    const line = cm.getLine(i);
+                    specialWords_2.forEach(word => {
+                        let startIndex = 0;
+                        while ((startIndex = line.indexOf(word, startIndex)) !== -1) {
+                            const endIndex = startIndex + word.length;
+                            cm.markText(
+                                {line: i, ch: startIndex},
+                                {line: i, ch: endIndex},
+                                {className: 'cm-special-word_2'}
+                            );
+                            startIndex = endIndex;
+                        }
+                    });
+                }
+                for (let i = 0; i < cm.lineCount(); i++) {
+                    const line = cm.getLine(i);
+                    specialWords_3.forEach(word => {
+                        let startIndex = 0;
+                        while ((startIndex = line.indexOf(word, startIndex)) !== -1) {
+                            const endIndex = startIndex + word.length;
+                            cm.markText(
+                                {line: i, ch: startIndex},
+                                {line: i, ch: endIndex},
+                                {className: 'cm-special-word_3'}
+                            );
+                            startIndex = endIndex;
+                        }
+                    });
+                }
+            });
+        });
+
+        editor.on('mousedown', function(cm, event) {
+            const pos = cm.coordsChar({left: event.clientX, top: event.clientY});
+            const token = cm.getTokenAt(pos);
+            const mark = cm.findMarksAt(pos)
+
+            console.log(mark)
+
+            if (specialWords_1.includes(token.string) || specialWords_2.includes(token.string) || specialWords_3.includes(token.string)) {
+                showDropdown(cm, pos, token);
+            } else {
+                document.getElementById('dropdown').style.display = 'none';
+            }
+        });
+
+        function showDropdown(cm, pos, token) {
+            const dropdown = document.getElementById('dropdown');
+            dropdown.innerHTML = '';
+            dropdown.style.display = 'block';
+
+            const coords = cm.charCoords(pos, 'page');
+            dropdown.style.left = coords.left + 'px';
+            dropdown.style.top = (coords.bottom + 5) + 'px';
+
+            const options = ['Find', 'Search', 'Expand'];
+            options.forEach(option => {
+                const item = document.createElement('div');
+                item.className = 'dropdown-item';
+                item.textContent = option;
+                item.onclick = function() {
+                    cm.replaceRange(option, 
+                        {line: pos.line, ch: token.start},
+                        {line: pos.line, ch: token.end}
+                    );
+                    dropdown.style.display = 'none';
+                };
+                dropdown.appendChild(item);
+            });
+        }
+
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.cm-special-word') && !event.target.closest('.dropdown')) {
+                document.getElementById('dropdown').style.display = 'none';
+            }
+        });
+
+        // Initial update of the viewer
+        updateViewer();
+    </script>
+</body>
+</html>

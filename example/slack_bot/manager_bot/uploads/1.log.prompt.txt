@@ -1,0 +1,95 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are good at writing single self-contained python files (less than 200 lines) and single html web page files, output them one by one.
+
+Output blocks:
+1. Python code should be wrapped in <python_code></python_code> block.
+2. If need any `pip install`, put bash commands in <pip_install></pip_install> block.
+3. For html page output, put them in <html_code></html_code> block.
+
+
+=== 0: user ===
+Generate a python code that is websocket server.
+The server has a database of all main charactors in Three Kingdoms.
+When a client connests, the server periodically (every 1 second) send a charactor info to the client.
+
+
+=== Reply 0 ===
+Certainly! I'll create a Python script that implements a WebSocket server with the functionality you described. This server will maintain a database of main characters from the Three Kingdoms and send character information to connected clients every second.
+
+First, let's install the required packages:
+
+<pip_install>
+pip install websockets
+</pip_install>
+
+Now, here's the Python code for the WebSocket server:
+
+<python_code>
+import asyncio
+import json
+import random
+import websockets
+
+# Database of Three Kingdoms characters
+characters = [
+    {"name": "Liu Bei", "kingdom": "Shu", "title": "Emperor of Shu Han"},
+    {"name": "Guan Yu", "kingdom": "Shu", "title": "God of War"},
+    {"name": "Zhang Fei", "kingdom": "Shu", "title": "General Who Subdues Rebels"},
+    {"name": "Zhuge Liang", "kingdom": "Shu", "title": "Prime Minister of Shu"},
+    {"name": "Cao Cao", "kingdom": "Wei", "title": "Emperor of Wei"},
+    {"name": "Xiahou Dun", "kingdom": "Wei", "title": "One-eyed Warrior"},
+    {"name": "Sima Yi", "kingdom": "Wei", "title": "Strategist of Wei"},
+    {"name": "Sun Quan", "kingdom": "Wu", "title": "Emperor of Wu"},
+    {"name": "Zhou Yu", "kingdom": "Wu", "title": "Talented Strategist"},
+    {"name": "Lu Su", "kingdom": "Wu", "title": "Advisor of Wu"}
+]
+
+async def send_character_info(websocket):
+    while True:
+        # Randomly select a character
+        character = random.choice(characters)
+        
+        # Convert character info to JSON
+        message = json.dumps(character)
+        
+        # Send the character info to the client
+        await websocket.send(message)
+        
+        # Wait for 1 second before sending the next character
+        await asyncio.sleep(1)
+
+async def handle_client(websocket, path):
+    print(f"New client connected: {websocket.remote_address}")
+    try:
+        await send_character_info(websocket)
+    except websockets.exceptions.ConnectionClosed:
+        print(f"Client disconnected: {websocket.remote_address}")
+
+async def main():
+    server = await websockets.serve(handle_client, "localhost", 8765)
+    print("WebSocket server started on ws://localhost:8765")
+    await server.wait_closed()
+
+if __name__ == "__main__":
+    asyncio.run(main())
+</python_code>
+
+This Python script does the following:
+
+1. We import the necessary modules: `asyncio` for asynchronous programming, `json` for JSON encoding, `random` for selecting random characters, and `websockets` for WebSocket functionality.
+
+2. We define a list of dictionaries called `characters` that contains information about main characters from the Three Kingdoms.
+
+3. The `send_character_info` function is an asynchronous function that continuously sends character information to a connected client. It randomly selects a character, converts the character info to JSON, sends it to the client, and then waits for 1 second before repeating the process.
+
+4. The `handle_client` function is called whenever a new client connects. It prints a connection message and starts the `send_character_info` function for that client. If the client disconnects, it catches the exception and prints a disconnection message.
+
+5. The `main` function sets up the WebSocket server to listen on `localhost` at port 8765.
+
+6. Finally, we use `asyncio.run(main())` to start the server when the script is executed.
+
+To run this server, save the code to a file (e.g., `three_kingdoms_server.py`) and run it using Python. The server will start and listen for WebSocket connections on `ws://localhost:8765`.
+
+Clients can then connect to this WebSocket server and receive information about Three Kingdoms characters every second.

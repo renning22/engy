@@ -1,0 +1,1 @@
+I have one-time and recursive expenses all the time. I want to create a tracker. Maybe it's a table with some diagram show how I spend money.

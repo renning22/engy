@@ -1,0 +1,195 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Summarizer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #4285F4;
+            color: white;
+            padding: 20px 0;
+        }
+        .btn-gmail {
+            background-color: #DB4437;
+            color: white;
+        }
+        .btn-gmail:hover {
+            background-color: #C53929;
+            color: white;
+        }
+        .accordion-button:not(.collapsed) {
+            background-color: #E8F0FE;
+            color: #1A73E8;
+        }
+        .spinner-border {
+            color: #4285F4;
+        }
+    </style>
+</head>
+<body>
+    <header class="header mb-4">
+        <div class="container">
+            <h1 class="display-4">Email Summarizer</h1>
+            <div id="userInfo" class="mt-2" style="display: none;">
+                Logged in as: <span id="userEmail"></span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="authSection" class="mb-4">
+            <button id="authButton" class="btn btn-gmail">Connect to Gmail</button>
+            <span id="authStatus" class="ms-3"></span>
+        </section>
+
+        <section id="controlPanel" class="mb-4" style="display: none;">
+            <div class="row align-items-end">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <label for="emailCount" class="form-label">Number of emails to summarize:</label>
+                    <select id="emailCount" class="form-select">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50" selected>50</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <button id="summarizeButton" class="btn btn-primary">Summarize Recent Emails</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="resultsSection" class="mb-4">
+            <div id="loadingSpinner" class="text-center" style="display: none;">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p>Summarizing emails...</p>
+            </div>
+            <div id="summaryAccordion" class="accordion">
+                <!-- Summary items will be dynamically inserted here -->
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8487';
+        let isAuthenticated = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('authButton').addEventListener('click', authenticate);
+            document.getElementById('summarizeButton').addEventListener('click', summarizeEmails);
+            checkAuthStatus();
+        });
+
+        function authenticate() {
+            window.open(`${API_BASE_URL}/auth`, 'Gmail Authentication', 'width=600,height=600');
+            checkAuthStatus();
+        }
+
+        function checkAuthStatus() {
+            fetch(`${API_BASE_URL}/results`)
+                .then(response => {
+                    if (response.ok) {
+                        isAuthenticated = true;
+                        updateUIForAuthenticatedUser();
+                    } else {
+                        isAuthenticated = false;
+                        updateUIForUnauthenticatedUser();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking auth status:', error);
+                    isAuthenticated = false;
+                    updateUIForUnauthenticatedUser();
+                });
+        }
+
+        function updateUIForAuthenticatedUser() {
+            document.getElementById('authStatus').textContent = 'Authenticated';
+            document.getElementById('authButton').style.display = 'none';
+            document.getElementById('controlPanel').style.display = 'block';
+            document.getElementById('userInfo').style.display = 'block';
+            // In a real app, you'd fetch and display the user's email here
+            document.getElementById('userEmail').textContent = 'user@example.com';
+        }
+
+        function updateUIForUnauthenticatedUser() {
+            document.getElementById('authStatus').textContent = 'Not authenticated';
+            document.getElementById('authButton').style.display = 'inline-block';
+            document.getElementById('controlPanel').style.display = 'none';
+            document.getElementById('userInfo').style.display = 'none';
+        }
+
+        function summarizeEmails() {
+            const emailCount = document.getElementById('emailCount').value;
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('summaryAccordion').innerHTML = '';
+
+            fetch(`${API_BASE_URL}/summarize?count=${emailCount}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Summarization failed');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('loadingSpinner').style.display = 'none';
+                    if (data.message === 'Summarization complete') {
+                        fetchAndDisplayResults();
+                    } else {
+                        throw new Error('Unexpected response from server');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error during summarization:', error);
+                    document.getElementById('loadingSpinner').style.display = 'none';
+                    alert('An error occurred while summarizing emails. Please try again.');
+                });
+        }
+
+        function fetchAndDisplayResults() {
+            fetch(`${API_BASE_URL}/results`)
+                .then(response => response.json())
+                .then(summaries => {
+                    const accordionContainer = document.getElementById('summaryAccordion');
+                    accordionContainer.innerHTML = '';
+                    Object.entries(summaries).forEach(([emailId, summary], index) => {
+                        const accordionItem = createAccordionItem(emailId, summary, index);
+                        accordionContainer.appendChild(accordionItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching results:', error);
+                    alert('An error occurred while fetching the summaries. Please try again.');
+                });
+        }
+
+        function createAccordionItem(emailId, summary, index) {
+            const item = document.createElement('div');
+            item.className = 'accordion-item';
+            item.innerHTML = `
+                <h2 class="accordion-header" id="heading${emailId}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${emailId}" aria-expanded="false" aria-controls="collapse${emailId}">
+                        ${summary.subject || 'No Subject'} - ${summary.from || 'Unknown Sender'}
+                    </button>
+                </h2>
+                <div id="collapse${emailId}" class="accordion-collapse collapse" aria-labelledby="heading${emailId}" data-bs-parent="#summaryAccordion">
+                    <div class="accordion-body">
+                        <p><strong>Date:</strong> ${summary.date || 'Unknown Date'}</p>
+                        <p><strong>Summary:</strong> ${summary.content || 'No summary available.'}</p>
+                    </div>
+                </div>
+            `;
+            return item;
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

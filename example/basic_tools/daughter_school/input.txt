@@ -1,0 +1,3 @@
+my daughter is 4 years old and going to school next year. She loves art.
+I'm living in Fremont, CA. I don't know which school is good for her.
+Create an app comparing all of them nearby. Show me some metrics and explainations. Also show me on google map.

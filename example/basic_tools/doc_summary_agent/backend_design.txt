@@ -1,0 +1,29 @@
+
+The backend will be a Python Flask server with the following key components:
+
+1. File Upload Handling:
+   - Use Flask's file upload functionality to receive the uploaded document.
+   - Store the uploaded file temporarily on the server.
+
+2. CrewAI Integration:
+   - Set up a CrewAI agent using Claude 3.5 for document summarization.
+   - Create a function to process the uploaded document and generate a summary using the CrewAI agent.
+
+3. Markdown Conversion:
+   - Implement a function to convert the summary into markdown format.
+
+4. API Endpoints:
+   - POST /upload: Handle file upload and trigger summarization process.
+   - GET /summary: Return the generated markdown summary.
+   - GET /download: Serve the markdown summary as a downloadable file.
+
+5. Data Storage:
+   - Use a simple in-memory storage (e.g., a dictionary) to store the latest summary for each session.
+
+6. Error Handling:
+   - Implement proper error handling for file upload issues, summarization failures, etc.
+
+7. CORS Support:
+   - Enable CORS to allow the frontend to communicate with the backend.
+
+The server will use environment variables for API keys and other sensitive information.

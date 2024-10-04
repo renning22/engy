@@ -1,0 +1,103 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+create an app connect to my MetaMask wallet.
+Manage my web3 assets. Show my ETH balance.
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's a design for a simple web app that connects to a MetaMask wallet, manages Web3 assets, and shows ETH balance:
+
+<BACKEND_DESIGN>
+Python Flask server:
+
+1. Dependencies:
+   - Flask
+   - web3.py
+
+2. Routes:
+   - GET /: Serve the main HTML page
+   - POST /connect: Connect to MetaMask and return account address
+   - GET /balance: Fetch ETH balance for connected account
+
+3. Functions:
+   - connect_metamask(): Establish connection with MetaMask
+   - get_eth_balance(address): Retrieve ETH balance for given address
+
+4. Web3 integration:
+   - Use web3.py to interact with Ethereum blockchain
+   - Connect to Ethereum mainnet via Infura or similar provider
+
+5. Error handling:
+   - Handle connection errors
+   - Manage cases where MetaMask is not installed or user rejects connection
+
+6. Security:
+   - Implement CORS to allow requests only from frontend origin
+   - Use environment variables for sensitive data (e.g., Infura API key)
+
+7. Logging:
+   - Log connection attempts and balance queries for debugging
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+Single HTML page with embedded JavaScript:
+
+1. Structure:
+   - Header with app title and MetaMask logo
+   - "Connect Wallet" button
+   - Display area for account address
+   - Display area for ETH balance
+   - Asset management section (placeholder for future features)
+
+2. Styling:
+   - Use modern, clean design with a color scheme inspired by MetaMask (orange and white)
+   - Responsive layout for mobile and desktop
+   - Custom CSS for buttons, input fields, and display areas
+
+3. JavaScript functionality:
+   - Check if MetaMask is installed
+   - Handle "Connect Wallet" button click
+   - Make API calls to backend for connection and balance retrieval
+   - Update UI with account address and balance
+   - Implement error handling and user feedback
+
+4. MetaMask integration:
+   - Use Web3.js library to interact with MetaMask
+   - Request account access and handle user approval/rejection
+
+5. Dynamic updates:
+   - Periodically refresh ETH balance (e.g., every 30 seconds)
+   - Show loading indicators during API calls
+
+6. Error handling:
+   - Display user-friendly error messages
+   - Provide guidance if MetaMask is not installed
+
+7. Future expansion:
+   - Placeholder sections for additional Web3 asset management features
+   - Comment blocks indicating where to add new functionality
+
+8. Accessibility:
+   - Ensure proper contrast ratios for text
+   - Use semantic HTML elements
+   - Include ARIA attributes where necessary
+</FRONTEND_DESIGN>

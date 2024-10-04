@@ -1,0 +1,284 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My YouTube Video Album</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --text-color: #ffffff;
+            --accent-color: #ff4500;
+            --secondary-bg: #2a2a2a;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            grid-template-rows: auto 1fr;
+            min-height: 100vh;
+        }
+
+        header {
+            grid-column: 1 / -1;
+            background-color: var(--secondary-bg);
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .sidebar {
+            background-color: var(--secondary-bg);
+            padding: 1rem;
+        }
+
+        .main-content {
+            padding: 1rem;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .video-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .video-item:hover {
+            transform: scale(1.05);
+        }
+
+        .video-item img {
+            width: 100%;
+            height: auto;
+        }
+
+        .video-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 0.5rem;
+        }
+
+        .video-title {
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .video-tags {
+            font-size: 0.8rem;
+            color: var(--accent-color);
+        }
+
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            color: var(--accent-color);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .video-item:hover .play-button {
+            opacity: 1;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .modal-content {
+            position: relative;
+            margin: 5% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 800px;
+            background-color: var(--secondary-bg);
+            border-radius: 8px;
+        }
+
+        .close {
+            color: var(--text-color);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: none;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>My YouTube Video Album</h1>
+        </header>
+        <aside class="sidebar">
+            <h2>Add Video</h2>
+            <input type="text" id="video-url" placeholder="Enter YouTube URL">
+            <button id="add-video">Add Video</button>
+            <h2>Search</h2>
+            <input type="text" id="search-input" placeholder="Search by title or tag">
+            <div id="tag-cloud"></div>
+        </aside>
+        <main class="main-content">
+            <div id="video-grid" class="video-grid"></div>
+        </main>
+    </div>
+
+    <div id="video-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="player"></div>
+            <h2 id="modal-title"></h2>
+            <p id="modal-description"></p>
+            <div id="modal-tags"></div>
+        </div>
+    </div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        const API_URL = 'http://localhost:7717';
+        let player;
+
+        // Fetch and display videos
+        async function fetchVideos() {
+            const response = await fetch(`${API_URL}/videos`);
+            const videos = await response.json();
+            displayVideos(videos);
+            updateTagCloud(videos);
+        }
+
+        function displayVideos(videos) {
+            const grid = document.getElementById('video-grid');
+            grid.innerHTML = '';
+            videos.forEach(video => {
+                const item = document.createElement('div');
+                item.className = 'video-item';
+                item.innerHTML = `
+                    <img src="https://img.youtube.com/vi/${video.youtube_id}/mqdefault.jpg" alt="${video.title}">
+                    <div class="video-info">
+                        <div class="video-title">${video.title}</div>
+                        <div class="video-tags">${video.tags}</div>
+                    </div>
+                    <i class="fas fa-play-circle play-button"></i>
+                `;
+                item.addEventListener('click', () => openVideoModal(video));
+                grid.appendChild(item);
+            });
+        }
+
+        function updateTagCloud(videos) {
+            const tagCloud = document.getElementById('tag-cloud');
+            const tags = videos.flatMap(video => video.tags.split(','));
+            const uniqueTags = [...new Set(tags)];
+            tagCloud.innerHTML = uniqueTags.map(tag => `<span class="tag">${tag}</span>`).join(' ');
+        }
+
+        // Add new video
+        document.getElementById('add-video').addEventListener('click', async () => {
+            const url = document.getElementById('video-url').value;
+            const videoId = extractVideoId(url);
+            if (videoId) {
+                const response = await fetch(`${API_URL}/videos`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ youtube_id: videoId })
+                });
+                if (response.ok) {
+                    fetchVideos();
+                    document.getElementById('video-url').value = '';
+                } else {
+                    alert('Failed to add video');
+                }
+            } else {
+                alert('Invalid YouTube URL');
+            }
+        });
+
+        function extractVideoId(url) {
+            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
+        // Search functionality
+        document.getElementById('search-input').addEventListener('input', async (e) => {
+            const query = e.target.value;
+            const response = await fetch(`${API_URL}/videos/search?q=${query}`);
+            const videos = await response.json();
+            displayVideos(videos);
+        });
+
+        // Video modal
+        function openVideoModal(video) {
+            const modal = document.getElementById('video-modal');
+            document.getElementById('modal-title').textContent = video.title;
+            document.getElementById('modal-description').textContent = video.description;
+            document.getElementById('modal-tags').textContent = video.tags;
+            modal.style.display = 'block';
+            
+            if (player) {
+                player.loadVideoById(video.youtube_id);
+            } else {
+                player = new YT.Player('player', {
+                    height: '360',
+                    width: '640',
+                    videoId: video.youtube_id,
+                });
+            }
+        }
+
+        document.querySelector('.close').addEventListener('click', () => {
+            document.getElementById('video-modal').style.display = 'none';
+            if (player) {
+                player.stopVideo();
+            }
+        });
+
+        // Initialize
+        fetchVideos();
+    </script>
+</body>
+</html>

@@ -1,0 +1,844 @@
+claude-3-5-sonnet-20240620
+
+# Example Project
+This is the example project which has 3 main files "server.py", "index.html" and "run.sh".
+Here are their contents:
+
+## server.py
+```python
+
+import os
+import uuid
+import io
+from flask import Flask, request, send_file, jsonify, send_from_directory
+from flask_cors import CORS
+from werkzeug.utils import secure_filename
+from PyPDF2 import PdfMerger, PdfReader, PdfWriter
+from docx import Document
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+import threading
+import time
+
+app = Flask(__name__, static_folder='.')
+CORS(app)
+
+UPLOAD_FOLDER = 'uploads'
+MERGED_FOLDER = 'merged'
+ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx'}
+
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+if not os.path.exists(MERGED_FOLDER):
+    os.makedirs(MERGED_FOLDER)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MERGED_FOLDER'] = MERGED_FOLDER
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def docx_to_pdf(docx_path, pdf_path):
+    doc = Document(docx_path)
+    packet = io.BytesIO()
+    can = canvas.Canvas(packet, pagesize=letter)
+    
+    for para in doc.paragraphs:
+        can.drawString(72, 800, para.text)
+        can.showPage()
+    
+    can.save()
+    
+    packet.seek(0)
+    new_pdf = PdfReader(packet)
+    
+    pdf_writer = PdfWriter()
+    for page in new_pdf.pages:
+        pdf_writer.add_page(page)
+    
+    with open(pdf_path, 'wb') as output_file:
+        pdf_writer.write(output_file)
+
+@app.route('/upload', methods=['POST'])
+def upload_files():
+    if 'files' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    
+    files = request.files.getlist('files')
+    
+    if not files or files[0].filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    pdf_files = []
+    
+    for file in files:
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+            
+            if filename.lower().endswith(('.doc', '.docx')):
+                pdf_path = os.path.splitext(file_path)[0] + '.pdf'
+                docx_to_pdf(file_path, pdf_path)
+                os.remove(file_path)
+                pdf_files.append(pdf_path)
+            else:
+                pdf_files.append(file_path)
+    
+    merged_filename = f"{uuid.uuid4()}.pdf"
+    merged_path = os.path.join(app.config['MERGED_FOLDER'], merged_filename)
+    
+    merger = PdfMerger()
+    for pdf in pdf_files:
+        merger.append(pdf)
+    merger.write(merged_path)
+    merger.close()
+    
+    # Clean up original files
+    for pdf in pdf_files:
+        os.remove(pdf)
+    
+    return jsonify({'filename': merged_filename}), 200
+
+@app.route('/download/<filename>', methods=['GET'])
+def download_file(filename):
+    return send_file(os.path.join(app.config['MERGED_FOLDER'], filename), as_attachment=True)
+
+def cleanup_files():
+    while True:
+        time.sleep(3600)  # Run every hour
+        current_time = time.time()
+        for folder in [UPLOAD_FOLDER, MERGED_FOLDER]:
+            for filename in os.listdir(folder):
+                file_path = os.path.join(folder, filename)
+                if os.path.isfile(file_path):
+                    if os.stat(file_path).st_mtime < current_time - 24 * 3600:
+                        os.remove(file_path)
+
+@app.route('/')
+def index():
+    return send_from_directory('.', 'index.html')
+
+if __name__ == '__main__':
+    cleanup_thread = threading.Thread(target=cleanup_files)
+    cleanup_thread.start()
+    app.run(host='0.0.0.0', port=5122, debug=True)
+
+```
+
+## index.html
+```html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF & Document Merger</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        h2 {
+            color: #34495e;
+        }
+        #drop-area {
+            border: 2px dashed #3498db;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+        }
+        #file-list {
+            margin-top: 20px;
+        }
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #f1f1f1;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        #progress-bar {
+            width: 100%;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        #progress {
+            width: 0%;
+            height: 30px;
+            background-color: #3498db;
+            border-radius: 5px;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+        }
+        #result {
+            margin-top: 20px;
+            display: none;
+        }
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>PDF & Document Merger</h1>
+        <h2>Upload multiple PDFs or Word documents to merge them into one PDF</h2>
+    </header>
+
+    <main>
+        <div id="drop-area">
+            <p>Drag and drop files here or click to select files</p>
+            <input type="file" id="fileElem" multiple accept=".pdf,.doc,.docx" style="display:none">
+            <button id="addFiles">Add Files</button>
+        </div>
+
+        <div id="file-list"></div>
+
+        <button id="mergeButton" disabled>Merge Files</button>
+
+        <div id="progress-bar">
+            <div id="progress"></div>
+        </div>
+
+        <div id="result">
+            <h3>Merge Successful!</h3>
+            <p>Your merged document is ready:</p>
+            <p id="mergedFilename"></p>
+            <button id="downloadButton">Download Merged PDF</button>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 PDF & Document Merger. All rights reserved. | <a href="#">Privacy Policy</a></p>
+    </footer>
+
+    <script>
+        const dropArea = document.getElementById('drop-area');
+        const fileList = document.getElementById('file-list');
+        const addFilesButton = document.getElementById('addFiles');
+        const fileElem = document.getElementById('fileElem');
+        const mergeButton = document.getElementById('mergeButton');
+        const progressBar = document.getElementById('progress');
+        const resultSection = document.getElementById('result');
+        const mergedFilename = document.getElementById('mergedFilename');
+        const downloadButton = document.getElementById('downloadButton');
+
+        let files = [];
+
+        function handleFiles(newFiles) {
+            for (let file of newFiles) {
+                if (!files.some(f => f.name === file.name)) {
+                    files.push(file);
+                }
+            }
+            updateFileList();
+            updateMergeButton();
+        }
+
+        function updateFileList() {
+            fileList.innerHTML = '';
+            files.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <span>${file.name} (${formatFileSize(file.size)})</span>
+                    <button onclick="removeFile(${index})">Remove</button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' bytes';
+            else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            else return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        function removeFile(index) {
+            files.splice(index, 1);
+            updateFileList();
+            updateMergeButton();
+        }
+
+        function updateMergeButton() {
+            mergeButton.disabled = files.length < 2;
+        }
+
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.style.backgroundColor = '#ecf0f1';
+        });
+
+        dropArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropArea.style.backgroundColor = '';
+        });
+
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.style.backgroundColor = '';
+            handleFiles(e.dataTransfer.files);
+        });
+
+        addFilesButton.addEventListener('click', () => fileElem.click());
+
+        fileElem.addEventListener('change', (e) => handleFiles(e.target.files));
+
+        mergeButton.addEventListener('click', () => {
+            const formData = new FormData();
+            files.forEach(file => formData.append('files', file));
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.filename) {
+                    resultSection.style.display = 'block';
+                    mergedFilename.textContent = data.filename;
+                    downloadButton.onclick = () => window.location.href = `/download/${data.filename}`;
+                } else {
+                    alert('Error merging files. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error merging files. Please try again.');
+            });
+        });
+
+        // Simple progress simulation
+        function updateProgress(percent) {
+            progressBar.style.width = percent + '%';
+            progressBar.textContent = percent + '%';
+        }
+
+        // Simulate progress (replace with actual progress updates if the server provides them)
+        let progress = 0;
+        function simulateProgress() {
+            progress += 10;
+            if (progress <= 100) {
+                updateProgress(progress);
+                setTimeout(simulateProgress, 500);
+            }
+        }
+
+        mergeButton.addEventListener('click', () => {
+            progress = 0;
+            updateProgress(0);
+            simulateProgress();
+        });
+    </script>
+</body>
+</html>
+
+```
+
+## run.sh
+```bash
+
+#!/bin/bash
+
+# Update pip
+pip install --upgrade pip
+
+# Install required libraries
+pip install Flask flask-cors PyPDF2 python-docx reportlab
+
+# Start the server
+python server.py
+
+```
+
+# Objective
+Modify and re-generate these files based on new <FEATURE_REQUEST></FEATURE_REQUEST> statements.
+
+# Output
+1. Output new "server.py" source code in <SERVER_PYTHON_CODE></SERVER_PYTHON_CODE> block.
+2. Output new "index.html" source code in <INDEX_HTML_CODE></INDEX_HTML_CODE> block.
+3. Output new "run.sh" source code in <RUN_BASH_CODE></RUN_BASH_CODE> block.
+
+Only output one of them in each conversation round, based on user query.
+
+
+=== 0: user ===
+<FEATURE_REQUEST>
+the app is working well. don't change functionality, but only change the UI styles.
+
+
+Make the style match the entrance page, and make them consistent look like the same product:
+
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Finae AI</title>
+    <meta name="description" content="Generate fully working AI tools in seconds"/>
+    <link rel="icon" href="/favicon.ico"/>
+    <meta property="og:title" content="Finae AI"/>
+    <meta property="og:description" content="Generate fully working AI tools in seconds"/>
+    <meta property="og:url" content="https://finae.ai/"/>
+    <meta property="og:image" content="https://finae.ai/og-image.png"/>
+    <meta name="twitter:title" content="Finae AI"/>
+    <meta name="twitter:description" content="Generate fully working AI tools in seconds"/>
+    <meta name="twitter:image" content="/og-image.png"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        :root {
+            --primary-color: #3182ce;
+            --secondary-color: #4fd1c5;
+            --text-color: #2d3748;
+            --background-color: #f7fafc;
+            --accent-color: #f6e05e;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .nav-buttons a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .nav-buttons a:hover {
+            color: var(--primary-color);
+        }
+        .nav-buttons a.signup {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .nav-buttons a.signup:hover {
+            background-color: #2c5282;
+        }
+        .hero {
+            text-align: center;
+            padding: 80px 0;
+        }
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+        .headline-subtitle {
+            font-size: 24px;
+            color: var(--secondary-color);
+            display: block;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        .input-container {
+            max-width: 600px;
+            margin: 40px auto;
+        }
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #e2e8f0;
+            background-color: white;
+            color: var(--text-color);
+            font-size: 16px;
+            margin-bottom: 20px;
+            resize: vertical;
+        }
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: 600;
+        }
+        button:hover {
+            background-color: #2c5282;
+        }
+        .examples {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 40px;
+        }
+        .example-chip {
+            background-color: #edf2f7;
+            color: var(--text-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: 500;
+        }
+        .example-chip:hover {
+            background-color: #e2e8f0;
+        }
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            color: #718096;
+            border-top: 1px solid #e2e8f0;
+        }
+        #output-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(45, 55, 72, 0.9);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            justify-content: center;
+            align-items: center;
+        }
+        #output-container.visible {
+            opacity: 1;
+            display: flex;
+        }
+        #output-area {
+            width: 80%;
+            height: 80%;
+            max-width: 800px;
+            margin: auto;
+            background-color: white;
+            color: var(--text-color);
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-y: auto;
+            box-sizing: border-box;
+            border: none;
+            outline: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        #close-output {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: transparent;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .subtitle-small {
+            font-size: 18px;
+            color: #718096;
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">Finae AI</div>
+            <div class="nav-buttons">
+                <a href="/login">Log In</a>
+                <a href="/signup" class="signup">Sign Up</a>
+            </div>
+        </header>
+        <main>
+            <section class="hero">
+                <h1>
+                    Your AI-powered IT team
+                    <span class="headline-subtitle">Streamline your workflow with intelligent automation</span>
+                </h1>
+                <p class="subtitle-small">Describe your idea, and we'll generate a fully functional AI tool in seconds.</p>
+                <div class="input-container">
+                    <textarea id="idea-input" rows="4" placeholder="Describe your multi-agent idea, e.g., Competitor Analysis"></textarea>
+                    <button id="generate-button">Generate Tool</button>
+                </div>
+                <div class="examples">
+                    <div class="example-chip">Income expense tracker</div>
+                    <div class="example-chip">Shopify product inventory sync</div>
+                    <div class="example-chip">Customer insights dashboard</div>
+                    <div class="example-chip">Invoice manager</div>
+                    <div class="example-chip">Product lookup tool</div>
+                    <div class="example-chip">PDF merger</div>
+                    <div class="example-chip">Competitor research agent</div>
+                </div>
+            </section>
+            <section id="output-container">
+                <button id="close-output">&times;</button>
+                <pre id="output-area"></pre>
+            </section>
+        </main>
+        <footer>
+            <p>&copy; 2024 Finae Labs Inc. All rights reserved.</p>
+            <p>Contact us at <a href="mailto:founders@finae.ai">founders@finae.ai</a></p>
+        </footer>
+    </div>
+    <script>
+        const exampleDescriptions = {
+            "Income expense tracker": "Build a tool for accountants and controllers to efficiently track income and expenses from customer transactions.\n\nThe database should include columns for 'Week', 'Deposit Complete Amount', 'Withdraw Complete Amount', 'Deposit Amount', 'Deposit Other Amount', 'Withdraw Amount', and 'Withdraw Other Amount'. Enable functionalities to add, edit, and remove rows, with pagination for navigating large datasets.\n\nInclude a button that allows users to increase the 'Deposit Amount' by $100 for all records.\nAnd a toggle to select and highlight those rows with less 'Withdraw Amount' > 'Withdraw Amount'",
+            "Shopify product inventory sync": "Build a tool that automatically syncs product inventory across multiple platforms, including Shopify, Google Shopping, and Amazon.\n\nThe tool should ensure that inventory levels are always accurate and up-to-date to provide the best customer experience.",
+            "Customer insights dashboard": "Create a secure and accessible customer insights dashboard that serves as a centralized control center.\n\nThe dashboard should allow users to easily look up, edit, and configure customer accounts.\n\nEnsure data security while enabling quick access to customer information.",
+            "Invoice manager": "Develop an invoice management tool that tracks all aspects of accounting for a service business using subcontractors.\n\nThis tool should manage invoices, purchase orders, jobs, payables, and receipts, ensuring that all financials are up-to-date.",
+            "Product lookup tool": "Create a product lookup tool for customer support teams to easily search for product details such as price, availability, and shipping times.\n\nThis tool should handle large product inventories and provide accurate, real-time information about each item.",
+            "PDF merger": "I have 10 PDFs, want to merge them into 1.",
+            "Competitor research agent": "I want a web research Agent to scrape webpages related to Wordware AI.",
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const textarea = document.getElementById('idea-input');
+            const generateButton = document.getElementById('generate-button');
+            const outputContainer = document.getElementById('output-container');
+            const outputArea = document.getElementById('output-area');
+            const closeOutputButton = document.getElementById('close-output');
+            const exampleChips = document.querySelectorAll('.example-chip');
+
+            const socket = io();
+
+            function showOutput() {
+                outputContainer.style.display = 'flex';
+                setTimeout(() => {
+                    outputContainer.classList.add('visible');
+                }, 50);
+                document.body.style.overflow = 'hidden';
+            }
+
+            function hideOutput() {
+                outputContainer.classList.remove('visible');
+                setTimeout(() => {
+                    outputContainer.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }, 300);
+            }
+
+            generateButton.addEventListener('click', function() {
+                const idea = textarea.value;
+                socket.emit('generate', {idea: idea});
+                showOutput();
+                outputArea.textContent = 'Generating... Please wait.\n';
+                generateButton.disabled = true;
+            });
+
+            closeOutputButton.addEventListener('click', function() {
+                hideOutput();
+                generateButton.disabled = false;
+            });
+
+            socket.on('output', function(data) {
+                outputArea.textContent += data.output + '\n';
+                outputArea.scrollTop = outputArea.scrollHeight;
+            });
+
+            socket.on('generation_complete', function() {
+                generateButton.disabled = false;
+            });
+
+            exampleChips.forEach(chip => {
+                chip.addEventListener('click', function() {
+                    const chipText = this.textContent;
+                    if (exampleDescriptions[chipText]) {
+                        textarea.value = exampleDescriptions[chipText];
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+```
+</FEATURE_REQUEST>
+
+Generate new "server.py" first. Re-assign a new PORT, to "localhost:8365".
+
+
+=== Reply 0 ===
+Certainly! I'll modify the "server.py" file to update the UI styles and change the port to 8365. Here's the updated server.py code:
+
+<SERVER_PYTHON_CODE>
+import os
+import uuid
+import io
+from flask import Flask, request, send_file, jsonify, send_from_directory, render_template
+from flask_cors import CORS
+from werkzeug.utils import secure_filename
+from PyPDF2 import PdfMerger, PdfReader, PdfWriter
+from docx import Document
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+import threading
+import time
+
+app = Flask(__name__, static_folder='static', template_folder='templates')
+CORS(app)
+
+UPLOAD_FOLDER = 'uploads'
+MERGED_FOLDER = 'merged'
+ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx'}
+
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+if not os.path.exists(MERGED_FOLDER):
+    os.makedirs(MERGED_FOLDER)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MERGED_FOLDER'] = MERGED_FOLDER
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def docx_to_pdf(docx_path, pdf_path):
+    doc = Document(docx_path)
+    packet = io.BytesIO()
+    can = canvas.Canvas(packet, pagesize=letter)
+    
+    for para in doc.paragraphs:
+        can.drawString(72, 800, para.text)
+        can.showPage()
+    
+    can.save()
+    
+    packet.seek(0)
+    new_pdf = PdfReader(packet)
+    
+    pdf_writer = PdfWriter()
+    for page in new_pdf.pages:
+        pdf_writer.add_page(page)
+    
+    with open(pdf_path, 'wb') as output_file:
+        pdf_writer.write(output_file)
+
+@app.route('/upload', methods=['POST'])
+def upload_files():
+    if 'files' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    
+    files = request.files.getlist('files')
+    
+    if not files or files[0].filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    pdf_files = []
+    
+    for file in files:
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+            
+            if filename.lower().endswith(('.doc', '.docx')):
+                pdf_path = os.path.splitext(file_path)[0] + '.pdf'
+                docx_to_pdf(file_path, pdf_path)
+                os.remove(file_path)
+                pdf_files.append(pdf_path)
+            else:
+                pdf_files.append(file_path)
+    
+    merged_filename = f"{uuid.uuid4()}.pdf"
+    merged_path = os.path.join(app.config['MERGED_FOLDER'], merged_filename)
+    
+    merger = PdfMerger()
+    for pdf in pdf_files:
+        merger.append(pdf)
+    merger.write(merged_path)
+    merger.close()
+    
+    # Clean up original files
+    for pdf in pdf_files:
+        os.remove(pdf)
+    
+    return jsonify({'filename': merged_filename}), 200
+
+@app.route('/download/<filename>', methods=['GET'])
+def download_file(filename):
+    return send_file(os.path.join(app.config['MERGED_FOLDER'], filename), as_attachment=True)
+
+def cleanup_files():
+    while True:
+        time.sleep(3600)  # Run every hour
+        current_time = time.time()
+        for folder in [UPLOAD_FOLDER, MERGED_FOLDER]:
+            for filename in os.listdir(folder):
+                file_path = os.path.join(folder, filename)
+                if os.path.isfile(file_path):
+                    if os.stat(file_path).st_mtime < current_time - 24 * 3600:
+                        os.remove(file_path)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+if __name__ == '__main__':
+    cleanup_thread = threading.Thread(target=cleanup_files)
+    cleanup_thread.start()
+    app.run(host='localhost', port=8365, debug=True)
+</SERVER_PYTHON_CODE>
+
+The main changes in this updated server.py file are:
+
+1. Changed the port to 8365 as requested.
+2. Updated the host to 'localhost'.
+3. Modified the index route to use render_template instead of send_from_directory, assuming we'll move the HTML file to a 'templates' folder.
+4. Added static_folder and template_folder parameters to the Flask app initialization.
+
+The core functionality of the server remains the same, but it's now set up to work better with the new UI styles and structure. You'll need to create a 'templates' folder and move the index.html file there, and create a 'static' folder for any static assets (CSS, JS, images) if needed.

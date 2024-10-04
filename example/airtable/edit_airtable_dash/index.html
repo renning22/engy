@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airtable Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Airtable Dashboard</h1>
+            <p class="text-gray-600">Connect, view, and edit your Airtable data</p>
+        </header>
+        
+        <div id="connection-form" class="bg-white rounded-lg shadow-lg p-8 max-w-md mx-auto mb-8">
+            <form id="airtable-form" class="space-y-6">
+                <div>
+                    <label for="table-name" class="block text-sm font-medium text-gray-700">Table Name</label>
+                    <input type="text" id="table-name" name="table-name" required
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="api-key" class="block text-sm font-medium text-gray-700">API Key</label>
+                    <input type="password" id="api-key" name="api-key" required
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="base-id" class="block text-sm font-medium text-gray-700">Base ID</label>
+                    <input type="text" id="base-id" name="base-id" required
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <button type="submit"
+                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Connect
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="connection-status" class="mb-8 text-center hidden"></div>
+
+        <div id="dash-container" class="hidden">
+            <div class="bg-white rounded-lg shadow-lg p-4">
+                <iframe id="dash-iframe" src="" class="w-full h-screen border-none"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const serverUrl = '';  // Empty string for relative path
+
+            $('#airtable-form').submit(function(e) {
+                e.preventDefault();
+                const tableName = $('#table-name').val();
+                const apiKey = $('#api-key').val();
+                const baseId = $('#base-id').val();
+
+                $.ajax({
+                    url: `${serverUrl}/api/init`,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        api_key: apiKey,
+                        base_id: baseId,
+                        table_name: tableName
+                    }),
+                    success: function(response) {
+                        $('#connection-status')
+                            .text('Connected successfully! You can now view and edit your Airtable data.')
+                            .removeClass('text-red-600')
+                            .addClass('text-green-600')
+                            .removeClass('hidden');
+                        loadDashboard();
+                    },
+                    error: function(xhr, status, error) {
+                        $('#connection-status')
+                            .text('Connection failed: ' + error)
+                            .removeClass('text-green-600')
+                            .addClass('text-red-600')
+                            .removeClass('hidden');
+                    }
+                });
+            });
+
+            function loadDashboard() {
+                $('#connection-form').addClass('hidden');
+                $('#dash-container').removeClass('hidden');
+                $('#dash-iframe').attr('src', `${serverUrl}/dashboard/`);
+            }
+        });
+    </script>
+</body>
+</html>

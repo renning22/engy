@@ -1,0 +1,37 @@
+
+The frontend will be a single HTML page with embedded JavaScript for interactivity. Key elements include:
+
+1. Header:
+   - Title: "Video Converter"
+   - Brief description of the app's functionality
+
+2. File Upload Section:
+   - Drag-and-drop area for file upload
+   - "Select File" button as an alternative
+   - Display selected file name
+
+3. Conversion Options:
+   - Playback Speed slider (0.5x to 2x)
+   - Resolution dropdown (e.g., 360p, 480p, 720p, 1080p)
+
+4. Convert Button:
+   - Triggers file upload and conversion process
+
+5. Progress Section:
+   - Progress bar for upload and conversion
+   - Status messages (e.g., "Uploading...", "Converting...", "Done!")
+
+6. Download Section:
+   - Download button (appears when conversion is complete)
+
+7. Footer:
+   - Copyright information
+   - Link to developer's website
+
+The page will use modern CSS for styling, making it responsive and visually appealing. JavaScript will handle:
+- File selection and upload
+- Sending conversion parameters to the server
+- Updating progress and status
+- Enabling the download button when conversion is complete
+
+The design will be clean and intuitive, with a color scheme that's easy on the eyes for users who might be working with video frequently.

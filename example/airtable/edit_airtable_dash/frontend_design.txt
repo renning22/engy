@@ -1,0 +1,29 @@
+
+The frontend will be a single HTML page that loads the Dash app and provides a user interface for interacting with the Airtable data. It will include:
+
+1. HTML structure:
+   - Head: 
+     - Title: "Airtable Dashboard"
+     - Meta tags for responsive design
+     - CSS links (Bootstrap for styling)
+   - Body:
+     - Container div for the Dash app
+     - Input fields for Airtable credentials (datasource name, personal token, BaseID)
+     - Connect button to initialize Airtable connection
+     - Div for displaying connection status
+
+2. Dash app components (rendered by the backend):
+   - DataTable: Interactive table for viewing and editing data
+   - Export to CSV button
+   - Refresh data button
+
+3. JavaScript:
+   - Function to handle Airtable connection initialization
+   - AJAX calls to backend API endpoints
+   - Event listeners for buttons and form submission
+
+4. CSS:
+   - Custom styles for layout and components
+   - Responsive design for various screen sizes
+
+The frontend will provide a user-friendly interface for inputting Airtable credentials, viewing and editing data in the interactive table, exporting to CSV, and refreshing data from the source. The Dash app will be embedded within this HTML page, allowing for seamless integration of the interactive components.

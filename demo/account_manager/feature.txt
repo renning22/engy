@@ -1,0 +1,1 @@
+good, but all the input text fields not well layout. make them more compact under a div.  

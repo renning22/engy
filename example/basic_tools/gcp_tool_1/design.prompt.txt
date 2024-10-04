@@ -1,0 +1,108 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+create a tool connect to gcp and list all my GCE instances. Let me can ssh or kill them.
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's a design for the GCP instance management app based on your description:
+
+<BACKEND_DESIGN>
+The backend will be a Python Flask server that interacts with Google Cloud Platform APIs. Key components:
+
+1. Flask app setup:
+   - Import necessary libraries (Flask, google-auth, google-auth-httplib2, googleapiclient)
+   - Initialize Flask app
+
+2. GCP authentication:
+   - Use service account credentials or application default credentials
+   - Authenticate with GCP APIs
+
+3. Routes:
+   a. GET /instances
+      - Retrieve list of GCE instances using Compute Engine API
+      - Return JSON with instance details (name, status, zone, etc.)
+
+   b. POST /ssh
+      - Receive instance name and zone
+      - Generate SSH command for the instance
+      - Return SSH command as response
+
+   c. POST /kill
+      - Receive instance name and zone
+      - Use Compute Engine API to stop the instance
+      - Return success/failure status
+
+4. Helper functions:
+   - get_compute_client(): Initialize and return GCP Compute Engine client
+   - list_instances(): Fetch and format instance data
+   - stop_instance(name, zone): Stop a specific instance
+
+5. Error handling:
+   - Implement try/except blocks for API calls
+   - Return appropriate error messages and status codes
+
+6. Run the Flask app with debug mode enabled for development
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+The frontend will be a single HTML page with embedded JavaScript for dynamic content and interactions. Key components:
+
+1. HTML structure:
+   - Header with app title "GCP Instance Manager"
+   - Main content area for instance list
+   - Modal for SSH command display
+   - Loading spinner
+
+2. CSS styling:
+   - Use a modern CSS framework (e.g., Bootstrap) for responsive design
+   - Custom styles for instance cards, buttons, and modal
+
+3. JavaScript functionality:
+   - Fetch and display instances on page load
+   - Implement refresh button to update instance list
+   - SSH button on each instance card to show SSH command in modal
+   - Kill button on each instance card to stop the instance
+   - Error handling and display for failed API calls
+
+4. Instance display:
+   - Create cards for each instance showing:
+     - Instance name
+     - Status (with color-coding)
+     - Zone
+     - SSH and Kill buttons
+
+5. Modal for SSH command:
+   - Display generated SSH command
+   - Provide a copy-to-clipboard button
+
+6. Responsive design:
+   - Ensure the layout works well on both desktop and mobile devices
+
+7. Error messages:
+   - Display error notifications for failed API calls or actions
+
+8. Confirmation dialogs:
+   - Add confirmation step before killing an instance
+
+9. Auto-refresh:
+   - Implement periodic auto-refresh of instance list (e.g., every 30 seconds)
+</FRONTEND_DESIGN>

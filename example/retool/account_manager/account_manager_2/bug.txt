@@ -1,0 +1,4 @@
+ERROR:__main__:Validation error: {'id': ['Unknown field.']}
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 21:45:29] "PUT /api/transactions/5 HTTP/1.1" 400 -
+ERROR:__main__:Validation error: {'id': ['Unknown field.']}
+INFO:werkzeug:127.0.0.1 - - [23/Aug/2024 21:45:36] "PUT /api/transactions/5 HTTP/1.1" 400 

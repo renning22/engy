@@ -1,0 +1,1 @@
+create video album that I can add and collect my favorate youtube videos. Better to have way to play in place and overview the content, or some tags. 

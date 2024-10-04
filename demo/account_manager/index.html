@@ -1,0 +1,393 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finae AI - Accounting</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3182ce;
+            --secondary-color: #4fd1c5;
+            --text-color: #2d3748;
+            --background-color: #f7fafc;
+            --accent-color: #f6e05e;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-color);
+            text-align: center;
+        }
+        .headline-subtitle {
+            font-size: 18px;
+            color: var(--secondary-color);
+            display: block;
+            margin-top: 10px;
+            font-weight: 500;
+            text-align: center;
+        }
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: 600;
+        }
+        button:hover {
+            background-color: #2c5282;
+        }
+        .form-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            flex: 1 1 calc(25% - 10px);
+            min-width: 200px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        tr:hover {
+            background-color: #edf2f7;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination button {
+            margin: 0 5px;
+        }
+        .error {
+            background-color: #fed7d7;
+            border: 1px solid #f56565;
+            color: #c53030;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .success {
+            background-color: #c6f6d5;
+            border: 1px solid #48bb78;
+            color: #2f855a;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container">
+        <header>
+            <div class="logo">Finae AI - Accounting</div>
+        </header>
+        <main>
+            <h1>
+                Income & expense dashboard
+            </h1>
+            
+            <div v-if="error" class="error">{{ error }}</div>
+            <div v-if="message" class="success">{{ message }}</div>
+
+            <div class="action-buttons">
+                <button @click="generateRandomTransaction">Generate random transaction</button>
+                <button @click="increaseDepositAmount">Increase all deposits by $100</button>
+                <button @click="selectWithdrawGtDeposit">Select withdraw > deposit</button>
+            </div>
+            
+            <form @submit.prevent="submitForm">
+                <div class="form-container">
+                    <div class="form-group">
+                        <input v-model="newTransaction.username" placeholder="Username" required>
+                    </div>
+                    <div class="form-group">
+                        <input v-model.number="newTransaction.week" type="number" placeholder="Week" min="1" max="52" required>
+                    </div>
+                    <div class="form-group">
+                        <input v-model.number="newTransaction.deposit_complete_amount" type="number" step="0.01" placeholder="Deposit complete amount" required>
+                    </div>
+                    <div class="form-group">
+                        <input v-model.number="newTransaction.withdraw_complete_amount" type="number" step="0.01" placeholder="Withdraw complete amount" required>
+                    </div>
+                    <div class="form-group">
+                        <input v-model.number="newTransaction.deposit_amount" type="number" step="0.01" placeholder="Deposit amount" required>
+                    </div>
+                    <div class="form-group">
+                        <input v-model.number="newTransaction.deposit_other_amount" type="number" step="0.01" placeholder="Deposit other amount" required>
+                    </div>
+                    <div class="form-group">
+                        <input v-model.number="newTransaction.withdraw_amount" type="number" step="0.01" placeholder="Withdraw amount" required>
+                    </div>
+                    <div class="form-group">
+                        <input v-model.number="newTransaction.withdraw_other_amount" type="number" step="0.01" placeholder="Withdraw other amount" required>
+                    </div>
+                </div>
+                <button type="submit">{{ editing ? 'Update' : 'Add' }} Transaction</button>
+                <button v-if="editing" @click.prevent="cancelEdit" type="button">Cancel</button>
+            </form>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th @click="sortTransactions('username')">Username</th>
+                        <th @click="sortTransactions('week')">Week</th>
+                        <th @click="sortTransactions('deposit_complete_amount')">Deposit complete</th>
+                        <th @click="sortTransactions('withdraw_complete_amount')">Withdraw complete</th>
+                        <th @click="sortTransactions('deposit_amount')">Deposit amount</th>
+                        <th @click="sortTransactions('deposit_other_amount')">Deposit other</th>
+                        <th @click="sortTransactions('withdraw_amount')">Withdraw amount</th>
+                        <th @click="sortTransactions('withdraw_other_amount')">Withdraw other</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="transaction in transactions" :key="transaction.id">
+                        <td>{{ transaction.username }}</td>
+                        <td>{{ transaction.week }}</td>
+                        <td>{{ formatCurrency(transaction.deposit_complete_amount) }}</td>
+                        <td>{{ formatCurrency(transaction.withdraw_complete_amount) }}</td>
+                        <td>{{ formatCurrency(transaction.deposit_amount) }}</td>
+                        <td>{{ formatCurrency(transaction.deposit_other_amount) }}</td>
+                        <td>{{ formatCurrency(transaction.withdraw_amount) }}</td>
+                        <td>{{ formatCurrency(transaction.withdraw_other_amount) }}</td>
+                        <td>
+                            <button @click="editTransaction(transaction)">Edit</button>
+                            <button @click="deleteTransaction(transaction.id)">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="pagination">
+                <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">Previous</button>
+                <span>Page {{ currentPage }} of {{ totalPages }}</span>
+                <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">Next</button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+    new Vue({
+        el: '#app',
+        data: {
+            transactions: [],
+            newTransaction: {
+                username: '',
+                week: '',
+                deposit_complete_amount: '',
+                withdraw_complete_amount: '',
+                deposit_amount: '',
+                deposit_other_amount: '',
+                withdraw_amount: '',
+                withdraw_other_amount: ''
+            },
+            editing: false,
+            currentPage: 1,
+            totalPages: 1,
+            error: null,
+            message: null,
+            sortColumn: null,
+            sortDirection: 'asc'
+        },
+        methods: {
+            fetchTransactions() {
+                axios.get(`http://localhost:6825/api/transactions?page=${this.currentPage}`)
+                    .then(response => {
+                        this.transactions = response.data.transactions;
+                        this.totalPages = response.data.pages;
+                    })
+                    .catch(error => {
+                        this.error = 'Failed to fetch transactions. Please try again.';
+                        console.error('Error fetching transactions:', error);
+                    });
+            },
+            submitForm() {
+                if (this.editing) {
+                    this.updateTransaction();
+                } else {
+                    this.addTransaction();
+                }
+            },
+            addTransaction() {
+                axios.post('http://localhost:6825/api/transactions', this.newTransaction)
+                    .then(() => {
+                        this.fetchTransactions();
+                        this.resetForm();
+                        this.message = 'Transaction added successfully.';
+                    })
+                    .catch(error => {
+                        this.error = 'Failed to add transaction. Please try again.';
+                        console.error('Error adding transaction:', error);
+                    });
+            },
+            updateTransaction() {
+                axios.put(`http://localhost:6825/api/transactions/${this.newTransaction.id}`, this.newTransaction)
+                    .then(() => {
+                        this.fetchTransactions();
+                        this.resetForm();
+                        this.message = 'Transaction updated successfully.';
+                    })
+                    .catch(error => {
+                        this.error = 'Failed to update transaction. Please try again.';
+                        console.error('Error updating transaction:', error);
+                    });
+            },
+            editTransaction(transaction) {
+                this.newTransaction = { ...transaction };
+                this.editing = true;
+            },
+            cancelEdit() {
+                this.resetForm();
+            },
+            deleteTransaction(id) {
+                if (confirm('Are you sure you want to delete this transaction?')) {
+                    axios.delete(`http://localhost:6825/api/transactions/${id}`)
+                        .then(() => {
+                            this.fetchTransactions();
+                            this.message = 'Transaction deleted successfully.';
+                        })
+                        .catch(error => {
+                            this.error = 'Failed to delete transaction. Please try again.';
+                            console.error('Error deleting transaction:', error);
+                        });
+                }
+            },
+            resetForm() {
+                this.newTransaction = {
+                    username: '',
+                    week: '',
+                    deposit_complete_amount: '',
+                    withdraw_complete_amount: '',
+                    deposit_amount: '',
+                    deposit_other_amount: '',
+                    withdraw_amount: '',
+                    withdraw_other_amount: ''
+                };
+                this.editing = false;
+            },
+            changePage(page) {
+                if (page >= 1 && page <= this.totalPages) {
+                    this.currentPage = page;
+                    this.fetchTransactions();
+                }
+            },
+            formatCurrency(value) {
+                return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+            },
+            sortTransactions(column) {
+                if (this.sortColumn === column) {
+                    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    this.sortColumn = column;
+                    this.sortDirection = 'asc';
+                }
+                this.transactions.sort((a, b) => {
+                    if (a[column] < b[column]) return this.sortDirection === 'asc' ? -1 : 1;
+                    if (a[column] > b[column]) return this.sortDirection === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            },
+            generateRandomTransaction() {
+                axios.post('http://localhost:6825/api/transactions/generate')
+                    .then(() => {
+                        this.fetchTransactions();
+                        this.message = 'Random transaction generated successfully.';
+                    })
+                    .catch(error => {
+                        this.error = 'Failed to generate random transaction. Please try again.';
+                        console.error('Error generating random transaction:', error);
+                    });
+            },
+            increaseDepositAmount() {
+                axios.post('http://localhost:6825/api/transactions/increase-deposit')
+                    .then(response => {
+                        this.fetchTransactions();
+                        this.message = response.data.message;
+                    })
+                    .catch(error => {
+                        this.error = 'Failed to increase deposit amounts. Please try again.';
+                        console.error('Error increasing deposit amounts:', error);
+                    });
+            },
+            selectWithdrawGtDeposit() {
+                axios.get('http://localhost:6825/api/transactions/select-withdraw-gt-deposit')
+                    .then(response => {
+                        this.transactions = response.data;
+                        this.message = `Selected ${this.transactions.length} transactions where Withdraw > Deposit`;
+                    })
+                    .catch(error => {
+                        this.error = 'Failed to select transactions. Please try again.';
+                        console.error('Error selecting transactions:', error);
+                    });
+            }
+        },
+        mounted() {
+            this.fetchTransactions();
+        }
+    });
+    </script>
+</body>
+</html>

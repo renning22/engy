@@ -1,0 +1,403 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --background-color: #ecf0f1;
+            --text-color: #34495e;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: var(--secondary-color);
+        }
+
+        .upload-section, .form-section, .preview-section, .invoice-list-section {
+            margin-bottom: 20px;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--primary-color);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .upload-area:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        #itemList, #invoiceList {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #itemList li, #invoiceList li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        #totalPrice {
+            font-weight: bold;
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        #modalPreview {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Invoice Generator</h1>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <p>Drag and drop your logo here or click to upload</p>
+                <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+            </div>
+            <img id="imagePreview" class="hidden" alt="Logo preview">
+        </div>
+
+        <div class="form-section">
+            <div class="form-group">
+                <label for="itemName">Item Name:</label>
+                <input type="text" id="itemName" required>
+            </div>
+            <div class="form-group">
+                <label for="itemPrice">Item Price:</label>
+                <input type="number" id="itemPrice" step="0.01" required>
+            </div>
+            <button id="addItem">Add Item</button>
+        </div>
+
+        <div class="preview-section">
+            <h2>Invoice Preview</h2>
+            <ul id="itemList"></ul>
+            <div id="totalPrice">Total: $0.00</div>
+        </div>
+
+        <button id="generateInvoice">Generate Invoice</button>
+        <div id="loader" class="loader hidden"></div>
+        <button id="downloadPdf" class="hidden">Download PDF</button>
+
+        <div class="invoice-list-section">
+            <h2>Generated Invoices</h2>
+            <ul id="invoiceList"></ul>
+        </div>
+    </div>
+
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <img id="modalPreview" alt="Invoice preview">
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const imageUpload = document.getElementById('imageUpload');
+        const imagePreview = document.getElementById('imagePreview');
+        const itemName = document.getElementById('itemName');
+        const itemPrice = document.getElementById('itemPrice');
+        const addItemButton = document.getElementById('addItem');
+        const itemList = document.getElementById('itemList');
+        const totalPrice = document.getElementById('totalPrice');
+        const generateInvoiceButton = document.getElementById('generateInvoice');
+        const downloadPdfButton = document.getElementById('downloadPdf');
+        const loader = document.getElementById('loader');
+        const invoiceList = document.getElementById('invoiceList');
+        const previewModal = document.getElementById('previewModal');
+        const modalPreview = document.getElementById('modalPreview');
+        const closeModal = document.getElementsByClassName('close')[0];
+
+        let items = [];
+        let imageId = null;
+
+        uploadArea.addEventListener('click', () => imageUpload.click());
+        uploadArea.addEventListener('dragover', (e) => e.preventDefault());
+        uploadArea.addEventListener('drop', handleDrop);
+        imageUpload.addEventListener('change', handleImageUpload);
+        addItemButton.addEventListener('click', addItem);
+        generateInvoiceButton.addEventListener('click', generateInvoice);
+        closeModal.onclick = () => previewModal.style.display = "none";
+        window.onclick = (event) => {
+            if (event.target == previewModal) {
+                previewModal.style.display = "none";
+            }
+        };
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleImageUpload({ target: { files: [file] } });
+            }
+        }
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagePreview.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                    uploadArea.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+                uploadImage(file);
+            }
+        }
+
+        function uploadImage(file) {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            fetch('http://localhost:6363/upload_image', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                imageId = data.image_id;
+            })
+            .catch(error => console.error('Error uploading image:', error));
+        }
+
+        function addItem() {
+            const name = itemName.value.trim();
+            const price = parseFloat(itemPrice.value);
+
+            if (name && !isNaN(price)) {
+                items.push({ name, price });
+                updateItemList();
+                itemName.value = '';
+                itemPrice.value = '';
+            }
+        }
+
+        function updateItemList() {
+            itemList.innerHTML = '';
+            let total = 0;
+
+            items.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.textContent = `${item.name}: $${item.price.toFixed(2)}`;
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'Remove';
+                removeButton.onclick = () => removeItem(index);
+                li.appendChild(removeButton);
+                itemList.appendChild(li);
+                total += item.price;
+            });
+
+            totalPrice.textContent = `Total: $${total.toFixed(2)}`;
+        }
+
+        function removeItem(index) {
+            items.splice(index, 1);
+            updateItemList();
+        }
+
+        function generateInvoice() {
+            if (!imageId || items.length === 0) {
+                alert('Please upload an image and add at least one item.');
+                return;
+            }
+
+            loader.classList.remove('hidden');
+            generateInvoiceButton.disabled = true;
+
+            fetch('http://localhost:6363/generate_invoice', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    image_id: imageId,
+                    items: items
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loader.classList.add('hidden');
+                generateInvoiceButton.disabled = false;
+                downloadPdfButton.classList.remove('hidden');
+                downloadPdfButton.onclick = () => downloadPdf(data.invoice_id);
+                loadInvoiceList();
+            })
+            .catch(error => {
+                console.error('Error generating invoice:', error);
+                loader.classList.add('hidden');
+                generateInvoiceButton.disabled = false;
+                alert('Error generating invoice. Please try again.');
+            });
+        }
+
+        function downloadPdf(invoiceId) {
+            window.location.href = `http://localhost:6363/download_pdf/${invoiceId}`;
+        }
+
+        function loadInvoiceList() {
+            fetch('http://localhost:6363/list_invoices')
+                .then(response => response.json())
+                .then(invoices => {
+                    invoiceList.innerHTML = '';
+                    invoices.forEach(invoice => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `
+                            Invoice ${invoice.id.slice(0, 8)} - Total: $${invoice.total.toFixed(2)} 
+                            <span>Created: ${new Date(invoice.created_at).toLocaleString()}</span>
+                            <button onclick="showPreview('${invoice.id}')">Preview</button>
+                            <button onclick="downloadPdf('${invoice.id}')">Download</button>
+                        `;
+                        invoiceList.appendChild(li);
+                    });
+                })
+                .catch(error => console.error('Error loading invoice list:', error));
+        }
+
+        function showPreview(invoiceId) {
+            modalPreview.src = `http://localhost:6363/preview_pdf/${invoiceId}`;
+            previewModal.style.display = "block";
+            modalPreview.onload = () => {
+                if (modalPreview.naturalWidth === 0) {
+                    modalPreview.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==';
+                    alert('Error loading preview. Please try again.');
+                }
+            };
+        }
+
+        // Load invoice list when the page loads
+        loadInvoiceList();
+    </script>
+</body>
+</html>

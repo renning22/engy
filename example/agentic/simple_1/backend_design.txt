@@ -1,0 +1,28 @@
+
+The backend will be a Python Flask server with the following components:
+
+1. Main Flask app:
+   - Handles routing and API endpoints
+   - Initializes the CrewAI agents and tasks
+
+2. Research Agent:
+   - Uses CrewAI to create agents for searching and scraping information
+   - Implements the following agents:
+     a. PersonSearcher: Searches for basic information about the person
+     b. ContactFinder: Finds email addresses and additional details
+
+3. API Endpoints:
+   - POST /search: Accepts a person's name, triggers the research process
+   - GET /status: Returns the current status and step logs of the research process
+
+4. Websocket:
+   - Implements real-time updates for step logs
+
+5. Data Storage:
+   - In-memory storage for search results and step logs
+   - Option to persist data to a lightweight database like SQLite
+
+6. Error Handling:
+   - Graceful error handling for API requests and agent operations
+
+The server will use the CrewAI library to create and manage agents, similar to the provided example code. It will adapt the agents and tasks to focus on person-specific research instead of company searches.

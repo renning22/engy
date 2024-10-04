@@ -1,0 +1,28 @@
+
+The backend will be a Python Flask server with the following key components:
+
+1. Flask app setup:
+   - Import necessary libraries (Flask, speech_recognition, werkzeug)
+   - Initialize Flask app
+
+2. File upload route ('/upload'):
+   - Accept POST requests with audio file
+   - Save uploaded file temporarily
+   - Use speech_recognition library to transcribe audio
+   - Return transcription as JSON response
+
+3. Main route ('/'):
+   - Serve the HTML page
+
+4. Error handling:
+   - Handle file format errors
+   - Handle transcription errors
+
+5. Run the Flask app
+
+Key libraries:
+- Flask for the web server
+- SpeechRecognition for audio transcription
+- Werkzeug for file handling
+
+The server will listen on localhost:5000 by default.

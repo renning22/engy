@@ -1,0 +1,232 @@
+claude-3-5-sonnet-20240620
+
+# Multi-Agent System Design and Orchestration
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in multi-agent system design and orchestration. Your task is to analyze problems presented in the <PROBLEM></PROBLEM> block and design a multi-agent system to address them comprehensively.
+
+## System Design Steps:
+
+1. Problem Analysis:
+   - Carefully read and analyze the problem statement.
+   - Identify key requirements, constraints, and objectives.
+
+2. Agent Identification:
+   - Determine the necessary agent types (2-5 agents) based on the problem's needs.
+   - Define each agent's primary role and responsibilities.
+
+3. Agent Interaction Design:
+   - Establish communication protocols between agents.
+   - Define the types of information or requests agents can exchange.
+
+4. Workflow Design:
+   - Create a step-by-step workflow showing how agents collaborate to solve the problem.
+   - Identify decision points and potential iterative processes.
+
+5. Output Specification:
+   - Define the final output format and content for the solution.
+   - Ensure the output addresses all aspects of the original problem.
+
+## Agent Design
+
+For each agent in your system, provide the following information:
+
+1. Name: A human-like name for the agent.
+2. Role: The specific function or position of the agent within the system.
+3. Goal: The primary objective or purpose of the agent.
+4. Backstory: A brief background that explains the agent's expertise and experience.
+5. Tools: A list of tools or capabilities the agent has access to.
+6. Task Description: A detailed description of the task goal and steps to follow to produce the expected output.
+7. Expected Output: A clear description of the format and content the agent should produce.
+8. Send_to: A list of agent names to which this agent sends information or requests.
+9. Receive_from: A list of agent names from which this agent receives information or requests.
+
+Example Agent Design:
+
+<AGENTS_DESIGN>
+[
+  {
+    "name": "Olivia Thompson",
+    "role": "Market Data Analyst",
+    "goal": "Gather and analyze market data",
+    "backstory": "Experienced market analyst with a keen eye for trends and patterns. Olivia has worked in various industries and excels at turning raw data into actionable insights.",
+    "tools": ["search_tool", "scrape_tool", "duckduck_tool"],
+    "task_description": "Task Goal: Provide comprehensive market data analysis. Steps: 1) Collect market size data from reliable sources. 2) Calculate market growth rate using historical data. 3) Identify and list key players in the market. 4) Research and summarize emerging trends affecting the market.",
+    "expected_output": "JSON format containing 'market_size', 'growth_rate', 'key_players', and 'emerging_trends'",
+    "send_to": ["Marcus Chen", "Sophia Patel"],
+    "receive_from": []
+  },
+  {
+    "name": "Marcus Chen",
+    "role": "Target Audience and Competitor Analyst",
+    "goal": "Identify target audience and competitors",
+    "backstory": "Former marketing strategist turned consultant. Marcus specializes in customer segmentation and competitive analysis, with a track record of helping startups position themselves effectively.",
+    "tools": ["search_tool", "scrape_tool", "duckduck_tool"],
+    "task_description": "Task Goal: Define target audience segments and analyze competitors. Steps: 1) Use demographic and psychographic data to identify key audience segments. 2) Describe characteristics of each segment. 3) List top competitors in the market. 4) Analyze and summarize strengths and weaknesses of each competitor.",
+    "expected_output": "JSON format containing 'target_segments', 'segment_characteristics', 'top_competitors', and 'competitor_strengths_weaknesses'",
+    "send_to": ["Sophia Patel"],
+    "receive_from": ["Olivia Thompson"]
+  },
+  {
+    "name": "Sophia Patel",
+    "role": "Content Synthesizer",
+    "goal": "Synthesize information and craft compelling narratives",
+    "backstory": "Skilled content writer and editor with a background in business journalism. Sophia has a talent for distilling complex information into clear, engaging prose.",
+    "tools": ["search_tool", "scrape_tool", "duckduck_tool"],
+    "task_description": "Task Goal: Create a comprehensive report synthesizing all gathered information. Steps: 1) Review data from Market Data Analyst and Target Audience and Competitor Analyst. 2) Write an executive summary highlighting key findings. 3) Develop detailed sections on market overview, target audience, and competitive landscape. 4) Formulate strategic recommendations based on the analysis. 5) Format the report in Markdown for easy readability.",
+    "expected_output": "Markdown-formatted report with sections: 'Executive Summary', 'Market Overview', 'Target Audience', 'Competitive Landscape', and 'Strategic Recommendations'",
+    "send_to": ["Ethan Novak"],
+    "receive_from": ["Olivia Thompson", "Marcus Chen"]
+  },
+  {
+    "name": "Ethan Novak",
+    "role": "Quality Assurance Specialist",
+    "goal": "Ensure accuracy and coherence of the final document",
+    "backstory": "Meticulous proofreader and fact-checker with experience in academic publishing. Ethan has a broad knowledge base and a knack for spotting inconsistencies and gaps in information.",
+    "tools": ["search_tool", "scrape_tool", "duckduck_tool"],
+    "task_description": "Task Goal: Verify and improve the quality of the final report. Steps: 1) Read through the entire report for coherence and flow. 2) Fact-check key claims and statistics using reliable sources. 3) Assess the overall accuracy of the information presented. 4) Evaluate the coherence and logical structure of the arguments. 5) Provide specific suggestions for improvements or clarifications.",
+    "expected_output": "JSON format containing 'accuracy_score', 'coherence_score', 'fact_check_results', and 'improvement_suggestions'",
+    "send_to": [],
+    "receive_from": ["Sophia Patel"]
+  }
+]
+</AGENTS_DESIGN>
+
+## Agent Interaction Guidelines:
+
+Please brainstorm/simulate agents interactions (as chain-of-thoughts) before writing actual agents design.
+
+- Agents can "talk to" each other by sending structured messages.
+- Example: Websearch Agent → Analysis Agent: "summary on website xxx"
+- Analysis Agent → Task Coordinator: "analysis report for website xxx"
+
+## Output Format:
+
+1. Problem Summary
+2. Proposed Multi-Agent System:
+   - List of agents with roles (using the Agent Design format)
+   - Interaction diagram (if applicable)
+   - Workflow description
+3. Expected Solution Process
+4. Final Agent Design JSON in <AGENTS_DESIGN></AGENTS_DESIGN> block. 
+
+## Additional Considerations:
+
+1. Scalability: Consider how the system might scale to handle larger problems or increased workload.
+2. Adaptability: Design the system to be flexible enough to handle variations of the given problem.
+3. Error Handling: Include mechanisms for dealing with potential failures or unexpected situations.
+4. Ethical Considerations: Ensure the system respects privacy, fairness, and other relevant ethical principles.
+
+After designing the system, be prepared to answer questions or make modifications based on user feedback. You may also be asked to simulate the interaction between agents to demonstrate how the system would work in practice.
+
+
+=== 0: user ===
+<PROBLEM>
+Agents: Competitor analysis
+
+The agent automates the collection, analysis, and reporting of competitor data, enabling marketing professionals to make informed strategic decisions.
+
+### Objectives
+
+- Streamline the competitor analysis process reduce time and effort by automating data collection and analysis.
+- Provide actionable insights to marketing teams to enhance strategic planning and positioning. Allow data export through tool integration
+
+### Key Features
+
+1. **Automated Data Collection**
+    - **Web Scraping**: The agent autonomously scrapes competitor websites for relevant information, including product offerings, pricing, and promotional strategies.
+    - **Social Media**: Check competitors' social media account to gather data on followership, activities，including Linkedin, Youtube, Tiktok, Pinterest, Twitter/X, Instagram, Facebook, Discord
+    - **News and Press Release Aggregation**: Collects and analyzes news articles and press releases related to competitors to stay updated on their latest developments.
+    - **Customer reviews**: Collect relevant customer reviews and analyze sentiment related to product features and services from Trustpilot, G2, Google, Yelp, and more ([Smelter AI](https://youtu.be/LqjpZS73Ewo?si=zcW7e3di_8bht-u2)).
+2. **Analysis and insight reporting**
+    
+    Generate a report that includes that following:
+    
+    - **Trend Analysis**: Synthesize publicly available data sources, such as industry reports, market research studies, and government publications that provide valuable information about market trends, industry benchmarks, and customer behavior. Identify emerging trends, new technologies, and innovative approaches to help users stay relevant and maintain a competitive edge.
+    - **SWOT Analysis**: Conducts automated SWOT (Strengths, Weaknesses, Opportunities, Threats) analysis based on the collected data.
+        - S - Identify what your competitors are doing well and what works for them. Do reviews indicate they have a superior product? Do they have high brand awareness? Can you test a competitor’s products yourself to see where they are performing better?
+        - W - Identify what each competitor could be doing better to give you a competitive advantage. Do they have a weak social media strategy? Do they have just an online store, not a brick-and-mortar one? Is their website outdated?
+        - O - Opportunities are factors that might work in favor of a business. What trends can provoke growths in the industry? What audience can also be targeted?
+        - T - Define what can potentially harm your competitors’ businesses. This might include politics, new regulations or changing customer preferences.
+    - **Competitive Benchmarking**: Compares key performance indicators (KPIs) of competitors against industry standards and the organization's metrics.
+    - **Price comparison**: Look up the data from the website pricing section or marketplaces. For eCommerce products, check price point across a variety of marketplaces
+    - **Generate Unique Selling Point**: <a competitor> is confident that customers will buy <a competitor>’s product because <a competitor> solves <a customer problem> better than any alternative due to the following reasons: A B C D E ([Not generic - PMM])
+</PROBLEM>
+
+
+=== Reply 0 ===
+1. Problem Summary
+
+The problem requires designing a multi-agent system to automate competitor analysis for marketing professionals. The system needs to collect data from various sources, analyze it, and generate comprehensive reports with actionable insights. Key features include automated data collection from websites, social media, news sources, and customer reviews; analysis and insight reporting including trend analysis, SWOT analysis, competitive benchmarking, price comparison, and generating unique selling points.
+
+2. Proposed Multi-Agent System
+
+To address this complex task, I propose a system with four specialized agents:
+
+a) Data Collection Agent
+b) Analysis and Insights Agent
+c) Report Generation Agent
+d) Quality Assurance and Integration Agent
+
+3. Expected Solution Process
+
+1. The Data Collection Agent gathers information from various sources.
+2. The Analysis and Insights Agent processes the collected data to extract meaningful insights.
+3. The Report Generation Agent compiles the analyzed information into a comprehensive report.
+4. The Quality Assurance and Integration Agent reviews the report, ensures accuracy, and prepares it for export to various tools.
+
+4. Final Agent Design JSON
+
+<AGENTS_DESIGN>
+[
+  {
+    "name": "Daphne Crawler",
+    "role": "Data Collection Agent",
+    "goal": "Gather comprehensive competitor data from multiple sources",
+    "backstory": "Daphne is a digital detective with years of experience in web scraping and data mining. She has a knack for finding hidden gems of information across the internet.",
+    "tools": ["web_scraping_tool", "social_media_api", "news_aggregator", "review_collector"],
+    "task_description": "Task Goal: Collect competitor data from various sources. Steps: 1) Scrape competitor websites for product, pricing, and promotional information. 2) Gather social media data from LinkedIn, YouTube, TikTok, Pinterest, Twitter, Instagram, Facebook, and Discord. 3) Aggregate news articles and press releases about competitors. 4) Collect customer reviews from Trustpilot, G2, Google, Yelp, and other relevant platforms.",
+    "expected_output": "JSON format containing structured data from all sources, including 'website_data', 'social_media_data', 'news_data', and 'review_data'",
+    "send_to": ["Alex Analyzer"],
+    "receive_from": []
+  },
+  {
+    "name": "Alex Analyzer",
+    "role": "Analysis and Insights Agent",
+    "goal": "Process collected data to extract meaningful insights",
+    "backstory": "Alex is a former business intelligence analyst with a passion for uncovering patterns and trends in complex datasets. Their analytical skills have helped numerous companies gain a competitive edge.",
+    "tools": ["data_analysis_tool", "trend_detection_algorithm", "sentiment_analysis_tool"],
+    "task_description": "Task Goal: Analyze collected data and generate insights. Steps: 1) Conduct trend analysis using industry reports and market research. 2) Perform SWOT analysis for each competitor. 3) Benchmark competitors' KPIs against industry standards. 4) Compare pricing across different platforms. 5) Identify unique selling points for each competitor.",
+    "expected_output": "JSON format containing 'trend_analysis', 'swot_analysis', 'benchmarking_results', 'price_comparison', and 'unique_selling_points'",
+    "send_to": ["Rachel Reporter"],
+    "receive_from": ["Daphne Crawler"]
+  },
+  {
+    "name": "Rachel Reporter",
+    "role": "Report Generation Agent",
+    "goal": "Compile analyzed information into a comprehensive and actionable report",
+    "backstory": "Rachel is a seasoned business writer with a background in marketing strategy. She excels at translating complex data into clear, compelling narratives that drive decision-making.",
+    "tools": ["report_template_engine", "data_visualization_tool", "natural_language_generation"],
+    "task_description": "Task Goal: Create a comprehensive competitor analysis report. Steps: 1) Organize insights from the Analysis Agent into a structured report. 2) Generate data visualizations to illustrate key points. 3) Write an executive summary highlighting critical findings. 4) Develop detailed sections on market trends, SWOT analysis, competitive benchmarking, pricing strategies, and unique selling points. 5) Format the report for easy readability and visual appeal.",
+    "expected_output": "A comprehensive competitor analysis report in both PDF and editable format, with sections including 'Executive Summary', 'Market Trends', 'Competitor SWOT Analysis', 'Competitive Benchmarking', 'Pricing Analysis', and 'Unique Selling Points'",
+    "send_to": ["Quinn QA"],
+    "receive_from": ["Alex Analyzer"]
+  },
+  {
+    "name": "Quinn QA",
+    "role": "Quality Assurance and Integration Agent",
+    "goal": "Ensure accuracy of the report and prepare it for export to various tools",
+    "backstory": "Quinn is a meticulous editor and tech-savvy professional with experience in data validation and software integration. They have a keen eye for detail and a deep understanding of various marketing tools and platforms.",
+    "tools": ["fact_checking_tool", "data_validation_tool", "api_integration_suite"],
+    "task_description": "Task Goal: Verify report accuracy and prepare for tool integration. Steps: 1) Review the entire report for accuracy and consistency. 2) Cross-reference key data points with original sources. 3) Ensure all sections of the report are complete and logically structured. 4) Prepare data for export to various marketing tools and platforms. 5) Generate final export files in multiple formats (CSV, JSON, API-ready data).",
+    "expected_output": "1) A quality assurance report detailing any corrections or improvements made. 2) Export-ready data files in CSV and JSON formats. 3) API-ready data structures for integration with marketing tools.",
+    "send_to": [],
+    "receive_from": ["Rachel Reporter"]
+  }
+]
+</AGENTS_DESIGN>
+
+This multi-agent system is designed to efficiently handle the competitor analysis task while ensuring accuracy, comprehensiveness, and actionability of the final report. The system is scalable to accommodate additional data sources or analysis techniques, adaptable to various industries and competitor types, and includes error handling mechanisms through the Quality Assurance agent. 
+
+The workflow allows for iterative improvements, as the Quality Assurance agent can potentially feed back to the Report Generation agent for revisions if needed. The system also considers ethical implications by focusing on publicly available data and avoiding any unethical data collection practices.
+
+To further enhance the system, we could consider adding a user interface agent to facilitate interaction with marketing professionals, allowing them to customize report parameters or request specific analyses. Additionally, a machine learning agent could be incorporated to improve trend detection and predictive analytics over time.

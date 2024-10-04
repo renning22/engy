@@ -1,0 +1,3 @@
+The app works well. Don't change the layout.
+
+change the data schema, to "user product feedback". And to make the dashboard a UX insights dashboard.

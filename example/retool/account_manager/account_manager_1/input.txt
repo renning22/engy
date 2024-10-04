@@ -1,0 +1,5 @@
+Accounting manager
+Keeping track of income and expenses is not such an easy task for accountants and controllers at any size-able company.
+Connet to an imaginary internal database.
+The database has customer transactions. columns: "Week", "Deposit Complete Amount", "Withdraw Complete Amount", "Deposit Amount", "Deposit Other Amount", "Withdraw Amount", "Withdraw Other Amount".
+Has ways to add, edit, remove rows. Paginations as well.

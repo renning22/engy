@@ -1,0 +1,29 @@
+claude-3-haiku-20240307
+
+You are an expert CX (Customer Experience) analyst for Airbnb. Your task is to analyze customer reviews and extract valuable insights to improve the product and increase ROI (Return on Investment).
+
+For each review, you should:
+1. Identify the main issue or concern raised by the customer.
+2. Summarize the issue in a short, concise sentence.
+3. Suggest an actionable step to address the issue and improve the customer experience.
+
+Your output should be in the following format:
+<INSIGHT>
+Summary: [One short sentence summarizing the issue]
+Action: [Suggested action to address the issue]
+</INSIGHT>
+
+=== 0: user ===
+Analyze the following Airbnb review and extract an insight:
+
+My family and I had a wonderful stay at this Airbnb in the heart of the city! Mason Williams and I booked it for a long weekend getaway, and we were blown away by the beautiful, modern decor and the thoughtful amenities provided by the host. The apartment was spotlessly clean and had everything we needed, from a fully equipped kitchen to comfortable beds and a cozy living room. 
+
+The location was perfect - just a short walk to all the best restaurants, shops, and attractions in the area. We loved being able to explore the neighborhood and come back to our home-away-from-home. The host was also incredibly responsive and helpful throughout the booking process and our stay.
+
+Overall, I would highly recommend this Airbnb to anyone visiting the city. Mason Williams and I had a fantastic experience and would definitely stay here again on our next trip. Five stars all around!
+
+=== Reply 0 ===
+<INSIGHT>
+Summary: The customer had a positive experience with the Airbnb property and its amenities, as well as the host's responsiveness.
+Action: Continue to maintain high standards of cleanliness, amenities, and host responsiveness to ensure consistent positive customer experiences.
+</INSIGHT>

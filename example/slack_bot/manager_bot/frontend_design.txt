@@ -1,0 +1,50 @@
+
+Single HTML page with embedded JavaScript and CSS:
+
+1. Header:
+   - Title: "Kim - Slack Bot Manager Assistant"
+   - Subtitle: "Weekly Report Check-in System"
+
+2. Document Upload Section:
+   - File input button labeled "Upload Documents"
+   - Progress bar for upload status
+   - List of uploaded documents
+
+3. Schedule Configuration:
+   - Dropdown to select interval (daily, weekly, bi-weekly, monthly)
+   - If weekly selected, show day of week picker
+   - "Update Schedule" button
+
+4. Calendar View:
+   - Interactive calendar component (use FullCalendar.js)
+   - Highlight scheduled check-in dates
+   - Allow clicking on dates to view details
+
+5. Team Member Management:
+   - Form to add new team members (name and Slack ID fields)
+   - "Add Member" button
+
+6. Team Member Summary Table:
+   - Sortable and filterable table with columns:
+     - Name
+     - Slack ID
+     - Last Check-in Date
+     - Current Weekly Report Status
+   - "Refresh" button to update data
+
+7. Slack Bot Status:
+   - Display current status of the Slack bot (online/offline)
+   - Last activity timestamp
+
+8. Responsive Design:
+   - Use CSS media queries to ensure mobile-friendly layout
+
+9. JavaScript Functionality:
+   - AJAX calls to backend API endpoints
+   - Dynamic updates of calendar and table data
+   - Form validation for adding team members and updating schedule
+
+10. Styling:
+    - Clean, modern design with a color scheme matching Slack's branding
+    - Use CSS animations for smooth transitions and loading states
+

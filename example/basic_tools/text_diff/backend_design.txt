@@ -1,0 +1,22 @@
+
+The backend will be a Python Flask server with the following components:
+
+1. Main Flask app:
+   - Import necessary libraries (Flask, difflib)
+   - Create Flask app instance
+
+2. Route: "/"
+   - Serve the main HTML page
+
+3. Route: "/compare" (POST method)
+   - Receive two texts from the frontend
+   - Use difflib to compare the texts and generate HTML diff
+   - Return the HTML diff to the frontend
+
+4. Helper function: generate_diff(text1, text2)
+   - Use difflib.HtmlDiff().make_file() to create an HTML diff
+   - Customize the output to make it more visually appealing
+
+5. Run the Flask app
+
+The server will use the difflib library to generate a colorized HTML diff between the two input texts. This diff will highlight additions, deletions, and changes between the two versions.

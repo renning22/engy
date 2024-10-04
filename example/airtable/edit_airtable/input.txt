@@ -1,0 +1,4 @@
+Using Airtable API, and create an editable dashboard let me editor a datasource in Airtable like Pandas table.
+Give me input to the datasource name, and my API key.
+Give me button that I can dump the table to CSV
+Give me button that I can refresh the table from datasource. 

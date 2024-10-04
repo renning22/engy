@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airtable Integration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
+    <style>
+        /* Custom styles for DataTables */
+        .dataTables_wrapper .dataTables_filter input {
+            @apply border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+        }
+        .dataTables_wrapper .dataTables_length select {
+            @apply border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+        }
+        table.dataTable thead th, table.dataTable thead td {
+            @apply py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+        }
+        table.dataTable tbody td {
+            @apply py-3 px-4 border-b border-gray-200;
+        }
+        table.dataTable tbody tr:hover {
+            @apply bg-gray-50;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-blue-600 mb-8">Airtable Integration</h1>
+        
+        <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label for="apiKey" class="block text-sm font-medium text-gray-700 mb-1">API Key</label>
+                    <input type="password" id="apiKey" value="patKEcuwsWIbTXfyk.c0c2a7d8b9d20eb979338734e401d8735d82bae9e40fc652656d2899566bbba7" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="baseId" class="block text-sm font-medium text-gray-700 mb-1">Base ID</label>
+                    <input type="text" id="baseId" value="applZJDk3UltDg1iw/tblJT81iyxBRuA7sh" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+            </div>
+            <button id="connectBtn" class="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150 ease-in-out">Connect</button>
+        </div>
+        
+        <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+            <div class="flex flex-wrap gap-4">
+                <button id="refreshBtn" class="bg-green-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-150 ease-in-out" disabled>Refresh</button>
+                <button id="saveBtn" class="bg-yellow-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition duration-150 ease-in-out" disabled>Save Changes</button>
+                <button id="exportBtn" class="bg-purple-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-150 ease-in-out" disabled>Export to CSV</button>
+            </div>
+        </div>
+        
+        <div id="tableContainer" class="bg-white shadow-md rounded-lg p-6 overflow-x-auto">
+            <table id="dataTable" class="w-full"></table>
+        </div>
+        
+        <div id="status" class="mt-8 p-4 rounded-md hidden"></div>
+    </div>
+
+    <div id="loadingOverlay" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-xl">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mx-auto"></div>
+            <p class="mt-4 text-gray-700">Loading...</p>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const API_URL = 'http://localhost:8369';
+        let table;
+
+        function showLoading(show = true) {
+            document.getElementById('loadingOverlay').classList.toggle('hidden', !show);
+        }
+
+        function showStatus(message, isError = false) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = `mt-8 p-4 rounded-md ${isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+            statusEl.classList.remove('hidden');
+            setTimeout(() => {
+                statusEl.classList.add('hidden');
+            }, 5000);
+        }
+
+        async function connect() {
+            const apiKey = document.getElementById('apiKey').value;
+            const baseId = document.getElementById('baseId').value;
+
+            showLoading();
+            try {
+                const response = await axios.post(`${API_URL}/connect`, { api_key: apiKey, base_id: baseId });
+                showStatus('Connected successfully');
+                document.getElementById('refreshBtn').disabled = false;
+                document.getElementById('saveBtn').disabled = false;
+                document.getElementById('exportBtn').disabled = false;
+                displayTable(response.data.data);
+            } catch (error) {
+                showStatus(`Connection failed: ${error.response.data.error}`, true);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function fetchData() {
+            showLoading();
+            try {
+                const response = await axios.get(`${API_URL}/fetch_data`);
+                displayTable(response.data);
+                showStatus('Data refreshed successfully');
+            } catch (error) {
+                showStatus(`Failed to fetch data: ${error.response.data.error}`, true);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayTable(data) {
+            const records = data.records.map(record => ({
+                id: record.id,
+                ...record.fields
+            }));
+
+            if (table) {
+                table.destroy();
+            }
+
+            table = $('#dataTable').DataTable({
+                data: records,
+                columns: Object.keys(records[0]).map(key => ({ title: key, data: key })),
+                scrollX: true,
+                scrollY: '400px',
+                scrollCollapse: true,
+                paging: true,
+                pageLength: 25,
+                lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "All"]],
+                responsive: true,
+            });
+        }
+
+        async function saveChanges() {
+            const updatedData = table.data().toArray().map(row => ({
+                id: row.id,
+                fields: Object.keys(row).reduce((acc, key) => {
+                    if (key !== 'id') {
+                        acc[key] = row[key];
+                    }
+                    return acc;
+                }, {})
+            }));
+
+            showLoading();
+            try {
+                const response = await axios.post(`${API_URL}/update_data`, { data: updatedData });
+                showStatus('Changes saved successfully');
+            } catch (error) {
+                showStatus(`Failed to save changes: ${error.response.data.error}`, true);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function exportCsv() {
+            showLoading();
+            try {
+                const response = await axios.get(`${API_URL}/export_csv`, { responseType: 'blob' });
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', 'table_export.csv');
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                showStatus('CSV exported successfully');
+            } catch (error) {
+                showStatus(`Failed to export CSV: ${error.response.data.error}`, true);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        document.getElementById('connectBtn').addEventListener('click', connect);
+        document.getElementById('refreshBtn').addEventListener('click', fetchData);
+        document.getElementById('saveBtn').addEventListener('click', saveChanges);
+        document.getElementById('exportBtn').addEventListener('click', exportCsv);
+
+        // Initially disable buttons
+        document.getElementById('refreshBtn').disabled = true;
+        document.getElementById('saveBtn').disabled = true;
+        document.getElementById('exportBtn').disabled = true;
+    </script>
+</body>
+</html>

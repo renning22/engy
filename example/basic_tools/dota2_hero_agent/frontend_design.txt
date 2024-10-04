@@ -1,0 +1,49 @@
+
+Single HTML page with the following sections:
+
+1. Header:
+   - Title: "Dota 2 Hero Analyzer and Picker"
+   - Subtitle: "Explore heroes and get AI-powered insights"
+
+2. Hero Grid:
+   - Display all Dota 2 heroes in a responsive grid layout
+   - Each hero card shows:
+     - Hero portrait
+     - Hero name
+     - Primary attribute (Strength/Agility/Intelligence)
+     - Roles (e.g., Carry, Support, Initiator)
+
+3. Hero Details Panel (initially hidden, shown when a hero is selected):
+   - Larger hero portrait
+   - Hero name and title
+   - Detailed attributes (Strength, Agility, Intelligence, Move Speed, etc.)
+   - Abilities overview
+   - Lore snippet
+
+4. AI Question-Answering Section:
+   - Text input for user questions
+   - "Ask" button to submit questions
+   - Response area to display AI-generated answers
+
+5. Filters and Search:
+   - Search bar to filter heroes by name
+   - Dropdown filters for primary attribute and roles
+
+Styling and Interactivity:
+- Use CSS Grid or Flexbox for responsive layout
+- Implement smooth transitions for hero selection and panel display
+- Use AJAX for asynchronous communication with the backend
+- Incorporate Dota 2-themed color scheme and typography
+- Add tooltips for hero abilities and attributes
+- Implement a loading spinner for AI responses
+
+JavaScript Functionality:
+- Fetch and display hero data from the backend
+- Handle hero selection and update the details panel
+- Implement search and filtering functionality
+- Send user questions to the backend and display AI-generated responses
+- Add keyboard navigation for accessibility
+
+Responsive Design:
+- Ensure the layout adapts to different screen sizes (desktop, tablet, mobile)
+- Use media queries to adjust the hero grid and panel layouts for smaller screens

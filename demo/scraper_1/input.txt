@@ -1,0 +1,9 @@
+Based on the example.
+
+Create a new agent that scrape the URL using "from finae import web_scraper_agent".
+
+```
+def web_scraper_agent(url: str, producer: Callable[[dict], None]):
+    content = scrape_tool.run(website_url=url)
+    producer({'url': url, 'webpage_content': content})
+```

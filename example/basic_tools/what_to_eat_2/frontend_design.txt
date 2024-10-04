@@ -1,0 +1,37 @@
+
+Single HTML page with embedded CSS and JavaScript:
+
+1. Header:
+   - Title: "SF Bay Area Chinese Restaurant Picker"
+   - Subtitle: "Let us decide where you'll have dinner tonight!"
+
+2. Main content:
+   - Large "Pick a Restaurant" button
+   - Restaurant info display area (initially hidden):
+     - Restaurant name (large font)
+     - Address
+     - Rating (with stars)
+     - Price range
+     - Phone number
+     - Restaurant image
+     - "View on Yelp" button (links to Yelp page)
+
+3. Footer:
+   - Created by [Your Name]
+   - Powered by Yelp
+
+4. Styling:
+   - Use a clean, modern design with a Chinese-inspired color scheme (red and gold)
+   - Responsive layout for mobile and desktop
+   - Animations for button press and restaurant info reveal
+
+5. JavaScript functionality:
+   - onClick event for "Pick a Restaurant" button:
+     - Show loading spinner
+     - Make AJAX call to backend '/get_restaurant' endpoint
+     - Hide loading spinner
+     - Display restaurant information in the info area
+     - Animate the reveal of the info area
+
+6. Error handling:
+   - Display error messages if the API call fails

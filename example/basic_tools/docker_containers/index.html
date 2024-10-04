@@ -1,0 +1,267 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Container Manager</title>
+    <style>
+        /* CSS styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            grid-template-rows: auto 1fr;
+            height: 100vh;
+        }
+        header {
+            grid-column: 1 / -1;
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem;
+        }
+        #sidebar {
+            background-color: #34495e;
+            color: white;
+            padding: 1rem;
+        }
+        main {
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+            border-radius: 5px;
+            display: none;
+        }
+        @media (max-width: 768px) {
+            body {
+                grid-template-columns: 1fr;
+            }
+            #sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Docker Container Manager</h1>
+    </header>
+    <aside id="sidebar">
+        <h2>Filters</h2>
+        <input type="text" id="search" placeholder="Search containers...">
+        <select id="status-filter">
+            <option value="">All Statuses</option>
+            <option value="running">Running</option>
+            <option value="exited">Exited</option>
+        </select>
+    </aside>
+    <main>
+        <table id="container-list">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Image</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Ports</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </main>
+
+    <div id="inspect-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Container Inspection</h2>
+            <pre id="inspect-content"></pre>
+        </div>
+    </div>
+
+    <div id="ssh-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>SSH Terminal</h2>
+            <div id="terminal"></div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        // JavaScript code
+        const API_URL = 'http://localhost:5494';
+        let socket;
+
+        // API calls
+        function fetchContainers() {
+            return fetch(`${API_URL}/containers`)
+                .then(response => response.json());
+        }
+
+        function killContainer(id) {
+            return fetch(`${API_URL}/container/${id}/kill`, {
+                method: 'POST'
+            }).then(response => response.json());
+        }
+
+        function inspectContainer(id) {
+            return fetch(`${API_URL}/container/${id}/inspect`)
+                .then(response => response.json());
+        }
+
+        function execInContainer(id, command) {
+            return fetch(`${API_URL}/container/${id}/exec`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command })
+            }).then(response => response.json());
+        }
+
+        // UI updates
+        function updateContainerList(containers) {
+            const tbody = document.querySelector('#container-list tbody');
+            tbody.innerHTML = '';
+            containers.forEach(container => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${container.id.slice(0, 12)}</td>
+                    <td>${container.name}</td>
+                    <td>${container.image}</td>
+                    <td>${container.status}</td>
+                    <td>${new Date(container.created).toLocaleString()}</td>
+                    <td>${JSON.stringify(container.ports)}</td>
+                    <td>
+                        <button onclick="killContainer('${container.id}')">Kill</button>
+                        <button onclick="showInspectModal('${container.id}')">Inspect</button>
+                        <button onclick="showSSHModal('${container.id}')">SSH</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function showInspectModal(id) {
+            inspectContainer(id).then(data => {
+                document.getElementById('inspect-content').textContent = JSON.stringify(data, null, 2);
+                document.getElementById('inspect-modal').style.display = 'block';
+            });
+        }
+
+        function showSSHModal(id) {
+            document.getElementById('ssh-modal').style.display = 'block';
+            // Here you would initialize your terminal emulator
+            // For simplicity, we'll just use a textarea
+            const terminal = document.getElementById('terminal');
+            terminal.innerHTML = `<textarea id="ssh-terminal" rows="20" cols="80"></textarea>`;
+            const sshTerminal = document.getElementById('ssh-terminal');
+            sshTerminal.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    const command = sshTerminal.value.split('\n').pop();
+                    execInContainer(id, command).then(result => {
+                        sshTerminal.value += '\n' + result.output;
+                    });
+                }
+            });
+        }
+
+        // Event listeners
+        document.querySelectorAll('.close').forEach(el => {
+            el.addEventListener('click', () => {
+                el.closest('.modal').style.display = 'none';
+            });
+        });
+
+        document.getElementById('search').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#container-list tbody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        document.getElementById('status-filter').addEventListener('change', (e) => {
+            const status = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#container-list tbody tr');
+            rows.forEach(row => {
+                const containerStatus = row.children[3].textContent.toLowerCase();
+                row.style.display = status === '' || containerStatus.includes(status) ? '' : 'none';
+            });
+        });
+
+        // Initialization
+        function init() {
+            fetchContainers().then(updateContainerList);
+
+            socket = io(API_URL);
+            socket.on('connect', () => {
+                console.log('Connected to WebSocket');
+            });
+            socket.on('container_event', (event) => {
+                fetchContainers().then(updateContainerList);
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>

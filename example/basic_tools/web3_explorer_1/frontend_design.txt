@@ -1,0 +1,43 @@
+
+The frontend will be a single HTML page with embedded JavaScript to interact with the MetaMask wallet and the backend API. Key components:
+
+1. HTML structure:
+   - Header with app title and MetaMask connection button
+   - Main content area with two sections:
+     a. ETH balance display
+     b. Transaction list
+   - Footer with app information
+
+2. CSS styling:
+   - Modern, responsive design
+   - Dark mode for better readability of crypto data
+   - Custom styles for balance and transaction list
+
+3. JavaScript functionality:
+   - MetaMask integration:
+     - Function to connect to MetaMask
+     - Event listeners for account changes
+   - API interactions:
+     - Fetch balance from backend
+     - Fetch and display transactions
+   - Dynamic content updates:
+     - Update balance in real-time
+     - Infinite scroll for transaction list
+   - Error handling and user notifications
+
+4. Web3 integration:
+   - Use Web3.js library to interact with MetaMask
+
+5. Responsive design:
+   - Ensure proper display on both desktop and mobile devices
+
+6. Loading indicators:
+   - Show loading spinners while fetching data
+
+7. Transaction details:
+   - Clickable transactions to show more details
+
+8. Local storage:
+   - Store user preferences (e.g., dark mode setting)
+
+The frontend will provide a user-friendly interface for connecting to MetaMask, displaying the ETH balance, and browsing through transactions, all within a single, responsive HTML page.

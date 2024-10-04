@@ -1,0 +1,36 @@
+
+The frontend will be a single HTML page with JavaScript for dynamic updates:
+
+1. Header with title "Kubernetes Management Console"
+
+2. Two main sections: Nodes and Pods
+
+3. Each section has:
+   - A table listing resources (nodes/pods)
+   - Columns: Name, Status, IP, Actions
+   - Action buttons for each row: SSH, Kill, View Details
+
+4. Modal dialogs for:
+   - SSH: Command input and output display
+   - Kill confirmation
+   - Resource details view
+
+5. Refresh button to update node/pod lists
+
+6. Search/filter functionality for both tables
+
+7. Responsive design for mobile/desktop
+
+JavaScript functionality:
+- Fetch data from backend API endpoints
+- Populate and update tables dynamically
+- Handle button clicks and modal interactions
+- Implement search/filter for tables
+
+CSS styling:
+- Clean, modern look with a dark theme
+- Responsive grid layout
+- Styled tables and buttons
+- Smooth transitions for modals
+
+The page will use vanilla JavaScript for simplicity, with the option to later refactor to a framework like Vue.js if needed for scalability.

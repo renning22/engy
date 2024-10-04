@@ -1,0 +1,100 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+Create an agent using CrewAI that connects to my gmail and summarize all my recent emails.
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's a design for the app based on your description:
+
+<BACKEND_DESIGN>
+The backend will be a Python Flask server that handles the following:
+
+1. Gmail API Integration:
+   - Use the Google Gmail API to authenticate and access the user's Gmail account
+   - Implement OAuth 2.0 flow for secure authentication
+
+2. Email Retrieval:
+   - Fetch recent emails (e.g., last 50 emails) from the user's inbox
+
+3. CrewAI Integration:
+   - Set up a CrewAI agent specialized in email summarization
+   - Define the agent's role, goals, and tools for email processing
+
+4. Email Summarization:
+   - Pass each email to the CrewAI agent for summarization
+   - Collect and organize the summarized results
+
+5. API Endpoints:
+   - /auth: Handle Gmail authentication
+   - /callback: Process OAuth callback
+   - /summarize: Trigger email retrieval and summarization process
+   - /results: Return summarized email results
+
+6. Data Storage:
+   - Store authentication tokens securely
+   - Cache summarized results for quick retrieval
+
+Key Python libraries:
+- Flask: Web framework
+- google-auth, google-auth-oauthlib: For Gmail API authentication
+- crewai: For creating and managing the AI agent
+- langchain: For potential integration with CrewAI
+
+The server will handle authentication, email retrieval, and interaction with the CrewAI agent to produce email summaries.
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+The frontend will be a single HTML page with embedded JavaScript for dynamic content updates. The design will include:
+
+1. Header:
+   - App title: "Email Summarizer"
+   - User info display (once authenticated)
+
+2. Authentication Section:
+   - "Connect to Gmail" button
+   - Authentication status indicator
+
+3. Control Panel:
+   - "Summarize Recent Emails" button
+   - Options for number of emails to summarize (e.g., dropdown: 10, 25, 50)
+
+4. Results Display:
+   - Loading spinner during summarization process
+   - Accordion-style list of email summaries:
+     * Each item shows: Subject, From, Date, and a preview of the summary
+     * Clicking an item expands to show the full summary
+
+5. Styling:
+   - Clean, modern design with a color scheme based on Gmail's palette
+   - Responsive layout for mobile and desktop viewing
+
+6. JavaScript Functionality:
+   - Handle authentication flow
+   - Make AJAX calls to backend API endpoints
+   - Dynamically update the UI with summarization results
+   - Implement accordion behavior for summary display
+
+7. Error Handling:
+   - Display user-friendly error messages for various scenarios (auth failure, summarization issues, etc.)
+
+The page will use HTML5, CSS3 (possibly with a framework like Bootstrap for responsiveness), and vanilla JavaScript for interactivity. All functionality will be contained within this single page, providing a seamless user experience for email summarization.
+</FRONTEND_DESIGN>

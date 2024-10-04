@@ -1,0 +1,895 @@
+claude-3-5-sonnet-20240620
+
+# Example Project
+This is the example project which has 3 main files "server.py", "index.html" and "run.sh".
+Here are their contents:
+
+## server.py
+```python
+
+import os
+import logging
+import random
+from flask import Flask, request, jsonify, send_from_directory
+from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
+from marshmallow import Schema, fields, validate, ValidationError, EXCLUDE
+
+app = Flask(__name__, static_folder='.')
+CORS(app)
+
+# Configure SQLite database
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'transactions.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class Transaction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), nullable=False)
+    week = db.Column(db.Integer, nullable=False)
+    deposit_complete_amount = db.Column(db.Float, nullable=False)
+    withdraw_complete_amount = db.Column(db.Float, nullable=False)
+    deposit_amount = db.Column(db.Float, nullable=False)
+    deposit_other_amount = db.Column(db.Float, nullable=False)
+    withdraw_amount = db.Column(db.Float, nullable=False)
+    withdraw_other_amount = db.Column(db.Float, nullable=False)
+
+class TransactionSchema(Schema):
+    id = fields.Int(dump_only=True)
+    username = fields.Str(required=True, validate=validate.Length(min=1, max=100))
+    week = fields.Int(required=True, validate=validate.Range(min=1, max=52))
+    deposit_complete_amount = fields.Float(required=True, validate=validate.Range(min=0))
+    withdraw_complete_amount = fields.Float(required=True, validate=validate.Range(min=0))
+    deposit_amount = fields.Float(required=True, validate=validate.Range(min=0))
+    deposit_other_amount = fields.Float(required=True, validate=validate.Range(min=0))
+    withdraw_amount = fields.Float(required=True, validate=validate.Range(min=0))
+    withdraw_other_amount = fields.Float(required=True, validate=validate.Range(min=0))
+
+    class Meta:
+        unknown = EXCLUDE
+
+transaction_schema = TransactionSchema()
+transactions_schema = TransactionSchema(many=True)
+
+@app.route('/')
+def serve_index():
+    return send_from_directory('.', 'index.html')
+
+@app.route('/api/transactions', methods=['GET'])
+def get_transactions():
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+
+    transactions = Transaction.query.paginate(page=page, per_page=per_page, error_out=False)
+    result = transactions_schema.dump(transactions.items)
+
+    logger.info(f"Retrieved {len(result)} transactions (page {page}, per_page {per_page})")
+    return jsonify({
+        'transactions': result,
+        'total': transactions.total,
+        'pages': transactions.pages,
+        'current_page': page
+    })
+
+@app.route('/api/transactions', methods=['POST'])
+def add_transaction():
+    try:
+        data = transaction_schema.load(request.json)
+    except ValidationError as err:
+        logger.error(f"Validation error: {err.messages}")
+        return jsonify(err.messages), 400
+
+    new_transaction = Transaction(**data)
+    db.session.add(new_transaction)
+    db.session.commit()
+
+    logger.info(f"Added new transaction with ID: {new_transaction.id}")
+    return jsonify(transaction_schema.dump(new_transaction)), 201
+
+@app.route('/api/transactions/<int:id>', methods=['PUT'])
+def update_transaction(id):
+    transaction = Transaction.query.get_or_404(id)
+
+    try:
+        data = transaction_schema.load(request.json, partial=True)
+    except ValidationError as err:
+        logger.error(f"Validation error: {err.messages}")
+        return jsonify(err.messages), 400
+
+    for key, value in data.items():
+        setattr(transaction, key, value)
+
+    db.session.commit()
+
+    logger.info(f"Updated transaction with ID: {id}")
+    return jsonify(transaction_schema.dump(transaction))
+
+@app.route('/api/transactions/<int:id>', methods=['DELETE'])
+def delete_transaction(id):
+    transaction = Transaction.query.get_or_404(id)
+    db.session.delete(transaction)
+    db.session.commit()
+
+    logger.info(f"Deleted transaction with ID: {id}")
+    return '', 204
+
+@app.route('/api/transactions/generate', methods=['POST'])
+def generate_random_transaction():
+    random_transaction = Transaction(
+        username=f"user_{random.randint(1, 1000)}",
+        week=random.randint(1, 52),
+        deposit_complete_amount=round(random.uniform(0, 10000), 2),
+        withdraw_complete_amount=round(random.uniform(0, 10000), 2),
+        deposit_amount=round(random.uniform(0, 10000), 2),
+        deposit_other_amount=round(random.uniform(0, 10000), 2),
+        withdraw_amount=round(random.uniform(0, 10000), 2),
+        withdraw_other_amount=round(random.uniform(0, 10000), 2)
+    )
+
+    db.session.add(random_transaction)
+    db.session.commit()
+
+    logger.info(f"Generated random transaction with ID: {random_transaction.id}")
+    return jsonify(transaction_schema.dump(random_transaction)), 201
+
+@app.route('/api/transactions/increase-deposit', methods=['POST'])
+def increase_deposit_amount():
+    try:
+        transactions = Transaction.query.all()
+        for transaction in transactions:
+            transaction.deposit_amount += 100
+        db.session.commit()
+        logger.info(f"Increased deposit amount for all transactions by $100")
+        return jsonify({"message": "Deposit amount increased by $100 for all transactions"}), 200
+    except Exception as e:
+        logger.error(f"Error increasing deposit amount: {str(e)}")
+        return jsonify({"error": "Failed to increase deposit amount"}), 500
+
+@app.errorhandler(404)
+def not_found(error):
+    logger.error(f"Not found: {error}")
+    return jsonify({'error': 'Not found'}), 404
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    logger.error(f"Internal server error: {error}")
+    return jsonify({'error': 'Internal server error'}), 500
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+    app.run(host='localhost', port=5650, debug=True)
+
+```
+
+## index.html
+```html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounting Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div id="app" class="container mx-auto px-4 py-8">
+        <header class="mb-8 flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-gray-800">Accounting Manager</h1>
+            <div>
+                <button @click="generateRandomTransaction" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2">
+                    Generate Random Transaction
+                </button>
+                <button @click="increaseDepositAmount" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Increase All Deposits by $100
+                </button>
+            </div>
+        </header>
+        
+        <main>
+            <transaction-form 
+                @add-transaction="addTransaction" 
+                :editing="editing" 
+                :transaction="editingTransaction" 
+                @update-transaction="updateTransaction" 
+                @cancel-edit="cancelEdit"
+                class="mb-8"
+            ></transaction-form>
+            
+            <div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <strong class="font-bold">Error!</strong>
+                <span class="block sm:inline">{{ error }}</span>
+            </div>
+            
+            <div v-if="message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <strong class="font-bold">Success!</strong>
+                <span class="block sm:inline">{{ message }}</span>
+            </div>
+            
+            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                <transaction-table 
+                    :transactions="transactions"
+                    @edit-transaction="editTransaction"
+                    @delete-transaction="deleteTransaction"
+                    @sort="sortTransactions"
+                ></transaction-table>
+            </div>
+            
+            <pagination 
+                :current-page="currentPage"
+                :total-pages="totalPages"
+                @page-changed="changePage"
+                class="mt-4"
+            ></pagination>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+    Vue.component('transaction-form', {
+        props: ['editing', 'transaction'],
+        data() {
+            return {
+                newTransaction: this.resetTransaction(),
+                errors: {}
+            }
+        },
+        watch: {
+            transaction(newVal) {
+                if (newVal) {
+                    this.newTransaction = { ...newVal };
+                }
+            }
+        },
+        methods: {
+            resetTransaction() {
+                return {
+                    username: '',
+                    week: '',
+                    deposit_complete_amount: '',
+                    withdraw_complete_amount: '',
+                    deposit_amount: '',
+                    deposit_other_amount: '',
+                    withdraw_amount: '',
+                    withdraw_other_amount: ''
+                };
+            },
+            validateForm() {
+                this.errors = {};
+                if (!this.newTransaction.username) {
+                    this.errors.username = 'Username is required';
+                }
+                if (!this.newTransaction.week || this.newTransaction.week < 1 || this.newTransaction.week > 52) {
+                    this.errors.week = 'Week must be between 1 and 52';
+                }
+                ['deposit_complete_amount', 'withdraw_complete_amount', 'deposit_amount', 'deposit_other_amount', 'withdraw_amount', 'withdraw_other_amount'].forEach(field => {
+                    if (this.newTransaction[field] === '' || isNaN(this.newTransaction[field]) || this.newTransaction[field] < 0) {
+                        this.errors[field] = 'Must be a non-negative number';
+                    }
+                });
+                return Object.keys(this.errors).length === 0;
+            },
+            submitForm() {
+                if (this.validateForm()) {
+                    if (this.editing) {
+                        this.$emit('update-transaction', this.newTransaction);
+                    } else {
+                        this.$emit('add-transaction', this.newTransaction);
+                    }
+                    this.newTransaction = this.resetTransaction();
+                }
+            },
+            cancelEdit() {
+                this.$emit('cancel-edit');
+                this.newTransaction = this.resetTransaction();
+            }
+        },
+        template: `
+            <form @submit.prevent="submitForm" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                <div class="mb-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="username">Username</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text" v-model="newTransaction.username" :class="{'border-red-500': errors.username}">
+                        <p v-if="errors.username" class="text-red-500 text-xs italic">{{ errors.username }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="week">Week</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="week" type="number" v-model="newTransaction.week" :class="{'border-red-500': errors.week}">
+                        <p v-if="errors.week" class="text-red-500 text-xs italic">{{ errors.week }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="deposit_complete">Deposit Complete</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="deposit_complete" type="number" step="0.01" v-model="newTransaction.deposit_complete_amount" :class="{'border-red-500': errors.deposit_complete_amount}">
+                        <p v-if="errors.deposit_complete_amount" class="text-red-500 text-xs italic">{{ errors.deposit_complete_amount }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="withdraw_complete">Withdraw Complete</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="withdraw_complete" type="number" step="0.01" v-model="newTransaction.withdraw_complete_amount" :class="{'border-red-500': errors.withdraw_complete_amount}">
+                        <p v-if="errors.withdraw_complete_amount" class="text-red-500 text-xs italic">{{ errors.withdraw_complete_amount }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="deposit_amount">Deposit Amount</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="deposit_amount" type="number" step="0.01" v-model="newTransaction.deposit_amount" :class="{'border-red-500': errors.deposit_amount}">
+                        <p v-if="errors.deposit_amount" class="text-red-500 text-xs italic">{{ errors.deposit_amount }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="deposit_other">Deposit Other</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="deposit_other" type="number" step="0.01" v-model="newTransaction.deposit_other_amount" :class="{'border-red-500': errors.deposit_other_amount}">
+                        <p v-if="errors.deposit_other_amount" class="text-red-500 text-xs italic">{{ errors.deposit_other_amount }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="withdraw_amount">Withdraw Amount</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="withdraw_amount" type="number" step="0.01" v-model="newTransaction.withdraw_amount" :class="{'border-red-500': errors.withdraw_amount}">
+                        <p v-if="errors.withdraw_amount" class="text-red-500 text-xs italic">{{ errors.withdraw_amount }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="withdraw_other">Withdraw Other</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="withdraw_other" type="number" step="0.01" v-model="newTransaction.withdraw_other_amount" :class="{'border-red-500': errors.withdraw_other_amount}">
+                        <p v-if="errors.withdraw_other_amount" class="text-red-500 text-xs italic">{{ errors.withdraw_other_amount }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                        {{ editing ? 'Update' : 'Add' }} Transaction
+                    </button>
+                    <button v-if="editing" @click="cancelEdit" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        `
+    });
+
+    Vue.component('transaction-table', {
+        props: ['transactions'],
+        methods: {
+            formatCurrency(value) {
+                return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+            },
+            emitSort(column) {
+                this.$emit('sort', column);
+            }
+        },
+        template: `
+            <table class="min-w-full leading-normal">
+                <thead>
+                    <tr>
+                        <th @click="emitSort('username')" class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer">
+                            Username
+                        </th>
+                        <th @click="emitSort('week')" class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer">
+                            Week
+                        </th>
+                        <th @click="emitSort('deposit_complete_amount')" class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer">
+                            Deposit Complete
+                        </th>
+                        <th @click="emitSort('withdraw_complete_amount')" class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer">
+                            Withdraw Complete
+                        </th>
+                        <th @click="emitSort('deposit_amount')" class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer">
+                            Deposit Amount
+                        </th>
+                        <th @click="emitSort('deposit_other_amount')" class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer">
+                            Deposit Other
+                        </th>
+                        <th @click="emitSort('withdraw_amount')" class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer">
+                            Withdraw Amount
+                        </th>
+                        <th @click="emitSort('withdraw_other_amount')" class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer">
+                            Withdraw Other
+                        </th>
+                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="transaction in transactions" :key="transaction.id">
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            {{ transaction.username }}
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            {{ transaction.week }}
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            {{ formatCurrency(transaction.deposit_complete_amount) }}
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            {{ formatCurrency(transaction.withdraw_complete_amount) }}
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            {{ formatCurrency(transaction.deposit_amount) }}
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            {{ formatCurrency(transaction.deposit_other_amount) }}
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            {{ formatCurrency(transaction.withdraw_amount) }}
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            {{ formatCurrency(transaction.withdraw_other_amount) }}
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            <button @click="$emit('edit-transaction', transaction)" class="text-blue-600 hover:text-blue-900 mr-2">Edit</button>
+                            <button @click="$emit('delete-transaction', transaction.id)" class="text-red-600 hover:text-red-900">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        `
+    });
+
+    Vue.component('pagination', {
+        props: ['currentPage', 'totalPages'],
+        template: `
+            <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    <a @click.prevent="$emit('page-changed', currentPage - 1)" :class="{'pointer-events-none': currentPage === 1}" href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Previous
+                    </a>
+                    <a @click.prevent="$emit('page-changed', currentPage + 1)" :class="{'pointer-events-none': currentPage === totalPages}" href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Next
+                    </a>
+                </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Showing page <span class="font-medium">{{ currentPage }}</span> of <span class="font-medium">{{ totalPages }}</span>
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            <a @click.prevent="$emit('page-changed', currentPage - 1)" :class="{'pointer-events-none': currentPage === 1}" href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <span class="sr-only">Previous</span>
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </a>
+                            <template v-for="page in totalPages">
+                                <a @click.prevent="$emit('page-changed', page)" :key="page" href="#" :class="{'bg-blue-50 border-blue-500 text-blue-600': page === currentPage, 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50': page !== currentPage}" class="relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                    {{ page }}
+                                </a>
+                            </template>
+                            <a @click.prevent="$emit('page-changed', currentPage + 1)" :class="{'pointer-events-none': currentPage === totalPages}" href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <span class="sr-only">Next</span>
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        `
+    });
+
+    new Vue({
+        el: '#app',
+        data: {
+            transactions: [],
+            currentPage: 1,
+            totalPages: 1,
+            perPage: 10,
+            editing: false,
+            editingTransaction: null,
+            loading: false,
+            error: null,
+            message: null,
+            sortColumn: null,
+            sortDirection: 'asc'
+        },
+        methods: {
+            fetchTransactions() {
+                this.loading = true;
+                this.error = null;
+                axios.get(`http://localhost:5650/api/transactions?page=${this.currentPage}&per_page=${this.perPage}`)
+                    .then(response => {
+                        this.transactions = response.data.transactions;
+                        this.totalPages = response.data.pages;
+                    })
+                    .catch(error => {
+                        this.error = 'Failed to fetch transactions. Please try again.';
+                        console.error('Error fetching transactions:', error);
+                    })
+                    .finally(() => {
+                        this.loading = false;
+                    });
+            },
+            addTransaction(transaction) {
+                this.loading = true;
+                this.error = null;
+                axios.post('http://localhost:5650/api/transactions', transaction)
+                    .then(() => {
+                        this.fetchTransactions();
+                        this.message = 'Transaction added successfully.';
+                    })
+                    .catch(error => {
+                        this.error = 'Failed to add transaction. Please try again.';
+                        console.error('Error adding transaction:', error);
+                    })
+                    .finally(() => {
+                        this.loading = false;
+                    });
+            },
+            editTransaction(transaction) {
+                this.editing = true;
+                this.editingTransaction = { ...transaction };
+            },
+            updateTransaction(transaction) {
+                this.loading = true;
+                this.error = null;
+                axios.put(`http://localhost:5650/api/transactions/${transaction.id}`, transaction)
+                    .then(() => {
+                        this.fetchTransactions();
+                        this.editing = false;
+                        this.editingTransaction = null;
+                        this.message = 'Transaction updated successfully.';
+                    })
+                    .catch(error => {
+                        this.error = 'Failed to update transaction. Please try again.';
+                        console.error('Error updating transaction:', error);
+                    })
+                    .finally(() => {
+                        this.loading = false;
+                    });
+            },
+            deleteTransaction(id) {
+                if (confirm('Are you sure you want to delete this transaction?')) {
+                    this.loading = true;
+                    this.error = null;
+                    axios.delete(`http://localhost:5650/api/transactions/${id}`)
+                        .then(() => {
+                            this.fetchTransactions();
+                            this.message = 'Transaction deleted successfully.';
+                        })
+                        .catch(error => {
+                            this.error = 'Failed to delete transaction. Please try again.';
+                            console.error('Error deleting transaction:', error);
+                        })
+                        .finally(() => {
+                            this.loading = false;
+                        });
+                }
+            },
+            changePage(page) {
+                if (page >= 1 && page <= this.totalPages) {
+                    this.currentPage = page;
+                    this.fetchTransactions();
+                }
+            },
+            cancelEdit() {
+                this.editing = false;
+                this.editingTransaction = null;
+            },
+            sortTransactions(column) {
+                if (this.sortColumn === column) {
+                    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    this.sortColumn = column;
+                    this.sortDirection = 'asc';
+                }
+                this.transactions.sort((a, b) => {
+                    if (a[column] < b[column]) return this.sortDirection === 'asc' ? -1 : 1;
+                    if (a[column] > b[column]) return this.sortDirection === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            },
+            generateRandomTransaction() {
+                this.loading = true;
+                this.error = null;
+                this.message = null;
+                axios.post('http://localhost:5650/api/transactions/generate')
+                    .then(() => {
+                        this.fetchTransactions();
+                        this.message = 'Random transaction generated successfully.';
+                    })
+                    .catch(error => {
+                        this.error = 'Failed to generate random transaction. Please try again.';
+                        console.error('Error generating random transaction:', error);
+                    })
+                    .finally(() => {
+                        this.loading = false;
+                    });
+            },
+            increaseDepositAmount() {
+                this.loading = true;
+                this.error = null;
+                this.message = null;
+                axios.post('http://localhost:5650/api/transactions/increase-deposit')
+                    .then(response => {
+                        this.fetchTransactions();
+                        this.message = response.data.message;
+                    })
+                    .catch(error => {
+                        this.error = 'Failed to increase deposit amounts. Please try again.';
+                        console.error('Error increasing deposit amounts:', error);
+                    })
+                    .finally(() => {
+                        this.loading = false;
+                    });
+            }
+        },
+        mounted() {
+            this.fetchTransactions();
+        },
+        computed: {
+            appClasses() {
+                return {
+                    'opacity-50 pointer-events-none': this.loading
+                };
+            }
+        }
+    });
+    </script>
+</body>
+</html>
+
+```
+
+## run.sh
+```bash
+
+#!/bin/bash
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+# Create a virtual environment if it doesn't exist
+if [ ! -d "venv" ]; then
+    echo "Creating virtual environment..."
+    python3 -m venv venv
+fi
+
+# Activate the virtual environment
+source venv/bin/activate
+
+# Upgrade pip
+pip install --upgrade pip
+
+# Install required packages
+echo "Installing required packages..."
+pip install Flask Flask-SQLAlchemy Flask-CORS marshmallow
+
+# Check if /data/finae/finae exists and install it if it does
+if [ -d "/data/finae/finae" ]; then
+    echo "Installing local finae package..."
+    pip install /data/finae/finae
+fi
+
+# Run the server
+echo "Starting the server..."
+python server.py
+
+```
+
+# Objective
+Modify and re-generate these files based on new <FEATURE_REQUEST></FEATURE_REQUEST> statements.
+
+# Output
+1. Output new "server.py" source code in <SERVER_PYTHON_CODE></SERVER_PYTHON_CODE> block.
+2. Output new "index.html" source code in <INDEX_HTML_CODE></INDEX_HTML_CODE> block.
+3. Output new "run.sh" source code in <RUN_BASH_CODE></RUN_BASH_CODE> block.
+
+Only output one of them in each conversation round, based on user query.
+
+
+=== 0: user ===
+<FEATURE_REQUEST>
+Keep all existing features.
+Add a button to select rows "Withdraw" > "Deposit".
+</FEATURE_REQUEST>
+
+Generate new "server.py" first. Re-assign a new PORT, to "localhost:9404".
+
+
+=== Reply 0 ===
+Certainly! I'll modify the "server.py" file to include the new feature and change the port to 9404. Here's the updated "server.py" code:
+
+<SERVER_PYTHON_CODE>
+import os
+import logging
+import random
+from flask import Flask, request, jsonify, send_from_directory
+from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
+from marshmallow import Schema, fields, validate, ValidationError, EXCLUDE
+
+app = Flask(__name__, static_folder='.')
+CORS(app)
+
+# Configure SQLite database
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'transactions.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class Transaction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), nullable=False)
+    week = db.Column(db.Integer, nullable=False)
+    deposit_complete_amount = db.Column(db.Float, nullable=False)
+    withdraw_complete_amount = db.Column(db.Float, nullable=False)
+    deposit_amount = db.Column(db.Float, nullable=False)
+    deposit_other_amount = db.Column(db.Float, nullable=False)
+    withdraw_amount = db.Column(db.Float, nullable=False)
+    withdraw_other_amount = db.Column(db.Float, nullable=False)
+
+class TransactionSchema(Schema):
+    id = fields.Int(dump_only=True)
+    username = fields.Str(required=True, validate=validate.Length(min=1, max=100))
+    week = fields.Int(required=True, validate=validate.Range(min=1, max=52))
+    deposit_complete_amount = fields.Float(required=True, validate=validate.Range(min=0))
+    withdraw_complete_amount = fields.Float(required=True, validate=validate.Range(min=0))
+    deposit_amount = fields.Float(required=True, validate=validate.Range(min=0))
+    deposit_other_amount = fields.Float(required=True, validate=validate.Range(min=0))
+    withdraw_amount = fields.Float(required=True, validate=validate.Range(min=0))
+    withdraw_other_amount = fields.Float(required=True, validate=validate.Range(min=0))
+
+    class Meta:
+        unknown = EXCLUDE
+
+transaction_schema = TransactionSchema()
+transactions_schema = TransactionSchema(many=True)
+
+@app.route('/')
+def serve_index():
+    return send_from_directory('.', 'index.html')
+
+@app.route('/api/transactions', methods=['GET'])
+def get_transactions():
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+
+    transactions = Transaction.query.paginate(page=page, per_page=per_page, error_out=False)
+    result = transactions_schema.dump(transactions.items)
+
+    logger.info(f"Retrieved {len(result)} transactions (page {page}, per_page {per_page})")
+    return jsonify({
+        'transactions': result,
+        'total': transactions.total,
+        'pages': transactions.pages,
+        'current_page': page
+    })
+
+@app.route('/api/transactions', methods=['POST'])
+def add_transaction():
+    try:
+        data = transaction_schema.load(request.json)
+    except ValidationError as err:
+        logger.error(f"Validation error: {err.messages}")
+        return jsonify(err.messages), 400
+
+    new_transaction = Transaction(**data)
+    db.session.add(new_transaction)
+    db.session.commit()
+
+    logger.info(f"Added new transaction with ID: {new_transaction.id}")
+    return jsonify(transaction_schema.dump(new_transaction)), 201
+
+@app.route('/api/transactions/<int:id>', methods=['PUT'])
+def update_transaction(id):
+    transaction = Transaction.query.get_or_404(id)
+
+    try:
+        data = transaction_schema.load(request.json, partial=True)
+    except ValidationError as err:
+        logger.error(f"Validation error: {err.messages}")
+        return jsonify(err.messages), 400
+
+    for key, value in data.items():
+        setattr(transaction, key, value)
+
+    db.session.commit()
+
+    logger.info(f"Updated transaction with ID: {id}")
+    return jsonify(transaction_schema.dump(transaction))
+
+@app.route('/api/transactions/<int:id>', methods=['DELETE'])
+def delete_transaction(id):
+    transaction = Transaction.query.get_or_404(id)
+    db.session.delete(transaction)
+    db.session.commit()
+
+    logger.info(f"Deleted transaction with ID: {id}")
+    return '', 204
+
+@app.route('/api/transactions/generate', methods=['POST'])
+def generate_random_transaction():
+    random_transaction = Transaction(
+        username=f"user_{random.randint(1, 1000)}",
+        week=random.randint(1, 52),
+        deposit_complete_amount=round(random.uniform(0, 10000), 2),
+        withdraw_complete_amount=round(random.uniform(0, 10000), 2),
+        deposit_amount=round(random.uniform(0, 10000), 2),
+        deposit_other_amount=round(random.uniform(0, 10000), 2),
+        withdraw_amount=round(random.uniform(0, 10000), 2),
+        withdraw_other_amount=round(random.uniform(0, 10000), 2)
+    )
+
+    db.session.add(random_transaction)
+    db.session.commit()
+
+    logger.info(f"Generated random transaction with ID: {random_transaction.id}")
+    return jsonify(transaction_schema.dump(random_transaction)), 201
+
+@app.route('/api/transactions/increase-deposit', methods=['POST'])
+def increase_deposit_amount():
+    try:
+        transactions = Transaction.query.all()
+        for transaction in transactions:
+            transaction.deposit_amount += 100
+        db.session.commit()
+        logger.info(f"Increased deposit amount for all transactions by $100")
+        return jsonify({"message": "Deposit amount increased by $100 for all transactions"}), 200
+    except Exception as e:
+        logger.error(f"Error increasing deposit amount: {str(e)}")
+        return jsonify({"error": "Failed to increase deposit amount"}), 500
+
+@app.route('/api/transactions/select-withdraw-gt-deposit', methods=['GET'])
+def select_withdraw_gt_deposit():
+    try:
+        transactions = Transaction.query.filter(Transaction.withdraw_complete_amount > Transaction.deposit_complete_amount).all()
+        result = transactions_schema.dump(transactions)
+        logger.info(f"Selected {len(result)} transactions where Withdraw > Deposit")
+        return jsonify(result), 200
+    except Exception as e:
+        logger.error(f"Error selecting transactions where Withdraw > Deposit: {str(e)}")
+        return jsonify({"error": "Failed to select transactions"}), 500
+
+@app.errorhandler(404)
+def not_found(error):
+    logger.error(f"Not found: {error}")
+    return jsonify({'error': 'Not found'}), 404
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    logger.error(f"Internal server error: {error}")
+    return jsonify({'error': 'Internal server error'}), 500
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+    app.run(host='localhost', port=9404, debug=True)
+</SERVER_PYTHON_CODE>
+
+In this updated "server.py" file, I've made the following changes:
+
+1. Changed the port from 5650 to 9404 in the last line of the file:
+   ```python
+   app.run(host='localhost', port=9404, debug=True)
+   ```
+
+2. Added a new route to select transactions where the withdraw amount is greater than the deposit amount:
+   ```python
+   @app.route('/api/transactions/select-withdraw-gt-deposit', methods=['GET'])
+   def select_withdraw_gt_deposit():
+       try:
+           transactions = Transaction.query.filter(Transaction.withdraw_complete_amount > Transaction.deposit_complete_amount).all()
+           result = transactions_schema.dump(transactions)
+           logger.info(f"Selected {len(result)} transactions where Withdraw > Deposit")
+           return jsonify(result), 200
+       except Exception as e:
+           logger.error(f"Error selecting transactions where Withdraw > Deposit: {str(e)}")
+           return jsonify({"error": "Failed to select transactions"}), 500
+   ```
+
+This new route will be used by the frontend to fetch transactions where the withdraw amount is greater than the deposit amount. The frontend will need to be updated to include a button that triggers this API call and displays the results.

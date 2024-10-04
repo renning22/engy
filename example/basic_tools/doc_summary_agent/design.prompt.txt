@@ -1,0 +1,95 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+Create an summary LLM agent using CrewAI (with Claude 3.5).
+I can upload an doc and the agent summarize in markdown for me.
+Also have a chart that I can download the summarized markdown.
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's my design for the app based on your description:
+
+<BACKEND_DESIGN>
+The backend will be a Python Flask server with the following key components:
+
+1. File Upload Handling:
+   - Use Flask's file upload functionality to receive the uploaded document.
+   - Store the uploaded file temporarily on the server.
+
+2. CrewAI Integration:
+   - Set up a CrewAI agent using Claude 3.5 for document summarization.
+   - Create a function to process the uploaded document and generate a summary using the CrewAI agent.
+
+3. Markdown Conversion:
+   - Implement a function to convert the summary into markdown format.
+
+4. API Endpoints:
+   - POST /upload: Handle file upload and trigger summarization process.
+   - GET /summary: Return the generated markdown summary.
+   - GET /download: Serve the markdown summary as a downloadable file.
+
+5. Data Storage:
+   - Use a simple in-memory storage (e.g., a dictionary) to store the latest summary for each session.
+
+6. Error Handling:
+   - Implement proper error handling for file upload issues, summarization failures, etc.
+
+7. CORS Support:
+   - Enable CORS to allow the frontend to communicate with the backend.
+
+The server will use environment variables for API keys and other sensitive information.
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+The frontend will be a single HTML page with embedded JavaScript and CSS. Key features include:
+
+1. File Upload Section:
+   - A drag-and-drop area for file upload.
+   - A traditional file input button as an alternative.
+   - Visual feedback during file upload process.
+
+2. Summary Display:
+   - A styled div to display the markdown summary.
+   - Use a markdown rendering library (e.g., marked.js) to properly format the summary.
+
+3. Download Button:
+   - A button to download the summarized markdown file.
+
+4. Progress Indicator:
+   - A loading spinner or progress bar to show when summarization is in progress.
+
+5. Responsive Design:
+   - Use CSS media queries to ensure the page looks good on both desktop and mobile devices.
+
+6. Error Messages:
+   - A designated area to display any error messages from the backend.
+
+7. Styling:
+   - Use a modern, clean design with a color scheme that emphasizes readability.
+   - Implement smooth transitions and animations for a polished user experience.
+
+8. JavaScript Functionality:
+   - Implement AJAX calls to communicate with the backend API.
+   - Handle file upload, summary retrieval, and download functionality.
+   - Dynamically update the UI based on the current state (uploading, processing, ready, error).
+
+The HTML file will include all necessary CSS and JavaScript, making it a self-contained frontend solution.
+</FRONTEND_DESIGN>

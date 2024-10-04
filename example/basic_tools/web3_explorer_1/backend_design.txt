@@ -1,0 +1,32 @@
+
+The backend will be a Python Flask server that interacts with the Ethereum blockchain and serves API endpoints for the frontend. Key components:
+
+1. Flask server setup:
+   - Import necessary libraries (Flask, web3, etc.)
+   - Initialize Flask app
+
+2. Web3 integration:
+   - Connect to Ethereum network using Web3.py
+   - Function to validate Ethereum addresses
+
+3. API endpoints:
+   - GET /api/balance/<address>: Retrieve ETH balance for given address
+   - GET /api/transactions/<address>: Fetch list of transactions for given address
+
+4. Transaction processing:
+   - Function to fetch and process transaction data
+   - Pagination support for large transaction lists
+
+5. Error handling:
+   - Custom error responses for invalid addresses, network issues, etc.
+
+6. CORS support:
+   - Enable CORS to allow frontend requests
+
+7. Environment variables:
+   - Store sensitive data (e.g., Ethereum node URL) in environment variables
+
+8. Serve static files:
+   - Serve the HTML/CSS/JS files for the frontend
+
+The server will run on localhost:5000 and provide the necessary API endpoints for the frontend to interact with the Ethereum blockchain.

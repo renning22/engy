@@ -1,0 +1,55 @@
+
+Single HTML page with embedded JavaScript:
+
+1. Header:
+   - Title: "Fremont Art-Focused Elementary Schools"
+   - Subtitle: "Find the perfect school for your creative 4-year-old"
+
+2. User Input Section:
+   - Address input field (auto-filled with "Fremont, CA")
+   - "Find Schools" button
+
+3. Map Section:
+   - Embedded Google Map
+   - Markers for each school
+   - Info windows with basic school info on marker click
+
+4. School List Section:
+   - Scrollable list of schools
+   - For each school, display:
+     - School name
+     - Distance from user
+     - Overall rating (star display)
+     - Art program rating (palette icon display)
+     - Brief description of art program
+   - Sort options: distance, overall rating, art program rating
+
+5. School Details Modal:
+   - Pops up when a school is clicked
+   - Detailed information about the school
+   - Larger description of art program
+   - Photos of art facilities (if available)
+   - Link to school website
+
+6. Comparison Tool:
+   - Allow selection of up to 3 schools
+   - Side-by-side comparison of selected schools
+
+7. Styling:
+   - Colorful, child-friendly design with art-themed icons
+   - Responsive layout for mobile and desktop
+
+8. Interactivity:
+   - Smooth animations for list sorting and modal pop-ups
+   - Interactive map with custom markers
+
+9. Footer:
+   - Disclaimer about data sources
+   - Last updated date
+   - Contact information for feedback
+
+JavaScript:
+- Fetch school data from backend API
+- Handle user interactions (sorting, filtering, map interactions)
+- Dynamically update school list and map based on user input
+- Implement comparison functionality

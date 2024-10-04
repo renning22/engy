@@ -1,0 +1,240 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio/Video Transcription App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        #drop-area {
+            border: 2px dashed #ccc;
+            border-radius: 20px;
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+        }
+        #drop-area.highlight {
+            border-color: #007bff;
+        }
+        #fileElem {
+            display: none;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #spinner {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #result {
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+        #copyButton {
+            background-color: #28a745;
+        }
+        #copyButton:hover {
+            background-color: #218838;
+        }
+        #wordCount, #charCount {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        #videoPreview {
+            max-width: 100%;
+            margin-top: 20px;
+            display: none;
+        }
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Audio/Video Transcription App</h1>
+        <div id="drop-area">
+            <form class="my-form">
+                <p>Upload audio or video file with the file dialog or by dragging and dropping onto the dashed region</p>
+                <input type="file" id="fileElem" accept="audio/*,video/*">
+                <label for="fileElem">Select an audio or video file</label>
+            </form>
+        </div>
+        <video id="videoPreview" controls></video>
+        <button id="uploadButton" style="display:none;">Upload and Transcribe</button>
+        <div id="spinner">
+            <div class="spinner"></div>
+            <p>Transcribing...</p>
+        </div>
+        <div id="result"></div>
+        <button id="copyButton" style="display:none;">Copy to Clipboard</button>
+        <div id="wordCount"></div>
+        <div id="charCount"></div>
+    </div>
+
+    <script>
+        const dropArea = document.getElementById('drop-area');
+        const fileElem = document.getElementById('fileElem');
+        const uploadButton = document.getElementById('uploadButton');
+        const spinner = document.getElementById('spinner');
+        const result = document.getElementById('result');
+        const copyButton = document.getElementById('copyButton');
+        const wordCount = document.getElementById('wordCount');
+        const charCount = document.getElementById('charCount');
+        const videoPreview = document.getElementById('videoPreview');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.classList.add('highlight');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('highlight');
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        fileElem.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('audio/') || file.type.startsWith('video/')) {
+                    uploadButton.style.display = 'inline-block';
+                    uploadButton.onclick = () => uploadFile(file);
+                    
+                    if (file.type.startsWith('video/')) {
+                        const videoURL = URL.createObjectURL(file);
+                        videoPreview.src = videoURL;
+                        videoPreview.style.display = 'block';
+                    } else {
+                        videoPreview.style.display = 'none';
+                    }
+                } else {
+                    alert('Please select a valid audio or video file.');
+                    videoPreview.style.display = 'none';
+                }
+            }
+        }
+
+        function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            spinner.style.display = 'block';
+            uploadButton.style.display = 'none';
+            result.textContent = '';
+            copyButton.style.display = 'none';
+            wordCount.textContent = '';
+            charCount.textContent = '';
+
+            fetch('http://localhost:8057/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                spinner.style.display = 'none';
+                if (data.error) {
+                    result.textContent = `Error: ${data.error}`;
+                } else {
+                    result.textContent = data.transcription;
+                    copyButton.style.display = 'inline-block';
+                    updateWordAndCharCount(data.transcription);
+                }
+            })
+            .catch(error => {
+                spinner.style.display = 'none';
+                result.textContent = `Error: ${error.message}`;
+            });
+        }
+
+        copyButton.addEventListener('click', () => {
+            navigator.clipboard.writeText(result.textContent)
+                .then(() => alert('Transcription copied to clipboard!'))
+                .catch(err => console.error('Failed to copy text: ', err));
+        });
+
+        function updateWordAndCharCount(text) {
+            const words = text.trim().split(/\s+/).length;
+            const chars = text.length;
+            wordCount.textContent = `Word count: ${words}`;
+            charCount.textContent = `Character count: ${chars}`;
+        }
+    </script>
+</body>
+</html>

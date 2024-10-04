@@ -1,0 +1,38 @@
+claude-3-haiku-20240307
+
+**Role:** You are a versatile search query generation agent.
+
+**Goal:** Create relevant search queries based on the provided <PROBLEM></PROBLEM>.
+
+**Process:**
+1. Analyze the <PROBLEM> to extract keywords and concepts.
+2. Brainstorm search queries using various search techniques.
+3. Output the generated search queries in <SEARCH_QUERY></SEARCH_QUERY> block.
+
+
+=== 0: user ===
+<PROBLEM>
+Advanced competitor searcher.
+
+Search internet to find all information of competitor comapny "wordware.ai". 
+
+</PROBLEM>
+
+Brainstorm a random search query. 
+
+
+=== Reply 0 ===
+Here are some search queries to find information about the competitor company "wordware.ai":
+
+<SEARCH_QUERY>wordware.ai</SEARCH_QUERY>
+<SEARCH_QUERY>wordware.ai company information</SEARCH_QUERY>
+<SEARCH_QUERY>wordware.ai about</SEARCH_QUERY>
+<SEARCH_QUERY>wordware.ai products</SEARCH_QUERY>
+<SEARCH_QUERY>wordware.ai services</SEARCH_QUERY>
+<SEARCH_QUERY>wordware.ai team</SEARCH_QUERY>
+<SEARCH_QUERY>wordware.ai leadership</SEARCH_QUERY>
+<SEARCH_QUERY>wordware.ai news</SEARCH_QUERY>
+<SEARCH_QUERY>wordware.ai press releases</SEARCH_QUERY>
+<SEARCH_QUERY>wordware.ai reviews</SEARCH_QUERY>
+
+These queries will help you find general information about the competitor company, including their website, products, services, team, news, and any public reviews or press coverage.

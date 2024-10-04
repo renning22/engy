@@ -1,0 +1,31 @@
+
+The backend will be a Python Flask server with the following key components:
+
+1. Flask app setup and routes:
+   - POST /upload_image: Handle image upload
+   - POST /generate_invoice: Generate invoice based on user input
+   - GET /download_pdf: Serve generated PDF for download
+
+2. Image handling:
+   - Use Pillow library to process and store uploaded images
+
+3. Invoice generation:
+   - Create a function to generate invoice using user input (items, prices)
+   - Use ReportLab library to create PDF invoices
+
+4. Data storage:
+   - Use SQLite database to store invoice data and image references
+
+5. Dependencies:
+   - Flask
+   - Pillow
+   - ReportLab
+   - SQLite3
+
+Key functions:
+- upload_image(): Save uploaded image and return a reference ID
+- generate_invoice(): Create invoice using user input and image reference
+- create_pdf(): Use ReportLab to generate PDF invoice
+- get_pdf(): Retrieve generated PDF for download
+
+The server will handle image uploads, store invoice data, generate PDFs, and serve the frontend HTML page.

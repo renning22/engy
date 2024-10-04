@@ -1,0 +1,32 @@
+
+Python Flask server:
+
+1. Main route ('/'):
+   - Serve the HTML page
+
+2. API route ('/get_restaurant'):
+   - Use Yelp Fusion API to search for restaurants
+   - Parameters:
+     - location: "SF Bay Area"
+     - categories: "chinese"
+     - limit: 50 (to get a good variety)
+   - Randomly select one restaurant from the results
+   - Return JSON with restaurant details:
+     - name
+     - address
+     - rating
+     - price
+     - phone
+     - image_url
+     - yelp_url
+
+3. Dependencies:
+   - Flask
+   - requests (for API calls)
+   - python-dotenv (for managing API keys)
+
+4. Configuration:
+   - Store Yelp API key in .env file
+
+5. Error handling:
+   - Handle API errors and return appropriate error messages

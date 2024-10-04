@@ -1,0 +1,35 @@
+
+1. Flask web server:
+   - Handle HTTP requests
+   - Serve the HTML frontend
+   - Process search queries
+
+2. Claude 3.5 Haiku integration:
+   - Use Anthropic's API to send queries to Claude
+   - Process and format Claude's responses
+
+3. SQLite database:
+   - Store search history
+   - Table structure:
+     - id (primary key)
+     - query (text)
+     - response (text)
+     - timestamp (datetime)
+
+4. Main components:
+   - app.py: Flask application setup
+   - llm_agent.py: Claude 3.5 Haiku integration
+   - database.py: SQLite database operations
+
+5. API endpoints:
+   - GET /: Serve the HTML frontend
+   - POST /search: Process search queries
+   - GET /history: Retrieve search history
+
+6. Requirements:
+   - Flask
+   - Anthropic API library
+   - SQLite3
+
+7. Environment variables:
+   - ANTHROPIC_API_KEY: For authenticating with the Anthropic API

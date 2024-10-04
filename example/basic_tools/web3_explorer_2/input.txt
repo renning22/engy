@@ -1,0 +1,2 @@
+create an app connect to my MetaMask wallet and manage my web3 assets.
+Show my ETH balance. List all my ETH transactions.

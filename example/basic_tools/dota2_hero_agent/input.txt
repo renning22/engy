@@ -1,0 +1,3 @@
+Create a dota2 hero analyzer and picker.
+Show all heros with their basic info.
+Create an LLM agent using CrewAI (with Claude 3.5), and when I select a hero, I can ask a question and the agent will answer.

@@ -1,0 +1,35 @@
+
+The backend will be a Python Flask server that handles the following:
+
+1. Gmail API Integration:
+   - Use the Google Gmail API to authenticate and access the user's Gmail account
+   - Implement OAuth 2.0 flow for secure authentication
+
+2. Email Retrieval:
+   - Fetch recent emails (e.g., last 50 emails) from the user's inbox
+
+3. CrewAI Integration:
+   - Set up a CrewAI agent specialized in email summarization
+   - Define the agent's role, goals, and tools for email processing
+
+4. Email Summarization:
+   - Pass each email to the CrewAI agent for summarization
+   - Collect and organize the summarized results
+
+5. API Endpoints:
+   - /auth: Handle Gmail authentication
+   - /callback: Process OAuth callback
+   - /summarize: Trigger email retrieval and summarization process
+   - /results: Return summarized email results
+
+6. Data Storage:
+   - Store authentication tokens securely
+   - Cache summarized results for quick retrieval
+
+Key Python libraries:
+- Flask: Web framework
+- google-auth, google-auth-oauthlib: For Gmail API authentication
+- crewai: For creating and managing the AI agent
+- langchain: For potential integration with CrewAI
+
+The server will handle authentication, email retrieval, and interaction with the CrewAI agent to produce email summaries.

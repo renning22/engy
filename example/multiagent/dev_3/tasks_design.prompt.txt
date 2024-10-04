@@ -1,0 +1,299 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in multi-agent system design and orchestration.
+
+Your task is to analyze the problem presented in the <PROBLEM></PROBLEM> block and design a multi-agent system to address it comprehensively. Follow these steps:
+
+1. Problem Analysis:
+   - Carefully examine the problem statement.
+   - Identify key components, constraints, and objectives.
+   - Break down the problem into subtasks or areas of expertise.
+
+2. Agent Design:
+   - Create a roster of 3-7 specialized agents to tackle different aspects of the problem.
+   - For each agent, define:
+     a. Role/Title
+     b. Primary responsibilities
+     c. Key skills or knowledge areas
+     d. Input requirements
+     e. Expected outputs
+     f. Tools to be used 
+
+3. System Architecture:
+   - Outline how the agents will interact and collaborate.
+   - Determine the flow of information and tasks between agents.
+   - Identify any central coordination mechanism or hierarchy if needed.
+
+4. Workflow Description:
+   - Provide a step-by-step description of how the multi-agent system will process the problem.
+   - Explain how inputs are handled, how intermediate results are shared, and how the final solution is produced.
+
+5. Error Handling and Edge Cases:
+   - Consider potential failure points or challenging scenarios.
+   - Describe how the system will handle unexpected inputs or conflicts between agents.
+
+6. Evaluation and Iteration:
+   - Propose methods to assess the effectiveness of the multi-agent system.
+   - Suggest ways to refine and improve the system based on performance.
+
+Present your multi-agent system design in a clear, structured format. Use your knowledge and creativity to develop a solution that leverages the strengths of multiple specialized agents working in concert.
+
+If any part of the problem or requirements is unclear, ask for clarification before proceeding with the design.
+
+
+=== 0: user ===
+<PROBLEM>
+Agents: Competitor analysis
+
+The agent automates the collection, analysis, and reporting of competitor data, enabling marketing professionals to make informed strategic decisions.
+
+### Objectives
+
+- Streamline the competitor analysis process reduce time and effort by automating data collection and analysis.
+- Provide actionable insights to marketing teams to enhance strategic planning and positioning. Allow data export through tool integration
+
+### Key Features
+
+1. **Automated Data Collection**
+    - **Web Scraping**: The agent autonomously scrapes competitor websites for relevant information, including product offerings, pricing, and promotional strategies.
+    - **Social Media**: Check competitors' social media account to gather data on followership, activities，including Linkedin, Youtube, Tiktok, Pinterest, Twitter/X, Instagram, Facebook, Discord
+    - **News and Press Release Aggregation**: Collects and analyzes news articles and press releases related to competitors to stay updated on their latest developments.
+    - **Customer reviews**: Collect relevant customer reviews and analyze sentiment related to product features and services from Trustpilot, G2, Google, Yelp, and more ([Smelter AI](https://youtu.be/LqjpZS73Ewo?si=zcW7e3di_8bht-u2)).
+2. **Analysis and insight reporting**
+    
+    Generate a report that includes that following:
+    
+    - **Trend Analysis**: Synthesize publicly available data sources, such as industry reports, market research studies, and government publications that provide valuable information about market trends, industry benchmarks, and customer behavior. Identify emerging trends, new technologies, and innovative approaches to help users stay relevant and maintain a competitive edge.
+    - **SWOT Analysis**: Conducts automated SWOT (Strengths, Weaknesses, Opportunities, Threats) analysis based on the collected data.
+        - S - Identify what your competitors are doing well and what works for them. Do reviews indicate they have a superior product? Do they have high brand awareness? Can you test a competitor’s products yourself to see where they are performing better?
+        - W - Identify what each competitor could be doing better to give you a competitive advantage. Do they have a weak social media strategy? Do they have just an online store, not a brick-and-mortar one? Is their website outdated?
+        - O - Opportunities are factors that might work in favor of a business. What trends can provoke growths in the industry? What audience can also be targeted?
+        - T - Define what can potentially harm your competitors’ businesses. This might include politics, new regulations or changing customer preferences.
+    - **Competitive Benchmarking**: Compares key performance indicators (KPIs) of competitors against industry standards and the organization's metrics.
+    - **Price comparison**: Look up the data from the website pricing section or marketplaces. For eCommerce products, check price point across a variety of marketplaces
+    - **Generate Unique Selling Point**: <a competitor> is confident that customers will buy <a competitor>’s product because <a competitor> solves <a customer problem> better than any alternative due to the following reasons: A B C D E ([Not generic - PMM])
+3. **Integration and Customization**
+</PROBLEM>
+
+Design a list of agents, output in JSON format and put in <AGENTS_DESIGN></AGENTS_DESIGN> block.
+(content in <AGENTS_DESIGN> will create file and written to "agents_design.json")
+
+E.g.
+```
+<AGENTS_DESIGN>
+[
+  {
+    "name": "Olivia Thompson",
+    "goal": "Gather and analyze market data",
+    "backstory": "Experienced market analyst with a keen eye for trends and patterns. Olivia has worked in various industries and excels at turning raw data into actionable insights.",
+    "tools": ["search_tool", "scrape_tool", "duckduck_tool"]
+  },
+  {
+    "name": "Marcus Chen",
+    "goal": "Identify target audience and competitors",
+    "backstory": "Former marketing strategist turned consultant. Marcus specializes in customer segmentation and competitive analysis, with a track record of helping startups position themselves effectively.",
+    "tools": ["search_tool", "scrape_tool", "duckduck_tool"]
+  },
+  {
+    "name": "Sophia Patel",
+    "goal": "Synthesize information and craft compelling narratives",
+    "backstory": "Skilled content writer and editor with a background in business journalism. Sophia has a talent for distilling complex information into clear, engaging prose.",
+    "tools": ["search_tool", "scrape_tool", "duckduck_tool"]
+  },
+  {
+    "name": "Ethan Novak",
+    "goal": "Ensure accuracy and coherence of the final document",
+    "backstory": "Meticulous proofreader and fact-checker with experience in academic publishing. Ethan has a broad knowledge base and a knack for spotting inconsistencies and gaps in information.",
+    "tools": ["search_tool", "scrape_tool", "duckduck_tool"]
+  }
+]
+</AGENTS_DESIGN>
+```
+
+=== 1: assistant ===
+Based on the problem description, I've designed a multi-agent system to automate competitor analysis. Here's the JSON representation of the agents:
+
+<AGENTS_DESIGN>
+[
+  {
+    "name": "DataHarvester",
+    "goal": "Collect comprehensive data from various sources about competitors",
+    "backstory": "Experienced web scraper and data collection specialist with a background in digital marketing. DataHarvester excels at efficiently gathering information from diverse online sources.",
+    "tools": ["web_scraping_tool", "social_media_api_tool", "news_aggregator_tool", "review_collection_tool"]
+  },
+  {
+    "name": "TrendSpotter",
+    "goal": "Analyze market trends and industry benchmarks",
+    "backstory": "Former market research analyst with a keen eye for emerging patterns and industry shifts. TrendSpotter specializes in synthesizing data from various sources to identify key market trends.",
+    "tools": ["trend_analysis_tool", "data_visualization_tool", "industry_report_analyzer"]
+  },
+  {
+    "name": "CompetitorProfiler",
+    "goal": "Create detailed SWOT analyses and competitive benchmarks",
+    "backstory": "Strategic consultant with years of experience in competitive intelligence. CompetitorProfiler excels at identifying strengths, weaknesses, opportunities, and threats in the competitive landscape.",
+    "tools": ["swot_analysis_tool", "benchmarking_tool", "kpi_tracker"]
+  },
+  {
+    "name": "PriceWatcher",
+    "goal": "Monitor and analyze competitor pricing strategies",
+    "backstory": "E-commerce specialist with expertise in pricing analytics. PriceWatcher is adept at tracking price fluctuations and identifying pricing patterns across various platforms.",
+    "tools": ["price_scraping_tool", "marketplace_analyzer", "pricing_strategy_simulator"]
+  },
+  {
+    "name": "InsightSynthesizer",
+    "goal": "Generate actionable insights and unique selling points",
+    "backstory": "Former product marketing manager with a talent for distilling complex information into clear, actionable strategies. InsightSynthesizer excels at identifying key differentiators and crafting compelling narratives.",
+    "tools": ["natural_language_processing_tool", "insight_generation_ai", "usp_formulator"]
+  },
+  {
+    "name": "ReportCrafter",
+    "goal": "Compile and format the final competitor analysis report",
+    "backstory": "Experienced technical writer and data visualization expert. ReportCrafter specializes in creating clear, visually appealing reports that effectively communicate complex information.",
+    "tools": ["report_template_engine", "data_visualization_suite", "document_formatting_tool"]
+  },
+  {
+    "name": "IntegrationMaster",
+    "goal": "Ensure seamless data flow and tool integration",
+    "backstory": "Systems integration specialist with a background in marketing technology. IntegrationMaster excels at connecting various tools and ensuring smooth data transfer between agents and external systems.",
+    "tools": ["api_integration_tool", "data_pipeline_manager", "export_format_converter"]
+  }
+]
+</AGENTS_DESIGN>
+
+This multi-agent system is designed to comprehensively address the competitor analysis problem. Here's a brief overview of how these agents will work together:
+
+1. DataHarvester will collect raw data from various sources, including websites, social media, news, and customer reviews.
+
+2. TrendSpotter will analyze the collected data to identify market trends and industry benchmarks.
+
+3. CompetitorProfiler will use the data and trends to create SWOT analyses and competitive benchmarks.
+
+4. PriceWatcher will focus specifically on analyzing pricing strategies across different platforms.
+
+5. InsightSynthesizer will generate actionable insights and unique selling points based on the analyses from other agents.
+
+6. ReportCrafter will compile all the information into a well-formatted, visually appealing report.
+
+7. IntegrationMaster will ensure that all the agents can communicate effectively and that the final output can be easily exported to other tools.
+
+This system allows for a comprehensive, automated approach to competitor analysis, addressing all the key features and objectives outlined in the problem statement.
+=== 2: user ===
+
+Using these agents, think about a linear workflow to finish the task, each step has a "description", "agent" and "expected_output", the step output will be passing to the next step.
+Output in JSON format and put in <TASKS_DESIGN></TASKS_DESIGN> block.
+(content in <TASKS_DESIGN> will create file and written to "tasks_design.json")
+
+E.g.
+```
+<TASKS_DESIGN>
+[
+  {
+    "step": 1,
+    "description": "Gather relevant market data and statistics",
+    "expected_output": "Compiled market data in JSON format, including market size, growth rate, and key trends",
+    "agent": "Olivia Thompson",
+  },
+  {
+    "step": 2,
+    "description": "Analyze target audience and identify main competitors",
+    "expected_output": "JSON document containing target audience segments and a list of top competitors with their market shares",
+    "agent": "Marcus Chen"
+  },
+  {
+    "step": 3,
+    "description": "Analyze gathered data and extract key insights",
+    "expected_output": "List of key insights and their implications for the market",
+    "agent": "Olivia Thompson"
+  },
+  {
+    "step": 4,
+    "description": "Create an outline for the 1-pager based on gathered information",
+    "expected_output": "Detailed outline of the 1-pager in markdown format",
+    "agent": "Sophia Patel"
+  },
+  {
+    "step": 5,
+    "description": "Write the first draft of the market research 1-pager",
+    "expected_output": "First draft of the 1-pager in markdown format",
+    "agent": "Sophia Patel"
+  },
+  {
+    "step": 6,
+    "description": "Review and fact-check the first draft",
+    "expected_output": "Reviewed document with suggestions for improvements and corrections",
+    "agent": "Ethan Novak"
+  },
+  {
+    "step": 7,
+    "description": "Incorporate feedback and finalize the 1-pager",
+    "expected_output": "Final version of the market research 1-pager in markdown format",
+    "agent": "Sophia Patel"
+  },
+  {
+    "step": 8,
+    "description": "Perform final proofreading and quality check",
+    "expected_output": "Proofread and approved market research 1-pager, ready for presentation",
+    "agent": "Ethan Novak"
+  }
+]
+</TASKS_DESIGN>
+```
+
+
+=== Reply 0 ===
+Based on the agents we've designed, here's a linear workflow to complete the competitor analysis task:
+
+<TASKS_DESIGN>
+[
+  {
+    "step": 1,
+    "description": "Collect comprehensive data about competitors from various sources",
+    "expected_output": "Raw data in JSON format, including website content, social media data, news articles, press releases, and customer reviews",
+    "agent": "DataHarvester"
+  },
+  {
+    "step": 2,
+    "description": "Analyze market trends and industry benchmarks",
+    "expected_output": "JSON document containing identified market trends, industry benchmarks, and visualizations of key patterns",
+    "agent": "TrendSpotter"
+  },
+  {
+    "step": 3,
+    "description": "Create SWOT analyses and competitive benchmarks",
+    "expected_output": "JSON document with detailed SWOT analyses for each competitor and comparative benchmarks of key performance indicators",
+    "agent": "CompetitorProfiler"
+  },
+  {
+    "step": 4,
+    "description": "Analyze competitor pricing strategies",
+    "expected_output": "JSON document containing price comparisons across different platforms, identified pricing patterns, and potential pricing strategies",
+    "agent": "PriceWatcher"
+  },
+  {
+    "step": 5,
+    "description": "Generate actionable insights and unique selling points",
+    "expected_output": "List of actionable insights and unique selling points for each competitor in JSON format",
+    "agent": "InsightSynthesizer"
+  },
+  {
+    "step": 6,
+    "description": "Compile and format the final competitor analysis report",
+    "expected_output": "Draft of the comprehensive competitor analysis report in a structured document format (e.g., markdown or HTML)",
+    "agent": "ReportCrafter"
+  },
+  {
+    "step": 7,
+    "description": "Review and refine the compiled report",
+    "expected_output": "Refined and polished competitor analysis report with enhanced insights and narratives",
+    "agent": "InsightSynthesizer"
+  },
+  {
+    "step": 8,
+    "description": "Finalize report and prepare data for export",
+    "expected_output": "Final competitor analysis report in multiple formats (PDF, HTML, etc.) and structured data ready for export to other tools",
+    "agent": "IntegrationMaster"
+  }
+]
+</TASKS_DESIGN>
+
+This workflow ensures a comprehensive and efficient process for competitor analysis, leveraging the strengths of each specialized agent. The output from each step feeds into the next, culminating in a thorough, actionable report with options for integration with other marketing tools.

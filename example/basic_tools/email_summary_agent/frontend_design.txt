@@ -1,0 +1,35 @@
+
+The frontend will be a single HTML page with embedded JavaScript for dynamic content updates. The design will include:
+
+1. Header:
+   - App title: "Email Summarizer"
+   - User info display (once authenticated)
+
+2. Authentication Section:
+   - "Connect to Gmail" button
+   - Authentication status indicator
+
+3. Control Panel:
+   - "Summarize Recent Emails" button
+   - Options for number of emails to summarize (e.g., dropdown: 10, 25, 50)
+
+4. Results Display:
+   - Loading spinner during summarization process
+   - Accordion-style list of email summaries:
+     * Each item shows: Subject, From, Date, and a preview of the summary
+     * Clicking an item expands to show the full summary
+
+5. Styling:
+   - Clean, modern design with a color scheme based on Gmail's palette
+   - Responsive layout for mobile and desktop viewing
+
+6. JavaScript Functionality:
+   - Handle authentication flow
+   - Make AJAX calls to backend API endpoints
+   - Dynamically update the UI with summarization results
+   - Implement accordion behavior for summary display
+
+7. Error Handling:
+   - Display user-friendly error messages for various scenarios (auth failure, summarization issues, etc.)
+
+The page will use HTML5, CSS3 (possibly with a framework like Bootstrap for responsiveness), and vanilla JavaScript for interactivity. All functionality will be contained within this single page, providing a seamless user experience for email summarization.

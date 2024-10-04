@@ -1,0 +1,295 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>PDF & Document Merger - Finae AI</title>
+    <meta name="description" content="Merge multiple PDFs or Word documents into one PDF"/>
+    <link rel="icon" href="/favicon.ico"/>
+    <meta property="og:title" content="PDF & Document Merger - Finae AI"/>
+    <meta property="og:description" content="Merge multiple PDFs or Word documents into one PDF"/>
+    <meta property="og:url" content="https://finae.ai/"/>
+    <meta property="og:image" content="https://finae.ai/og-image.png"/>
+    <meta name="twitter:title" content="PDF & Document Merger - Finae AI"/>
+    <meta name="twitter:description" content="Merge multiple PDFs or Word documents into one PDF"/>
+    <meta name="twitter:image" content="/og-image.png"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3182ce;
+            --secondary-color: #4fd1c5;
+            --text-color: #2d3748;
+            --background-color: #f7fafc;
+            --accent-color: #f6e05e;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .hero {
+            text-align: center;
+            padding: 80px 0;
+        }
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+        .headline-subtitle {
+            font-size: 24px;
+            color: var(--secondary-color);
+            display: block;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        .subtitle-small {
+            font-size: 18px;
+            color: #718096;
+            margin-bottom: 40px;
+        }
+        #drop-area {
+            max-width: 600px;
+            margin: 40px auto;
+            border: 2px dashed var(--primary-color);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #drop-area:hover {
+            background-color: #edf2f7;
+        }
+        #file-list {
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: white;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: 600;
+        }
+        button:hover {
+            background-color: #2c5282;
+        }
+        button:disabled {
+            background-color: #a0aec0;
+            cursor: not-allowed;
+        }
+        #progress-bar {
+            width: 100%;
+            background-color: #edf2f7;
+            border-radius: 5px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        #progress {
+            width: 0%;
+            height: 10px;
+            background-color: var(--primary-color);
+            transition: width 0.3s;
+        }
+        #result {
+            margin-top: 40px;
+            text-align: center;
+            display: none;
+        }
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            color: #718096;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">Finae AI</div>
+        </header>
+        <main>
+            <section class="hero">
+                <h1>
+                    PDF & Document Merger
+                    <span class="headline-subtitle">Streamline your document workflow</span>
+                </h1>
+                <p class="subtitle-small">Upload multiple PDFs or Word documents to merge them into one PDF</p>
+                <div id="drop-area">
+                    <p>Drag and drop files here or click to select files</p>
+                    <input type="file" id="fileElem" multiple accept=".pdf,.doc,.docx" style="display:none">
+                    <button id="addFiles">Add Files</button>
+                </div>
+                <div id="file-list"></div>
+                <button id="mergeButton" disabled>Merge Files</button>
+                <div id="progress-bar">
+                    <div id="progress"></div>
+                </div>
+                <div id="result">
+                    <h3>Merge Successful!</h3>
+                    <p>Your merged document is ready:</p>
+                    <p id="mergedFilename"></p>
+                    <button id="downloadButton">Download Merged PDF</button>
+                </div>
+            </section>
+        </main>
+        <footer>
+            <p>&copy; 2024 Finae Labs Inc. All rights reserved.</p>
+            <p>Contact us at <a href="mailto:founders@finae.ai">founders@finae.ai</a></p>
+        </footer>
+    </div>
+    <script>
+        const dropArea = document.getElementById('drop-area');
+        const fileList = document.getElementById('file-list');
+        const addFilesButton = document.getElementById('addFiles');
+        const fileElem = document.getElementById('fileElem');
+        const mergeButton = document.getElementById('mergeButton');
+        const progressBar = document.getElementById('progress');
+        const resultSection = document.getElementById('result');
+        const mergedFilename = document.getElementById('mergedFilename');
+        const downloadButton = document.getElementById('downloadButton');
+
+        let files = [];
+
+        function handleFiles(newFiles) {
+            for (let file of newFiles) {
+                if (!files.some(f => f.name === file.name)) {
+                    files.push(file);
+                }
+            }
+            updateFileList();
+            updateMergeButton();
+        }
+
+        function updateFileList() {
+            fileList.innerHTML = '';
+            files.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <span>${file.name} (${formatFileSize(file.size)})</span>
+                    <button onclick="removeFile(${index})">Remove</button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' bytes';
+            else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            else return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        function removeFile(index) {
+            files.splice(index, 1);
+            updateFileList();
+            updateMergeButton();
+        }
+
+        function updateMergeButton() {
+            mergeButton.disabled = files.length < 2;
+        }
+
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.style.backgroundColor = '#edf2f7';
+        });
+
+        dropArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropArea.style.backgroundColor = '';
+        });
+
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.style.backgroundColor = '';
+            handleFiles(e.dataTransfer.files);
+        });
+
+        addFilesButton.addEventListener('click', () => fileElem.click());
+
+        fileElem.addEventListener('change', (e) => handleFiles(e.target.files));
+
+        mergeButton.addEventListener('click', () => {
+            const formData = new FormData();
+            files.forEach(file => formData.append('files', file));
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.filename) {
+                    resultSection.style.display = 'block';
+                    mergedFilename.textContent = data.filename;
+                    downloadButton.onclick = () => window.location.href = `/download/${data.filename}`;
+                } else {
+                    alert('Error merging files. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error merging files. Please try again.');
+            });
+        });
+
+        function updateProgress(percent) {
+            progressBar.style.width = percent + '%';
+        }
+
+        let progress = 0;
+        function simulateProgress() {
+            progress += 10;
+            if (progress <= 100) {
+                updateProgress(progress);
+                setTimeout(simulateProgress, 500);
+            }
+        }
+
+        mergeButton.addEventListener('click', () => {
+            progress = 0;
+            updateProgress(0);
+            simulateProgress();
+        });
+    </script>
+</body>
+</html>

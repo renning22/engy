@@ -1,0 +1,32 @@
+
+The backend will be a Python Flask server that interfaces with kubectl and provides API endpoints:
+
+1. GET /nodes - List all K8s nodes
+   - Uses subprocess to run "kubectl get nodes"
+   - Returns JSON list of node info
+
+2. GET /pods - List all K8s pods
+   - Uses subprocess to run "kubectl get pods --all-namespaces" 
+   - Returns JSON list of pod info
+
+3. POST /ssh
+   - Accepts node/pod name and command
+   - Uses paramiko library to SSH and execute command
+   - Returns command output
+
+4. POST /kill
+   - Accepts pod name
+   - Uses subprocess to run "kubectl delete pod <name>"
+   - Returns success/failure status
+
+5. GET /details/<resource_type>/<name>
+   - Uses subprocess to run "kubectl describe <resource_type> <name>"
+   - Returns formatted details as text
+
+The server will use error handling and input validation to ensure security. It will require authentication to access the API endpoints.
+
+Key Python libraries:
+- Flask for web server
+- subprocess for running kubectl commands
+- paramiko for SSH functionality
+- json for parsing kubectl output

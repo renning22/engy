@@ -1,0 +1,7 @@
+Build my personal research agent.
+
+I can type a person name, the agent search on internet.
+
+Result is rendered in a sophicated UI below containing a person's basic information e.g. Name, Occupation, Company. and email address.
+
+The UI also need to show steplog in real time.

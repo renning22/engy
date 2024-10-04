@@ -1,0 +1,3 @@
+I have current year product sales data.
+I want to have a dashboard show my the quately revenue. Dashboard is interatively, I can drill down into each quarter to see breakdowns. 
+Also Generate me a sales report with templates and (and able to edit it).

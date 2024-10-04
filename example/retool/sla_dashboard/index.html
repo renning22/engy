@@ -1,0 +1,305 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Support Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-indigo-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <h1 class="text-3xl font-bold">Customer Support Dashboard</h1>
+        </div>
+    </header>
+
+    <div id="overview-banner" class="bg-green-500 text-white py-2 px-4 text-center font-semibold shadow-md"></div>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-wrap -mx-4">
+            <aside class="w-full md:w-1/4 px-4 mb-8">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Filters</h3>
+                    <label for="date-range" class="block mb-2">Date Range:</label>
+                    <select id="date-range" class="w-full p-2 border rounded">
+                        <option value="7">Last 7 days</option>
+                        <option value="30">Last 30 days</option>
+                        <option value="90">Last 90 days</option>
+                    </select>
+                </div>
+            </aside>
+
+            <main class="w-full md:w-3/4 px-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <canvas id="ticket-volume-chart"></canvas>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <canvas id="response-time-chart"></canvas>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <canvas id="resolution-time-chart"></canvas>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <canvas id="sla-adherence-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                    <h2 class="text-2xl font-semibold mb-4">Agent Performance</h2>
+                    <div class="overflow-x-auto">
+                        <table id="agent-performance-table" class="w-full">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="p-3 text-left">Agent Name</th>
+                                    <th class="p-3 text-left">Tickets Handled</th>
+                                    <th class="p-3 text-left">Avg. Resolution Time (hours)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Agent performance data will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-2xl font-semibold mb-4">Recent Tickets</h2>
+                    <div class="overflow-x-auto">
+                        <table id="recent-tickets-table" class="w-full">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="p-3 text-left">Ticket ID</th>
+                                    <th class="p-3 text-left">Customer</th>
+                                    <th class="p-3 text-left">Agent</th>
+                                    <th class="p-3 text-left">Status</th>
+                                    <th class="p-3 text-left">Created At</th>
+                                    <th class="p-3 text-left">Resolved At</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Recent tickets data will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5123/api';
+
+        // Fetch dashboard data from the backend
+        async function fetchDashboardData() {
+            const response = await fetch(`${API_BASE_URL}/dashboard`);
+            return await response.json();
+        }
+
+        // Fetch ticket data from the backend
+        async function fetchTicketData() {
+            const response = await fetch(`${API_BASE_URL}/tickets`);
+            return await response.json();
+        }
+
+        // Fetch agent data from the backend
+        async function fetchAgentData() {
+            const response = await fetch(`${API_BASE_URL}/agents`);
+            return await response.json();
+        }
+
+        // Render charts using Chart.js
+        function renderCharts(data) {
+            const chartConfig = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        font: {
+                            size: 16,
+                            weight: 'bold',
+                        }
+                    }
+                }
+            };
+
+            new Chart(document.getElementById('ticket-volume-chart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Ticket Volume'],
+                    datasets: [{
+                        label: 'Ticket Volume',
+                        data: [data.ticket_volume],
+                        backgroundColor: 'rgba(99, 102, 241, 0.6)'
+                    }]
+                },
+                options: {
+                    ...chartConfig,
+                    title: {
+                        ...chartConfig.plugins.title,
+                        text: 'Ticket Volume'
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('response-time-chart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Avg. Response Time'],
+                    datasets: [{
+                        label: 'Minutes',
+                        data: [data.avg_response_time],
+                        backgroundColor: 'rgba(245, 158, 11, 0.6)'
+                    }]
+                },
+                options: {
+                    ...chartConfig,
+                    title: {
+                        ...chartConfig.plugins.title,
+                        text: 'Average Response Time'
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('resolution-time-chart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Avg. Resolution Time'],
+                    datasets: [{
+                        label: 'Hours',
+                        data: [data.avg_resolution_time],
+                        backgroundColor: 'rgba(16, 185, 129, 0.6)'
+                    }]
+                },
+                options: {
+                    ...chartConfig,
+                    title: {
+                        ...chartConfig.plugins.title,
+                        text: 'Average Resolution Time'
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('sla-adherence-chart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Within SLA', 'Outside SLA'],
+                    datasets: [{
+                        data: [data.sla_adherence, 100 - data.sla_adherence],
+                        backgroundColor: ['rgba(16, 185, 129, 0.6)', 'rgba(239, 68, 68, 0.6)']
+                    }]
+                },
+                options: {
+                    ...chartConfig,
+                    title: {
+                        ...chartConfig.plugins.title,
+                        text: 'SLA Adherence'
+                    }
+                }
+            });
+        }
+
+        // Update tables with latest data
+        function updateTables(agentData, ticketData) {
+            const agentTableBody = document.querySelector('#agent-performance-table tbody');
+            agentTableBody.innerHTML = '';
+            agentData.forEach(agent => {
+                const row = `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3">${agent.name}</td>
+                        <td class="p-3">${agent.tickets_handled}</td>
+                        <td class="p-3">${agent.avg_resolution_time.toFixed(2)}</td>
+                    </tr>
+                `;
+                agentTableBody.innerHTML += row;
+            });
+
+            const ticketTableBody = document.querySelector('#recent-tickets-table tbody');
+            ticketTableBody.innerHTML = '';
+            ticketData.slice(0, 10).forEach(ticket => {
+                const row = `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3">${ticket.id}</td>
+                        <td class="p-3">${ticket.customer}</td>
+                        <td class="p-3">${ticket.agent}</td>
+                        <td class="p-3">
+                            <span class="px-2 py-1 rounded ${ticket.status === 'open' ? 'bg-yellow-200 text-yellow-800' : 'bg-green-200 text-green-800'}">
+                                ${ticket.status}
+                            </span>
+                        </td>
+                        <td class="p-3">${new Date(ticket.created_at).toLocaleString()}</td>
+                        <td class="p-3">${ticket.resolved_at ? new Date(ticket.resolved_at).toLocaleString() : 'N/A'}</td>
+                    </tr>
+                `;
+                ticketTableBody.innerHTML += row;
+            });
+        }
+
+        // Update overview banner
+        function updateOverviewBanner(data) {
+            const banner = document.getElementById('overview-banner');
+            banner.innerHTML = `
+                <div class="container mx-auto px-4 py-2 flex justify-between items-center flex-wrap">
+                    <span>Ticket Volume: ${data.ticket_volume}</span>
+                    <span>Avg. Response Time: ${data.avg_response_time.toFixed(2)} min</span>
+                    <span>Avg. Resolution Time: ${data.avg_resolution_time.toFixed(2)} hours</span>
+                    <span>SLA Adherence: ${data.sla_adherence.toFixed(2)}%</span>
+                </div>
+            `;
+        }
+
+        // Initialize dashboard
+        async function initDashboard() {
+            const dashboardData = await fetchDashboardData();
+            const agentData = await fetchAgentData();
+            const ticketData = await fetchTicketData();
+            renderCharts(dashboardData);
+            updateTables(agentData, ticketData);
+            updateOverviewBanner(dashboardData);
+        }
+
+        // Update dashboard in real-time
+        setInterval(initDashboard, 60000); // Update every minute
+
+        // Event listeners for interactivity
+        document.addEventListener('DOMContentLoaded', () => {
+            initDashboard();
+            
+            // Add event listener for date range filter
+            document.getElementById('date-range').addEventListener('change', (event) => {
+                // In a real application, you would fetch new data based on the selected date range
+                console.log('Date range changed:', event.target.value);
+                // For now, we'll just reinitialize the dashboard
+                initDashboard();
+            });
+        });
+    </script>
+</body>
+</html>

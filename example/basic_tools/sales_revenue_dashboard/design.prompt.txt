@@ -1,0 +1,105 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+I have current year product sales data.
+I want to have a dashboard show my the quately revenue. Dashboard is interatively, I can drill down into each quarter to see breakdowns. 
+Also Generate me a sales report with templates and (and able to edit it).
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's a design for the app based on your description:
+
+<BACKEND_DESIGN>
+The backend will be a Python Flask server with the following components:
+
+1. Data Storage:
+   - Use SQLite database to store sales data
+   - Table structure: id, product_name, sale_date, quantity, price
+
+2. API Endpoints:
+   - GET /api/quarterly_revenue
+     - Returns quarterly revenue data for the dashboard
+   - GET /api/quarterly_breakdown/<quarter>
+     - Returns detailed breakdown for a specific quarter
+   - GET /api/sales_report
+     - Generates and returns a sales report
+   - POST /api/sales_report
+     - Accepts edited sales report data and saves it
+
+3. Data Processing:
+   - Implement functions to calculate quarterly revenue
+   - Create functions to generate detailed breakdowns
+   - Develop a report generator using a template engine (e.g., Jinja2)
+
+4. Libraries:
+   - Flask: Web framework
+   - SQLAlchemy: Database ORM
+   - Pandas: Data manipulation and analysis
+   - Jinja2: Templating engine for report generation
+
+5. File Structure:
+   - app.py: Main Flask application
+   - models.py: Database models
+   - utils.py: Helper functions for data processing
+   - templates/: Folder for report templates
+
+The server will handle data retrieval, processing, and report generation, serving the frontend with JSON responses for the dashboard and providing downloadable reports.
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+The frontend will be a single HTML page with embedded JavaScript and CSS, featuring an interactive dashboard and report editing functionality:
+
+1. Layout:
+   - Header with app title and navigation
+   - Main content area divided into two sections:
+     - Dashboard
+     - Sales Report Editor
+
+2. Dashboard Section:
+   - Quarterly revenue chart (bar chart)
+   - Interactive elements to drill down into each quarter
+   - Detailed breakdown view for selected quarter
+
+3. Sales Report Section:
+   - Report template display
+   - Editable fields for customizing the report
+   - Generate and Download buttons
+
+4. Technologies:
+   - HTML5 for structure
+   - CSS3 for styling (using Flexbox or Grid for layout)
+   - JavaScript (ES6+) for interactivity
+   - Chart.js for creating interactive charts
+   - Fetch API for making AJAX calls to the backend
+
+5. Features:
+   - Real-time updates of the dashboard when drilling down
+   - In-place editing of the sales report
+   - Responsive design for various screen sizes
+
+6. User Interaction:
+   - Click on quarters in the main chart to see detailed breakdowns
+   - Edit report fields directly in the browser
+   - Generate updated reports based on edits
+   - Download reports as PDF or CSV
+
+The frontend will provide an intuitive, interactive experience for viewing sales data and customizing reports, all within a single page application.
+</FRONTEND_DESIGN>

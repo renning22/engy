@@ -1,0 +1,2 @@
+create an console that use `kubectl` to list all current k8s nodes and pods.
+Let me have buttons to `ssh`, `kill` or `view detial` to these pods and nodes.

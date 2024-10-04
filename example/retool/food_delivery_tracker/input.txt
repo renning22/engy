@@ -1,0 +1,2 @@
+If you’re in the business of delivering physical goods (e.g., food delivery), you need a log of delivery events (time sent, received, driver, region, etc.) to manage customer support.
+Providing your customer support team with a tool to quickly search orders and take action makes their work easier and helps deliver better customer experiences.

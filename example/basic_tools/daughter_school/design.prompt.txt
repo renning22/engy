@@ -1,0 +1,122 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+my daughter is 4 years old and going to school next year. She loves art.
+I'm living in Fremont, CA. I don't know which school is good for her.
+Create an app comparing all of them nearby. Show me some metrics and explainations. Also show me on google map.
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's a design for an app to compare schools in Fremont, CA with a focus on art programs for young children:
+
+<BACKEND_DESIGN>
+Python Flask server:
+
+1. Main route ('/'):
+   - Serve the single HTML page
+
+2. API route ('/schools'):
+   - Fetch school data from a database or external API
+   - Return JSON with school information:
+     - School name
+     - Address
+     - Overall rating (1-10)
+     - Art program rating (1-10)
+     - Brief description of art program
+     - Latitude and longitude for map display
+
+3. Database or data source:
+   - Store information about local schools in Fremont, CA
+   - Include fields for school name, address, ratings, and art program details
+
+4. External API integration:
+   - Google Maps API for geocoding addresses and displaying map
+
+5. Data processing:
+   - Calculate distance from user's location to each school
+   - Sort schools by distance, rating, or art program strength
+
+6. Error handling:
+   - Gracefully handle API errors or missing data
+
+7. Caching:
+   - Implement caching to improve performance for repeated requests
+
+8. Security:
+   - Implement rate limiting and API key validation for external requests
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+Single HTML page with embedded JavaScript:
+
+1. Header:
+   - Title: "Fremont Art-Focused Elementary Schools"
+   - Subtitle: "Find the perfect school for your creative 4-year-old"
+
+2. User Input Section:
+   - Address input field (auto-filled with "Fremont, CA")
+   - "Find Schools" button
+
+3. Map Section:
+   - Embedded Google Map
+   - Markers for each school
+   - Info windows with basic school info on marker click
+
+4. School List Section:
+   - Scrollable list of schools
+   - For each school, display:
+     - School name
+     - Distance from user
+     - Overall rating (star display)
+     - Art program rating (palette icon display)
+     - Brief description of art program
+   - Sort options: distance, overall rating, art program rating
+
+5. School Details Modal:
+   - Pops up when a school is clicked
+   - Detailed information about the school
+   - Larger description of art program
+   - Photos of art facilities (if available)
+   - Link to school website
+
+6. Comparison Tool:
+   - Allow selection of up to 3 schools
+   - Side-by-side comparison of selected schools
+
+7. Styling:
+   - Colorful, child-friendly design with art-themed icons
+   - Responsive layout for mobile and desktop
+
+8. Interactivity:
+   - Smooth animations for list sorting and modal pop-ups
+   - Interactive map with custom markers
+
+9. Footer:
+   - Disclaimer about data sources
+   - Last updated date
+   - Contact information for feedback
+
+JavaScript:
+- Fetch school data from backend API
+- Handle user interactions (sorting, filtering, map interactions)
+- Dynamically update school list and map based on user input
+- Implement comparison functionality
+</FRONTEND_DESIGN>

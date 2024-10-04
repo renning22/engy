@@ -1,0 +1,81 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+Create an app where I can paste two versions of texts and see their diffs.
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's my design for the text comparison app:
+
+<BACKEND_DESIGN>
+The backend will be a Python Flask server with the following components:
+
+1. Main Flask app:
+   - Import necessary libraries (Flask, difflib)
+   - Create Flask app instance
+
+2. Route: "/"
+   - Serve the main HTML page
+
+3. Route: "/compare" (POST method)
+   - Receive two texts from the frontend
+   - Use difflib to compare the texts and generate HTML diff
+   - Return the HTML diff to the frontend
+
+4. Helper function: generate_diff(text1, text2)
+   - Use difflib.HtmlDiff().make_file() to create an HTML diff
+   - Customize the output to make it more visually appealing
+
+5. Run the Flask app
+
+The server will use the difflib library to generate a colorized HTML diff between the two input texts. This diff will highlight additions, deletions, and changes between the two versions.
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+The frontend will be a single HTML page with embedded CSS and JavaScript:
+
+1. HTML structure:
+   - Title: "Text Comparison Tool"
+   - Two large text areas for input:
+     - Left: "Original Text"
+     - Right: "Modified Text"
+   - "Compare" button
+   - Result area to display the diff
+
+2. CSS styling:
+   - Modern, clean design with a color scheme (e.g., blue and white)
+   - Responsive layout for various screen sizes
+   - Styled text areas and button
+   - Custom styling for diff output (highlighted additions and deletions)
+
+3. JavaScript functionality:
+   - Event listener for the "Compare" button
+   - AJAX call to send texts to the backend "/compare" route
+   - Function to display the returned HTML diff in the result area
+   - Error handling for failed requests or empty inputs
+
+4. Additional features:
+   - "Clear" button to reset both text areas
+   - "Swap" button to switch the contents of the two text areas
+   - Loading spinner while waiting for the comparison result
+
+The frontend will provide an intuitive interface for users to input their texts, initiate the comparison, and view the results in a visually appealing manner.
+</FRONTEND_DESIGN>

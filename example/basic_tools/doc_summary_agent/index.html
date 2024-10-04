@@ -1,0 +1,231 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Summarizer</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        /* CSS Reset */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .upload-area {
+            border: 2px dashed #3498db;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .upload-area:hover {
+            background-color: #e8f4fc;
+        }
+
+        .upload-area.dragover {
+            background-color: #d5e9f7;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: #3498db;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+
+        #progress-indicator {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #summary-container {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        #error-message {
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .upload-area {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Document Summarizer</h1>
+    <div class="upload-area" id="drop-area">
+        <p>Drag and drop your file here or click to select</p>
+        <input type="file" id="file-input" accept=".txt,.doc,.docx,.pdf">
+        <button class="btn" onclick="document.getElementById('file-input').click()">Select File</button>
+    </div>
+    <div id="progress-indicator">
+        <div class="spinner"></div>
+        <p>Summarizing document...</p>
+    </div>
+    <div id="summary-container"></div>
+    <div id="error-message"></div>
+
+    <script>
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('file-input');
+        const progressIndicator = document.getElementById('progress-indicator');
+        const summaryContainer = document.getElementById('summary-container');
+        const errorMessage = document.getElementById('error-message');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.classList.add('dragover');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('dragover');
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+        fileInput.addEventListener('change', handleFileSelect, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                uploadFile(files[0]);
+            }
+        }
+
+        function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('session_id', 'user_session_' + Date.now());
+
+            progressIndicator.style.display = 'block';
+            summaryContainer.innerHTML = '';
+            errorMessage.textContent = '';
+
+            axios.post('http://localhost:8409/upload', formData)
+                .then(response => {
+                    if (response.data.message === "File processed successfully") {
+                        getSummary(formData.get('session_id'));
+                    }
+                })
+                .catch(error => {
+                    progressIndicator.style.display = 'none';
+                    errorMessage.textContent = 'Error uploading file: ' + error.message;
+                });
+        }
+
+        function getSummary(sessionId) {
+            axios.get(`http://localhost:8409/summary?session_id=${sessionId}`)
+                .then(response => {
+                    progressIndicator.style.display = 'none';
+                    const summary = response.data.summary;
+                    summaryContainer.innerHTML = marked.parse(summary);
+                    addDownloadButton(sessionId);
+                })
+                .catch(error => {
+                    progressIndicator.style.display = 'none';
+                    errorMessage.textContent = 'Error retrieving summary: ' + error.message;
+                });
+        }
+
+        function addDownloadButton(sessionId) {
+            const downloadBtn = document.createElement('button');
+            downloadBtn.textContent = 'Download Summary';
+            downloadBtn.className = 'btn';
+            downloadBtn.style.marginTop = '20px';
+            downloadBtn.onclick = () => downloadSummary(sessionId);
+            summaryContainer.appendChild(downloadBtn);
+        }
+
+        function downloadSummary(sessionId) {
+            window.location.href = `http://localhost:8409/download?session_id=${sessionId}`;
+        }
+    </script>
+</body>
+</html>

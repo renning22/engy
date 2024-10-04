@@ -1,0 +1,34 @@
+
+The frontend will be a single HTML page with embedded JavaScript and CSS. Key features include:
+
+1. File Upload Section:
+   - A drag-and-drop area for file upload.
+   - A traditional file input button as an alternative.
+   - Visual feedback during file upload process.
+
+2. Summary Display:
+   - A styled div to display the markdown summary.
+   - Use a markdown rendering library (e.g., marked.js) to properly format the summary.
+
+3. Download Button:
+   - A button to download the summarized markdown file.
+
+4. Progress Indicator:
+   - A loading spinner or progress bar to show when summarization is in progress.
+
+5. Responsive Design:
+   - Use CSS media queries to ensure the page looks good on both desktop and mobile devices.
+
+6. Error Messages:
+   - A designated area to display any error messages from the backend.
+
+7. Styling:
+   - Use a modern, clean design with a color scheme that emphasizes readability.
+   - Implement smooth transitions and animations for a polished user experience.
+
+8. JavaScript Functionality:
+   - Implement AJAX calls to communicate with the backend API.
+   - Handle file upload, summary retrieval, and download functionality.
+   - Dynamically update the UI based on the current state (uploading, processing, ready, error).
+
+The HTML file will include all necessary CSS and JavaScript, making it a self-contained frontend solution.

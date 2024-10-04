@@ -1,0 +1,3 @@
+Create a secure and accessible customer insights dashboard that serves as a centralized control center.
+The dashboard should allow users to easily look up, edit, and configure customer accounts.
+Ensure data security while enabling quick access to customer information.

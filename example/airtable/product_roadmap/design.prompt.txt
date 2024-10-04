@@ -1,0 +1,124 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+Plan for the different stages of product development and monitor upcoming deadlines
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's a design for a simple product development planning and deadline monitoring app based on the given description:
+
+<BACKEND_DESIGN>
+The backend will be a Python Flask server with the following components:
+
+1. Database:
+   - Use SQLite for simplicity
+   - Tables:
+     - Projects (id, name, description, start_date, end_date)
+     - Stages (id, project_id, name, description, start_date, end_date, status)
+     - Tasks (id, stage_id, name, description, deadline, status)
+
+2. API Endpoints:
+   - GET /projects: Retrieve all projects
+   - POST /projects: Create a new project
+   - GET /projects/<project_id>: Retrieve a specific project
+   - PUT /projects/<project_id>: Update a project
+   - DELETE /projects/<project_id>: Delete a project
+   
+   - GET /projects/<project_id>/stages: Retrieve all stages for a project
+   - POST /projects/<project_id>/stages: Create a new stage for a project
+   - PUT /stages/<stage_id>: Update a stage
+   - DELETE /stages/<stage_id>: Delete a stage
+   
+   - GET /stages/<stage_id>/tasks: Retrieve all tasks for a stage
+   - POST /stages/<stage_id>/tasks: Create a new task for a stage
+   - PUT /tasks/<task_id>: Update a task
+   - DELETE /tasks/<task_id>: Delete a task
+
+3. Business Logic:
+   - Calculate progress percentages for projects and stages
+   - Identify upcoming deadlines (within the next 7 days)
+   - Sort and filter projects, stages, and tasks by various criteria
+
+4. Data Validation:
+   - Ensure date consistency (e.g., end dates after start dates)
+   - Validate required fields and data types
+
+5. Error Handling:
+   - Proper HTTP status codes and error messages for various scenarios
+
+6. Security:
+   - Basic authentication for API access
+   - Input sanitization to prevent SQL injection
+
+The backend will serve the static HTML file for the frontend and handle all data operations through the API endpoints.
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+The frontend will be a single HTML page with embedded CSS and JavaScript, featuring a responsive design for various screen sizes. Key components include:
+
+1. Header:
+   - App title: "ProductPlan Pro"
+   - Navigation menu (Projects, Deadlines, Settings)
+
+2. Main content area:
+   - Project List:
+     - Sortable and filterable table of projects
+     - Progress bars for each project
+     - Quick actions (edit, delete)
+   - Project Details (shown when a project is selected):
+     - Project information (name, description, dates)
+     - Stages list with progress bars
+     - Tasks list with checkboxes and deadline indicators
+
+3. Sidebar:
+   - "Add New" button (for projects, stages, or tasks)
+   - Upcoming Deadlines widget
+     - List of tasks due within the next 7 days
+     - Color-coded by urgency
+
+4. Footer:
+   - Copyright information
+   - Links to help/documentation
+
+5. Modals:
+   - Add/Edit Project
+   - Add/Edit Stage
+   - Add/Edit Task
+
+6. Styling:
+   - Modern, clean design with a blue and white color scheme
+   - Responsive layout using CSS Grid and Flexbox
+   - Smooth transitions and animations for a polished feel
+
+7. JavaScript Functionality:
+   - Dynamic content loading without page refresh
+   - Form validation for adding/editing items
+   - Drag-and-drop functionality for reordering stages and tasks
+   - Interactive charts for visualizing project progress
+   - Real-time updates of deadlines and progress bars
+
+8. Accessibility:
+   - Proper ARIA labels and roles
+   - Keyboard navigation support
+   - High contrast mode toggle
+
+The frontend will communicate with the backend through AJAX calls to the API endpoints, providing a smooth and responsive user experience for planning and monitoring product development stages and deadlines.
+</FRONTEND_DESIGN>

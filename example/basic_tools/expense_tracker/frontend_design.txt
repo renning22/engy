@@ -1,0 +1,43 @@
+
+The frontend will be a single HTML page with embedded JavaScript and CSS. It will have the following components:
+
+1. HTML Structure:
+   - Header with app title
+   - Form for adding/editing expenses
+   - Table to display expenses
+   - Charts section for visualizing spending
+   - Categories management section
+
+2. CSS Styling:
+   - Use a modern, responsive design
+   - Implement a clean, minimalist color scheme
+   - Use Flexbox or Grid for layout
+
+3. JavaScript Functionality:
+   - Fetch and display expenses from the backend
+   - Handle form submission for adding/editing expenses
+   - Implement client-side form validation
+   - Create interactive charts using Chart.js library
+   - Enable sorting and filtering of the expense table
+   - Implement category management (add, edit, delete)
+
+4. Charts and Visualizations:
+   - Pie chart for expenses by category
+   - Bar chart for monthly spending
+   - Line chart for spending trends over time
+
+5. Interactive Elements:
+   - Clickable table rows to edit expenses
+   - Toggle between one-time and recurring expenses view
+   - Date range picker for filtering expenses
+
+6. Responsive Design:
+   - Ensure the layout adapts to different screen sizes
+   - Use media queries to adjust the layout for mobile devices
+
+7. Dependencies:
+   - Chart.js for creating interactive charts
+   - Axios for making API requests
+   - Date-fns for date manipulation
+
+The frontend will provide an intuitive interface for users to manage their expenses, visualize spending patterns, and gain insights into their financial habits.

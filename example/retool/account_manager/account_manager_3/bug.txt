@@ -1,0 +1,10 @@
+Highlight feature doesn't work.
+
+
+
+[Vue warn]: Failed to mount component: template or render function not defined.
+
+found in
+
+---> <TransactionForm>
+       <Root>

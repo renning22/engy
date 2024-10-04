@@ -1,0 +1,361 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in backend development.
+You are good at writing python webserver in single self-contained python files.
+
+1. Regarding data or database.
+If provide API key and mention API to use, generate client to actually connect to the API. (assume API is accesible and key is correct.)
+Otherwise, generate mock data and prefer to use in-memory data-structure database.
+When use sqlite, use local file database (in current directory).
+
+2. You may use libraries like Flask, websocket and etc.
+When use Flask, also enable CORS.
+
+3. Bind to `localhost:5787`.
+
+Output python source code should be included in <SERVER_PYTHON_CODE></SERVER_PYTHON_CODE> block.
+
+
+=== 0: user ===
+<PROBLEM>
+Agents: Competitor analysis
+
+The agent automates the collection, analysis, and reporting of competitor data, enabling marketing professionals to make informed strategic decisions.
+
+### Objectives
+
+- Streamline the competitor analysis process reduce time and effort by automating data collection and analysis.
+- Provide actionable insights to marketing teams to enhance strategic planning and positioning. Allow data export through tool integration
+
+### Key Features
+
+1. **Automated Data Collection**
+    - **Web Scraping**: The agent autonomously scrapes competitor websites for relevant information, including product offerings, pricing, and promotional strategies.
+    - **Social Media**: Check competitors' social media account to gather data on followership, activities，including Linkedin, Youtube, Tiktok, Pinterest, Twitter/X, Instagram, Facebook, Discord
+    - **News and Press Release Aggregation**: Collects and analyzes news articles and press releases related to competitors to stay updated on their latest developments.
+    - **Customer reviews**: Collect relevant customer reviews and analyze sentiment related to product features and services from Trustpilot, G2, Google, Yelp, and more ([Smelter AI](https://youtu.be/LqjpZS73Ewo?si=zcW7e3di_8bht-u2)).
+2. **Analysis and insight reporting**
+    
+    Generate a report that includes that following:
+    
+    - **Trend Analysis**: Synthesize publicly available data sources, such as industry reports, market research studies, and government publications that provide valuable information about market trends, industry benchmarks, and customer behavior. Identify emerging trends, new technologies, and innovative approaches to help users stay relevant and maintain a competitive edge.
+    - **SWOT Analysis**: Conducts automated SWOT (Strengths, Weaknesses, Opportunities, Threats) analysis based on the collected data.
+        - S - Identify what your competitors are doing well and what works for them. Do reviews indicate they have a superior product? Do they have high brand awareness? Can you test a competitor’s products yourself to see where they are performing better?
+        - W - Identify what each competitor could be doing better to give you a competitive advantage. Do they have a weak social media strategy? Do they have just an online store, not a brick-and-mortar one? Is their website outdated?
+        - O - Opportunities are factors that might work in favor of a business. What trends can provoke growths in the industry? What audience can also be targeted?
+        - T - Define what can potentially harm your competitors’ businesses. This might include politics, new regulations or changing customer preferences.
+    - **Competitive Benchmarking**: Compares key performance indicators (KPIs) of competitors against industry standards and the organization's metrics.
+    - **Price comparison**: Look up the data from the website pricing section or marketplaces. For eCommerce products, check price point across a variety of marketplaces
+    - **Generate Unique Selling Point**: <a competitor> is confident that customers will buy <a competitor>’s product because <a competitor> solves <a customer problem> better than any alternative due to the following reasons: A B C D E ([Not generic - PMM])
+</PROBLEM>
+
+=== 1: assistant ===
+1. Problem Summary
+
+The problem requires designing a multi-agent system to automate competitor analysis for marketing professionals. The system needs to collect data from various sources, analyze it, and generate comprehensive reports with actionable insights. Key features include automated data collection from websites, social media, news sources, and customer reviews; analysis and insight reporting including trend analysis, SWOT analysis, competitive benchmarking, price comparison, and generating unique selling points.
+
+2. Proposed Multi-Agent System
+
+To address this complex task, I propose a system with four specialized agents:
+
+a) Data Collection Agent
+b) Analysis and Insights Agent
+c) Report Generation Agent
+d) Quality Assurance and Integration Agent
+
+3. Expected Solution Process
+
+1. The Data Collection Agent gathers information from various sources.
+2. The Analysis and Insights Agent processes the collected data to extract meaningful insights.
+3. The Report Generation Agent compiles the analyzed information into a comprehensive report.
+4. The Quality Assurance and Integration Agent reviews the report, ensures accuracy, and prepares it for export to various tools.
+
+4. Final Agent Design JSON
+
+<AGENTS_DESIGN>
+[
+  {
+    "name": "Daphne Crawler",
+    "role": "Data Collection Agent",
+    "goal": "Gather comprehensive competitor data from multiple sources",
+    "backstory": "Daphne is a digital detective with years of experience in web scraping and data mining. She has a knack for finding hidden gems of information across the internet.",
+    "tools": ["web_scraper", "social_media_api", "news_aggregator", "review_collector"],
+    "task_description": "Task Goal: Collect competitor data from various online sources. Steps: 1) Scrape competitor websites for product, pricing, and promotional information. 2) Gather data from social media platforms (LinkedIn, YouTube, TikTok, Pinterest, Twitter, Instagram, Facebook, Discord). 3) Aggregate news articles and press releases about competitors. 4) Collect customer reviews from platforms like Trustpilot, G2, Google, and Yelp.",
+    "expected_output": "JSON format containing structured data from all sources, including 'website_data', 'social_media_data', 'news_data', and 'review_data'",
+    "send_to": ["Alex Analyzer"],
+    "receive_from": []
+  },
+  {
+    "name": "Alex Analyzer",
+    "role": "Analysis and Insights Agent",
+    "goal": "Process collected data to extract meaningful insights",
+    "backstory": "Alex is a former business intelligence analyst with a passion for uncovering patterns and trends in complex datasets. Their analytical skills have helped numerous companies gain a competitive edge.",
+    "tools": ["data_analysis_toolkit", "machine_learning_models", "trend_forecasting_algorithm"],
+    "task_description": "Task Goal: Analyze collected data and generate insights. Steps: 1) Conduct trend analysis using industry reports and market research. 2) Perform SWOT analysis for each competitor. 3) Benchmark competitors' KPIs against industry standards. 4) Compare pricing across different platforms. 5) Identify unique selling points for each competitor.",
+    "expected_output": "JSON format containing 'trend_analysis', 'swot_analysis', 'benchmarking_results', 'price_comparison', and 'unique_selling_points'",
+    "send_to": ["Rachel Reporter"],
+    "receive_from": ["Daphne Crawler"]
+  },
+  {
+    "name": "Rachel Reporter",
+    "role": "Report Generation Agent",
+    "goal": "Compile analyzed data into a comprehensive and actionable report",
+    "backstory": "Rachel is a seasoned business writer with a background in marketing strategy. She excels at translating complex data into clear, compelling narratives that drive decision-making.",
+    "tools": ["natural_language_processing", "data_visualization_suite", "report_template_engine"],
+    "task_description": "Task Goal: Create a detailed competitor analysis report. Steps: 1) Synthesize insights from the Analysis Agent. 2) Structure the report with sections on market trends, SWOT analysis, competitive benchmarking, pricing strategy, and unique selling propositions. 3) Generate data visualizations to support key points. 4) Write an executive summary highlighting critical findings and recommendations.",
+    "expected_output": "Markdown-formatted report with sections: 'Executive Summary', 'Market Trends', 'Competitor SWOT Analysis', 'Competitive Benchmarking', 'Pricing Strategy', 'Unique Selling Propositions', and 'Strategic Recommendations'",
+    "send_to": ["Quinn QA"],
+    "receive_from": ["Alex Analyzer"]
+  },
+  {
+    "name": "Quinn QA",
+    "role": "Quality Assurance and Integration Agent",
+    "goal": "Ensure report accuracy and prepare for tool integration",
+    "backstory": "Quinn is a meticulous editor and systems integration specialist. Their attention to detail and technical expertise ensure that final reports are not only accurate but also seamlessly integrated with various marketing tools.",
+    "tools": ["fact_checking_database", "grammar_and_style_checker", "data_export_modules"],
+    "task_description": "Task Goal: Review, refine, and prepare the report for export. Steps: 1) Proofread the entire report for accuracy and clarity. 2) Fact-check key claims and statistics. 3) Ensure consistent formatting and style. 4) Prepare data for export to various marketing tools. 5) Generate a final quality assurance report.",
+    "expected_output": "JSON format containing 'quality_assurance_report' with sections on accuracy, clarity, and export readiness, along with the final vetted report in multiple formats (PDF, DOCX, and data export files)",
+    "send_to": [],
+    "receive_from": ["Rachel Reporter"]
+  }
+]
+</AGENTS_DESIGN>
+
+This multi-agent system is designed to efficiently handle the competitor analysis task while ensuring high-quality, actionable outputs. The system is scalable, as additional data sources or analysis techniques can be incorporated by expanding the capabilities of existing agents or adding new specialized agents. It's also adaptable to variations in the competitor analysis problem, as the modular design allows for easy modification of specific components without overhauling the entire system.
+
+Error handling is built into each agent's workflow, with the Quality Assurance agent serving as a final checkpoint to catch and address any issues. The system respects ethical considerations by focusing on publicly available data and avoiding any practices that could be considered unethical or illegal in data collection or analysis.
+=== 2: user ===
+I implemented the agents design in "agents.py" using my Agent class.
+
+Here is the content of "agents.py":
+```python
+from finae import Agent
+
+# finae.Agent is my agent implementation.
+# The overview of finae.Agent class. 
+# 
+# class Agent:
+#   def __init__(self, name, role, goal, backstory, tools, task_description, expected_output, send_to, receive_from):
+#     self.name = name
+#     self.role = role
+#     self.goal = goal
+#     self.backstory = backstory
+#     self.tools = tools
+#     self.task_description = task_description
+#     self.expected_output = expected_output
+#     self.send_to = send_to
+#     self.receive_from = receive_from
+#     ...
+#
+#   def execute(self) -> str:
+#     """Execute and return expected_output in string."""
+
+all_agents = []
+
+
+all_agents.append(Agent(
+    name="Daphne Crawler",
+    role="Data Collection Agent",
+    goal="Gather comprehensive competitor data from multiple sources",
+    backstory="Daphne is a digital detective with years of experience in web scraping and data mining. She has a knack for finding hidden gems of information across the internet.",
+    tools=['web_scraper', 'social_media_api', 'news_aggregator', 'review_collector'],
+    task_description="Task Goal: Collect competitor data from various online sources. Steps: 1) Scrape competitor websites for product, pricing, and promotional information. 2) Gather data from social media platforms (LinkedIn, YouTube, TikTok, Pinterest, Twitter, Instagram, Facebook, Discord). 3) Aggregate news articles and press releases about competitors. 4) Collect customer reviews from platforms like Trustpilot, G2, Google, and Yelp.",
+    expected_output="JSON format containing structured data from all sources, including 'website_data', 'social_media_data', 'news_data', and 'review_data'",
+    send_to=['Alex Analyzer'],
+    receive_from=[],
+))
+
+
+all_agents.append(Agent(
+    name="Alex Analyzer",
+    role="Analysis and Insights Agent",
+    goal="Process collected data to extract meaningful insights",
+    backstory="Alex is a former business intelligence analyst with a passion for uncovering patterns and trends in complex datasets. Their analytical skills have helped numerous companies gain a competitive edge.",
+    tools=['data_analysis_toolkit', 'machine_learning_models', 'trend_forecasting_algorithm'],
+    task_description="Task Goal: Analyze collected data and generate insights. Steps: 1) Conduct trend analysis using industry reports and market research. 2) Perform SWOT analysis for each competitor. 3) Benchmark competitors' KPIs against industry standards. 4) Compare pricing across different platforms. 5) Identify unique selling points for each competitor.",
+    expected_output="JSON format containing 'trend_analysis', 'swot_analysis', 'benchmarking_results', 'price_comparison', and 'unique_selling_points'",
+    send_to=['Rachel Reporter'],
+    receive_from=['Daphne Crawler'],
+))
+
+
+all_agents.append(Agent(
+    name="Rachel Reporter",
+    role="Report Generation Agent",
+    goal="Compile analyzed data into a comprehensive and actionable report",
+    backstory="Rachel is a seasoned business writer with a background in marketing strategy. She excels at translating complex data into clear, compelling narratives that drive decision-making.",
+    tools=['natural_language_processing', 'data_visualization_suite', 'report_template_engine'],
+    task_description="Task Goal: Create a detailed competitor analysis report. Steps: 1) Synthesize insights from the Analysis Agent. 2) Structure the report with sections on market trends, SWOT analysis, competitive benchmarking, pricing strategy, and unique selling propositions. 3) Generate data visualizations to support key points. 4) Write an executive summary highlighting critical findings and recommendations.",
+    expected_output="Markdown-formatted report with sections: 'Executive Summary', 'Market Trends', 'Competitor SWOT Analysis', 'Competitive Benchmarking', 'Pricing Strategy', 'Unique Selling Propositions', and 'Strategic Recommendations'",
+    send_to=['Quinn QA'],
+    receive_from=['Alex Analyzer'],
+))
+
+
+all_agents.append(Agent(
+    name="Quinn QA",
+    role="Quality Assurance and Integration Agent",
+    goal="Ensure report accuracy and prepare for tool integration",
+    backstory="Quinn is a meticulous editor and systems integration specialist. Their attention to detail and technical expertise ensure that final reports are not only accurate but also seamlessly integrated with various marketing tools.",
+    tools=['fact_checking_database', 'grammar_and_style_checker', 'data_export_modules'],
+    task_description="Task Goal: Review, refine, and prepare the report for export. Steps: 1) Proofread the entire report for accuracy and clarity. 2) Fact-check key claims and statistics. 3) Ensure consistent formatting and style. 4) Prepare data for export to various marketing tools. 5) Generate a final quality assurance report.",
+    expected_output="JSON format containing 'quality_assurance_report' with sections on accuracy, clarity, and export readiness, along with the final vetted report in multiple formats (PDF, DOCX, and data export files)",
+    send_to=[],
+    receive_from=['Rachel Reporter'],
+))
+
+```
+
+Now implement a python backend server "server.py" as a DAG server that control and monitor the multi-agent executions by exposing REST APIs (websocket).
+1. API to control agent executions (individual agent).
+2. websocket to subscribe execution status.
+3. websocket to receive execution results.
+4. API to get all agents metadata, e.g. name, role, goal, backstory, task_description, send_to, receive_from.
+5. serve "index.html" in the same directory.
+
+```python
+@app.route('/')
+def serve_index():
+    return send_from_directory('.', 'index.html')
+```
+
+
+=== Reply 0 ===
+Certainly! I'll create a Python backend server using Flask and Flask-SocketIO to implement the DAG server that controls and monitors the multi-agent executions. Here's the implementation of the "server.py" file:
+
+<SERVER_PYTHON_CODE>
+import os
+from flask import Flask, request, jsonify, send_from_directory
+from flask_socketio import SocketIO, emit
+from flask_cors import CORS
+from agents import all_agents
+import json
+import threading
+
+app = Flask(__name__)
+CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+# Store execution status and results
+execution_status = {}
+execution_results = {}
+
+def execute_agent(agent_name):
+    agent = next((a for a in all_agents if a.name == agent_name), None)
+    if agent:
+        execution_status[agent_name] = "Running"
+        socketio.emit('status_update', {'agent': agent_name, 'status': "Running"})
+        
+        try:
+            result = agent.execute()
+            execution_results[agent_name] = result
+            execution_status[agent_name] = "Completed"
+            socketio.emit('status_update', {'agent': agent_name, 'status': "Completed"})
+            socketio.emit('execution_result', {'agent': agent_name, 'result': result})
+        except Exception as e:
+            execution_status[agent_name] = f"Error: {str(e)}"
+            socketio.emit('status_update', {'agent': agent_name, 'status': f"Error: {str(e)}"})
+    else:
+        socketio.emit('status_update', {'agent': agent_name, 'status': "Agent not found"})
+
+@app.route('/api/execute/<agent_name>', methods=['POST'])
+def execute_agent_api(agent_name):
+    threading.Thread(target=execute_agent, args=(agent_name,)).start()
+    return jsonify({"message": f"Execution of {agent_name} started"}), 202
+
+@app.route('/api/agents', methods=['GET'])
+def get_agents_metadata():
+    metadata = []
+    for agent in all_agents:
+        metadata.append({
+            "name": agent.name,
+            "role": agent.role,
+            "goal": agent.goal,
+            "backstory": agent.backstory,
+            "task_description": agent.task_description,
+            "send_to": agent.send_to,
+            "receive_from": agent.receive_from
+        })
+    return jsonify(metadata)
+
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Client disconnected')
+
+@socketio.on('subscribe_status')
+def handle_subscribe_status():
+    for agent_name, status in execution_status.items():
+        emit('status_update', {'agent': agent_name, 'status': status})
+
+@socketio.on('subscribe_results')
+def handle_subscribe_results():
+    for agent_name, result in execution_results.items():
+        emit('execution_result', {'agent': agent_name, 'result': result})
+
+@app.route('/')
+def serve_index():
+    return send_from_directory('.', 'index.html')
+
+if __name__ == '__main__':
+    socketio.run(app, host='localhost', port=5787, debug=True)
+</SERVER_PYTHON_CODE>
+
+This server implementation provides the following features:
+
+1. API to control agent executions (individual agent):
+   - POST /api/execute/<agent_name>
+
+2. WebSocket to subscribe to execution status:
+   - Event: 'status_update'
+
+3. WebSocket to receive execution results:
+   - Event: 'execution_result'
+
+4. API to get all agents metadata:
+   - GET /api/agents
+
+5. Serves "index.html" from the same directory.
+
+To use this server:
+
+1. Make sure you have the required dependencies installed:
+   ```
+   pip install flask flask-socketio flask-cors
+   ```
+
+2. Save the code above as "server.py" in the same directory as your "agents.py" file.
+
+3. Create an "index.html" file in the same directory (you'll need to implement this separately).
+
+4. Run the server:
+   ```
+   python server.py
+   ```
+
+The server will start on `localhost:5787`. You can now interact with the APIs and WebSocket events to control and monitor the multi-agent executions.
+
+To interact with the WebSocket events from a client-side JavaScript application, you can use the Socket.IO client library. Here's a basic example of how to connect and listen for events:
+
+```javascript
+const socket = io('http://localhost:5787');
+
+socket.on('connect', () => {
+  console.log('Connected to server');
+  socket.emit('subscribe_status');
+  socket.emit('subscribe_results');
+});
+
+socket.on('status_update', (data) => {
+  console.log('Status update:', data);
+});
+
+socket.on('execution_result', (data) => {
+  console.log('Execution result:', data);
+});
+```
+
+This server provides a solid foundation for controlling and monitoring your multi-agent system. You can expand on this implementation to add more features or integrate it with a front-end application as needed.

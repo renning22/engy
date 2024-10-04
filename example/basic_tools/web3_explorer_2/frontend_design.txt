@@ -1,0 +1,42 @@
+
+Single HTML page with embedded JavaScript:
+
+1. Structure:
+   - Header with app title and MetaMask logo
+   - "Connect Wallet" button
+   - Display area for account address
+   - Display area for ETH balance
+   - Asset management section (placeholder for future features)
+
+2. Styling:
+   - Use modern, clean design with a color scheme inspired by MetaMask (orange and white)
+   - Responsive layout for mobile and desktop
+   - Custom CSS for buttons, input fields, and display areas
+
+3. JavaScript functionality:
+   - Check if MetaMask is installed
+   - Handle "Connect Wallet" button click
+   - Make API calls to backend for connection and balance retrieval
+   - Update UI with account address and balance
+   - Implement error handling and user feedback
+
+4. MetaMask integration:
+   - Use Web3.js library to interact with MetaMask
+   - Request account access and handle user approval/rejection
+
+5. Dynamic updates:
+   - Periodically refresh ETH balance (e.g., every 30 seconds)
+   - Show loading indicators during API calls
+
+6. Error handling:
+   - Display user-friendly error messages
+   - Provide guidance if MetaMask is not installed
+
+7. Future expansion:
+   - Placeholder sections for additional Web3 asset management features
+   - Comment blocks indicating where to add new functionality
+
+8. Accessibility:
+   - Ensure proper contrast ratios for text
+   - Use semantic HTML elements
+   - Include ARIA attributes where necessary

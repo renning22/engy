@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Comparison Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .text-area {
+            flex: 1 1 45%;
+            min-width: 300px;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: vertical;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #result {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .spinner {
+            display: none;
+            width: 50px;
+            height: 50px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @media (max-width: 768px) {
+            .text-area {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Text Comparison Tool</h1>
+    <div class="container">
+        <div class="text-area">
+            <h2>Original Text</h2>
+            <textarea id="text1" placeholder="Enter original text here..."></textarea>
+        </div>
+        <div class="text-area">
+            <h2>Modified Text</h2>
+            <textarea id="text2" placeholder="Enter modified text here..."></textarea>
+        </div>
+    </div>
+    <div class="buttons">
+        <button id="compareBtn">Compare</button>
+        <button id="clearBtn">Clear</button>
+        <button id="swapBtn">Swap</button>
+    </div>
+    <div class="spinner" id="spinner"></div>
+    <div id="result"></div>
+
+    <script>
+        const text1 = document.getElementById('text1');
+        const text2 = document.getElementById('text2');
+        const compareBtn = document.getElementById('compareBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const swapBtn = document.getElementById('swapBtn');
+        const result = document.getElementById('result');
+        const spinner = document.getElementById('spinner');
+
+        compareBtn.addEventListener('click', compareTexts);
+        clearBtn.addEventListener('click', clearTexts);
+        swapBtn.addEventListener('click', swapTexts);
+
+        function compareTexts() {
+            const originalText = text1.value.trim();
+            const modifiedText = text2.value.trim();
+
+            if (!originalText || !modifiedText) {
+                alert('Please enter both original and modified texts.');
+                return;
+            }
+
+            spinner.style.display = 'block';
+            result.innerHTML = '';
+
+            fetch('http://localhost:9079/compare', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text1: originalText, text2: modifiedText }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                spinner.style.display = 'none';
+                result.innerHTML = data.diff;
+            })
+            .catch(error => {
+                spinner.style.display = 'none';
+                console.error('Error:', error);
+                result.innerHTML = 'An error occurred while comparing the texts. Please try again.';
+            });
+        }
+
+        function clearTexts() {
+            text1.value = '';
+            text2.value = '';
+            result.innerHTML = '';
+        }
+
+        function swapTexts() {
+            const temp = text1.value;
+            text1.value = text2.value;
+            text2.value = temp;
+        }
+    </script>
+</body>
+</html>

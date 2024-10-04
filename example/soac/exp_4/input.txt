@@ -1,0 +1,3 @@
+1. make the frontend show ID, and fix CONTENT doesn't wrap and fit.
+2. rename the agent to "Web Search Agent".
+3. rename "Mini CRM" title to "Web Search Agent".

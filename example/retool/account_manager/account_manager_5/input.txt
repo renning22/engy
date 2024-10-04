@@ -1,0 +1,2 @@
+Keep all existing features.
+Add a button to search by user.

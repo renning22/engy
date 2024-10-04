@@ -1,0 +1,2 @@
+Create an app I can upload a video in any format and convert to mp4.
+Better let me select the output video play speed and resolutions.

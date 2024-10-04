@@ -1,0 +1,3 @@
+Create an summary LLM agent using CrewAI (with Claude 3.5).
+I can upload an doc and the agent summarize in markdown for me.
+Also have a chart that I can download the summarized markdown.

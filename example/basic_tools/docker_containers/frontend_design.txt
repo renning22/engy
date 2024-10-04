@@ -1,0 +1,37 @@
+
+The frontend will be a single HTML page with embedded JavaScript and CSS for a responsive, dynamic user interface. Key features:
+
+1. Container List:
+   - Table displaying all running containers
+   - Columns: Container ID, Name, Image, Status, Created, Ports
+   - Real-time updates via WebSocket
+
+2. Action Buttons:
+   - For each container: Kill, SSH, Inspect buttons
+   - Confirmation dialogs for destructive actions (e.g., killing a container)
+
+3. Inspection Modal:
+   - Pop-up modal to display detailed container information
+   - Formatted JSON view of container details
+
+4. SSH Terminal:
+   - In-browser terminal emulator for SSH-like access
+   - Opens in a modal window
+   - Supports basic terminal operations
+
+5. Search and Filter:
+   - Search bar to filter containers by name or ID
+   - Dropdown to filter by status or image
+
+6. Responsive Design:
+   - Mobile-friendly layout using CSS flexbox/grid
+   - Collapsible sidebar for additional options on desktop
+
+7. Authentication:
+   - Login form for user authentication
+   - Session management using cookies or local storage
+
+8. Notifications:
+   - Toast notifications for action results (success/failure)
+
+The page will use modern CSS for styling and vanilla JavaScript for interactivity, with the option to integrate a lightweight framework like Alpine.js for more complex state management if needed.

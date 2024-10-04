@@ -1,0 +1,2 @@
+create an app that I can upload a voice file (audio file).
+The app output transcription/notes in the audio speech.

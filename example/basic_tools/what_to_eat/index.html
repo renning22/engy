@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SF Bay Area Restaurant Lottery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
+        <div class="p-8">
+            <h1 class="text-2xl font-bold mb-4">SF Bay Area Restaurant Lottery</h1>
+            <form id="genreForm" class="mb-4">
+                <label for="genre" class="block text-sm font-medium text-gray-700">Choose a genre:</label>
+                <select id="genre" name="genre" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    <option value="">Any</option>
+                    <option value="Chinese">Chinese</option>
+                    <option value="Mexican">Mexican</option>
+                    <option value="American">American</option>
+                    <option value="Japanese">Japanese</option>
+                    <option value="Italian">Italian</option>
+                </select>
+            </form>
+            <button id="lotteryButton" class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Choose a Restaurant
+            </button>
+            <div id="result" class="mt-4 hidden">
+                <h2 id="restaurantName" class="text-xl font-semibold mb-2"></h2>
+                <p id="restaurantGenre" class="text-gray-600"></p>
+                <p id="restaurantRating" class="text-gray-600"></p>
+                <p id="restaurantPhone" class="text-gray-600"></p>
+                <a id="restaurantWebsite" href="#" target="_blank" class="text-blue-500 hover:text-blue-700">Order Online</a>
+                <div id="map" class="mt-4 h-64"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5973';
+        const lotteryButton = document.getElementById('lotteryButton');
+        const genreSelect = document.getElementById('genre');
+        const resultDiv = document.getElementById('result');
+
+        lotteryButton.addEventListener('click', async () => {
+            const selectedGenre = genreSelect.value;
+            let endpoint = `${API_BASE_URL}/restaurants/random`;
+            
+            if (selectedGenre) {
+                endpoint = `${API_BASE_URL}/restaurants/genre/${selectedGenre}`;
+            }
+
+            try {
+                const response = await fetch(endpoint);
+                let data = await response.json();
+
+                if (Array.isArray(data)) {
+                    data = data[Math.floor(Math.random() * data.length)];
+                }
+
+                if (data && data.name) {
+                    displayRestaurant(data);
+                } else {
+                    alert('No restaurant found for the selected genre. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
+
+        function displayRestaurant(restaurant) {
+            document.getElementById('restaurantName').textContent = restaurant.name;
+            document.getElementById('restaurantGenre').textContent = `Genre: ${restaurant.genre}`;
+            document.getElementById('restaurantRating').textContent = `Rating: ${restaurant.rating}`;
+            document.getElementById('restaurantPhone').textContent = `Phone: ${restaurant.phone || 'N/A'}`;
+            const websiteLink = document.getElementById('restaurantWebsite');
+            if (restaurant.website) {
+                websiteLink.href = restaurant.website;
+                websiteLink.classList.remove('hidden');
+            } else {
+                websiteLink.classList.add('hidden');
+            }
+
+            // Update Google Maps embed
+            const mapDiv = document.getElementById('map');
+            mapDiv.innerHTML = `<iframe
+                width="100%"
+                height="100%"
+                frameborder="0" style="border:0"
+                src="https://www.google.com/maps/embed/v1/place?key=AIzaSyBOHsKT_ic9TsXvr3Kzam6EG7r51HM34Ew&q=${encodeURIComponent(restaurant.name + ' ' + restaurant.address)}" allowfullscreen>
+            </iframe>`;
+
+            resultDiv.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

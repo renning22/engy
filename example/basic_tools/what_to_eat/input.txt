@@ -1,0 +1,7 @@
+database is top restarunt in SF Bay Area, with genre like Chinese food, Mexican, America, etc.
+The mock data should have 20 restarunts.
+
+Create an interactive UI that I can lottery and choose what to eat today.
+Let me choose the genre
+Show it on google map.
+Show a contact phone number, and its online order website.

@@ -1,0 +1,291 @@
+
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Event Logger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-full">
+    <div class="min-h-full">
+        <nav class="bg-gray-800">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="flex h-16 items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <img class="h-8 w-8" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
+                        </div>
+                        <div class="hidden md:block">
+                            <div class="ml-10 flex items-baseline space-x-4">
+                                <a href="#" id="nav-orders" class="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium" aria-current="page">Orders</a>
+                                <a href="#" id="nav-events" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Delivery Events</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <header class="bg-white shadow">
+            <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                <h1 class="text-3xl font-bold tracking-tight text-gray-900">Delivery Event Logger</h1>
+            </div>
+        </header>
+
+        <main>
+            <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+                <div class="px-4 py-6 sm:px-0">
+                    <div class="mb-6">
+                        <div class="flex rounded-md shadow-sm">
+                            <input type="text" id="search-input" class="block w-full rounded-none rounded-l-md border-0 py-1.5 pl-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="Search orders or events...">
+                            <button id="search-button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Search</button>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-semibold mb-4">Orders</h2>
+                        <ul id="orders-container" class="divide-y divide-gray-200"></ul>
+                    </div>
+
+                    <div id="order-details" class="mb-6 hidden">
+                        <h2 class="text-2xl font-semibold mb-4">Order Details</h2>
+                        <div id="order-details-container" class="bg-white shadow overflow-hidden sm:rounded-lg"></div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-semibold mb-4">Delivery Events</h2>
+                        <ul id="events-container" class="divide-y divide-gray-200"></ul>
+                    </div>
+
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-semibold mb-4">Create Delivery Event</h2>
+                        <form id="create-event-form" class="space-y-4">
+                            <div>
+                                <input type="number" id="event-order-id" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="Order ID" required>
+                            </div>
+                            <div>
+                                <input type="text" id="event-type" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="Event Type" required>
+                            </div>
+                            <div>
+                                <input type="number" id="event-driver-id" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="Driver ID">
+                            </div>
+                            <div>
+                                <input type="text" id="event-region" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="Region">
+                            </div>
+                            <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Create Event</button>
+                        </form>
+                    </div>
+
+                    <div>
+                        <h2 class="text-2xl font-semibold mb-4">Update Order Status</h2>
+                        <form id="update-status-form" class="space-y-4">
+                            <div>
+                                <input type="number" id="status-order-id" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="Order ID" required>
+                            </div>
+                            <div>
+                                <input type="text" id="new-status" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="New Status" required>
+                            </div>
+                            <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Update Status</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://0.0.0.0:6151/api';
+
+        // API calls
+        async function fetchOrders(params = {}) {
+            const queryString = new URLSearchParams(params).toString();
+            const response = await fetch(`${API_BASE_URL}/orders?${queryString}`);
+            return response.json();
+        }
+
+        async function fetchOrderDetails(orderId) {
+            const response = await fetch(`${API_BASE_URL}/orders/${orderId}`);
+            return response.json();
+        }
+
+        async function fetchDeliveryEvents(params = {}) {
+            const queryString = new URLSearchParams(params).toString();
+            const response = await fetch(`${API_BASE_URL}/delivery_events?${queryString}`);
+            return response.json();
+        }
+
+        async function createDeliveryEvent(eventData) {
+            const response = await fetch(`${API_BASE_URL}/delivery_events`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(eventData),
+            });
+            return response.json();
+        }
+
+        async function updateOrderStatus(orderId, status) {
+            const response = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status }),
+            });
+            return response.json();
+        }
+
+        // UI update functions
+        function renderOrderList(orders) {
+            const container = document.getElementById('orders-container');
+            container.innerHTML = '';
+            orders.forEach(order => {
+                const li = document.createElement('li');
+                li.className = 'py-4 flex items-center justify-between space-x-4 cursor-pointer hover:bg-gray-50';
+                li.innerHTML = `
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-medium text-gray-900 truncate">Order ${order.id}</p>
+                        <p class="text-sm text-gray-500 truncate">Customer ${order.customer_id}</p>
+                    </div>
+                    <div class="inline-flex items-center text-sm font-semibold text-gray-900">
+                        Status: ${order.status}
+                    </div>
+                `;
+                li.addEventListener('click', () => showOrderDetails(order.id));
+                container.appendChild(li);
+            });
+        }
+
+        function renderOrderDetails(order) {
+            const container = document.getElementById('order-details-container');
+            container.innerHTML = `
+                <div class="px-4 py-5 sm:px-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Order ${order.id}</h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">Details and delivery events.</p>
+                </div>
+                <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+                    <dl class="sm:divide-y sm:divide-gray-200">
+                        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Customer ID</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">${order.customer_id}</dd>
+                        </div>
+                        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Status</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">${order.status}</dd>
+                        </div>
+                        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Created</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">${new Date(order.created_at).toLocaleString()}</dd>
+                        </div>
+                        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Updated</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">${new Date(order.updated_at).toLocaleString()}</dd>
+                        </div>
+                        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Delivery Events</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                <ul class="border border-gray-200 rounded-md divide-y divide-gray-200">
+                                    ${order.delivery_events.map(event => `
+                                        <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
+                                            <div class="w-0 flex-1 flex items-center">
+                                                <span class="ml-2 flex-1 w-0 truncate">
+                                                    ${event.event_type} - 
+                                                    ${new Date(event.timestamp).toLocaleString()} - 
+                                                    Driver: ${event.driver_id || 'N/A'} - 
+                                                    Region: ${event.region || 'N/A'}
+                                                </span>
+                                            </div>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            `;
+            document.getElementById('order-details').classList.remove('hidden');
+        }
+
+        function renderDeliveryEvents(events) {
+            const container = document.getElementById('events-container');
+            container.innerHTML = '';
+            events.forEach(event => {
+                const li = document.createElement('li');
+                li.className = 'py-4';
+                li.innerHTML = `
+                    <div class="flex space-x-3">
+                        <div class="flex-1 space-y-1">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-sm font-medium">Event ${event.id}</h3>
+                                <p class="text-sm text-gray-500">${new Date(event.timestamp).toLocaleString()}</p>
+                            </div>
+                            <p class="text-sm text-gray-500">Order ${event.order_id} - ${event.event_type}</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(li);
+            });
+        }
+
+        // Event listeners
+        document.getElementById('search-button').addEventListener('click', async () => {
+            const searchTerm = document.getElementById('search-input').value;
+            const orders = await fetchOrders({ customer_id: searchTerm });
+            renderOrderList(orders);
+            const events = await fetchDeliveryEvents({ order_id: searchTerm });
+            renderDeliveryEvents(events);
+        });
+
+        document.getElementById('create-event-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const eventData = {
+                order_id: document.getElementById('event-order-id').value,
+                event_type: document.getElementById('event-type').value,
+                driver_id: document.getElementById('event-driver-id').value || null,
+                region: document.getElementById('event-region').value || null,
+            };
+            await createDeliveryEvent(eventData);
+            alert('Delivery event created successfully');
+            document.getElementById('create-event-form').reset();
+        });
+
+        document.getElementById('update-status-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const orderId = document.getElementById('status-order-id').value;
+            const newStatus = document.getElementById('new-status').value;
+            await updateOrderStatus(orderId, newStatus);
+            alert('Order status updated successfully');
+            document.getElementById('update-status-form').reset();
+        });
+
+        document.getElementById('nav-orders').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const orders = await fetchOrders();
+            renderOrderList(orders);
+        });
+
+        document.getElementById('nav-events').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const events = await fetchDeliveryEvents();
+            renderDeliveryEvents(events);
+        });
+
+        // Initialize app
+        async function init() {
+            const orders = await fetchOrders();
+            renderOrderList(orders);
+            const events = await fetchDeliveryEvents();
+            renderDeliveryEvents(events);
+        }
+
+        init();
+
+        async function showOrderDetails(orderId) {
+            const order = await fetchOrderDetails(orderId);
+            renderOrderDetails(order);
+        }
+    </script>
+</body>
+</html>

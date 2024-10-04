@@ -1,0 +1,92 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+invoice creator, I upload a picture, input items and price, generate an invoice and I can download PDF.
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's a design for the invoice creator app based on your description:
+
+<BACKEND_DESIGN>
+The backend will be a Python Flask server with the following key components:
+
+1. Flask app setup and routes:
+   - POST /upload_image: Handle image upload
+   - POST /generate_invoice: Generate invoice based on user input
+   - GET /download_pdf: Serve generated PDF for download
+
+2. Image handling:
+   - Use Pillow library to process and store uploaded images
+
+3. Invoice generation:
+   - Create a function to generate invoice using user input (items, prices)
+   - Use ReportLab library to create PDF invoices
+
+4. Data storage:
+   - Use SQLite database to store invoice data and image references
+
+5. Dependencies:
+   - Flask
+   - Pillow
+   - ReportLab
+   - SQLite3
+
+Key functions:
+- upload_image(): Save uploaded image and return a reference ID
+- generate_invoice(): Create invoice using user input and image reference
+- create_pdf(): Use ReportLab to generate PDF invoice
+- get_pdf(): Retrieve generated PDF for download
+
+The server will handle image uploads, store invoice data, generate PDFs, and serve the frontend HTML page.
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+The frontend will be a single HTML page with embedded CSS and JavaScript. Key components include:
+
+1. HTML structure:
+   - Header with app title
+   - Image upload section
+   - Form for entering invoice items and prices
+   - Preview section for uploaded image and entered data
+   - Generate Invoice button
+   - Download PDF button (initially hidden)
+
+2. CSS styling:
+   - Modern, clean design with a professional color scheme
+   - Responsive layout for various screen sizes
+   - Styled form inputs and buttons
+   - Animated transitions for smooth user experience
+
+3. JavaScript functionality:
+   - Handle image upload and preview
+   - Dynamic form for adding/removing invoice items
+   - Form validation
+   - AJAX requests to backend for image upload and invoice generation
+   - Update UI to show download button when PDF is ready
+
+4. Key features:
+   - Drag and drop image upload
+   - Real-time preview of entered items and total price
+   - Client-side form validation
+   - Smooth transitions and loading indicators
+
+The page will use Fetch API for AJAX requests and modern CSS features for styling. It will provide a seamless, interactive experience for creating and downloading invoices.
+</FRONTEND_DESIGN>

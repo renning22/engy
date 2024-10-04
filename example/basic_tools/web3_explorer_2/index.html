@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MetaMask Asset Manager</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+    <style>
+        :root {
+            --metamask-orange: #f6851b;
+            --metamask-blue: #037dd6;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin: 0;
+            color: var(--metamask-orange);
+        }
+        .metamask-logo {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+        }
+        button {
+            background-color: var(--metamask-orange);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #e77c16;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .info-box {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .loading {
+            color: var(--metamask-blue);
+            font-style: italic;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="MetaMask Logo" class="metamask-logo">
+        <h1>MetaMask Asset Manager</h1>
+    </header>
+
+    <main>
+        <button id="connectButton">Connect Wallet</button>
+        <div id="accountInfo" class="info-box" style="display: none;">
+            <h2>Account Information</h2>
+            <p>Address: <span id="accountAddress"></span></p>
+            <p>ETH Balance: <span id="ethBalance"></span></p>
+        </div>
+        <div id="assetManagement" style="display: none;">
+            <h2>Asset Management</h2>
+            <p>Future asset management features will be added here.</p>
+            <!-- TODO: Add asset management functionality -->
+        </div>
+    </main>
+
+    <div id="errorMessage" class="error" style="display: none;"></div>
+
+    <script>
+        const connectButton = document.getElementById('connectButton');
+        const accountInfo = document.getElementById('accountInfo');
+        const accountAddress = document.getElementById('accountAddress');
+        const ethBalance = document.getElementById('ethBalance');
+        const assetManagement = document.getElementById('assetManagement');
+        const errorMessage = document.getElementById('errorMessage');
+
+        let web3;
+        let account;
+
+        async function checkMetaMaskInstallation() {
+            if (typeof window.ethereum !== 'undefined') {
+                web3 = new Web3(window.ethereum);
+                connectButton.disabled = false;
+            } else {
+                showError('MetaMask is not installed. Please install MetaMask to use this application.');
+                connectButton.disabled = true;
+            }
+        }
+
+        async function connectWallet() {
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                account = accounts[0];
+                accountAddress.textContent = account;
+                accountInfo.style.display = 'block';
+                assetManagement.style.display = 'block';
+                connectButton.textContent = 'Connected';
+                connectButton.disabled = true;
+                await fetchBalance();
+                startBalanceRefresh();
+            } catch (error) {
+                showError('Failed to connect to MetaMask. Please try again.');
+                console.error(error);
+            }
+        }
+
+        async function fetchBalance() {
+            try {
+                ethBalance.textContent = 'Loading...';
+                const response = await fetch(`http://localhost:5011/balance?address=${account}`);
+                const data = await response.json();
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                ethBalance.textContent = `${data.balance} ETH`;
+            } catch (error) {
+                showError('Failed to fetch balance. Please try again later.');
+                console.error(error);
+            }
+        }
+
+        function startBalanceRefresh() {
+            setInterval(fetchBalance, 30000); // Refresh every 30 seconds
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        connectButton.addEventListener('click', connectWallet);
+
+        checkMetaMaskInstallation();
+    </script>
+</body>
+</html>

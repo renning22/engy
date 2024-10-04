@@ -1,0 +1,90 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software architecture designer.
+Your current task to turn a description of web app into a small server/client design doc.
+The given web app is very simple and can be always expressed in a python web server backend plus a single html page frontend.
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+Input app description:
+```
+The app help me design a trip to Hawaii in weekends.
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's a simple server/client design for the Hawaii weekend trip planner app:
+
+<BACKEND_DESIGN>
+Python Flask Backend:
+
+1. Main app file (app.py):
+   - Set up Flask application
+   - Define routes:
+     - GET /: Serve the main HTML page
+     - POST /plan: Handle trip planning request
+   
+2. Trip planner module (trip_planner.py):
+   - Function to generate trip suggestions based on user input
+   - Utilize a database or API for Hawaii attractions and activities
+
+3. Database or API integration:
+   - Store information about Hawaii attractions, activities, and accommodations
+   - Alternatively, integrate with external APIs for up-to-date information
+
+4. Requirements:
+   - Flask
+   - Requests (if using external APIs)
+   - SQLAlchemy (if using a database)
+
+5. Configuration:
+   - Config file for API keys, database connection strings, etc.
+
+6. Error handling and logging
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+Single HTML Page Frontend:
+
+1. HTML structure:
+   - Header with app title
+   - Form for user input:
+     - Date picker for trip duration
+     - Checkboxes for interests (beaches, hiking, cultural activities, etc.)
+     - Budget input
+   - Submit button to send planning request
+   - Results section to display trip suggestions
+
+2. CSS styling:
+   - Responsive design for mobile and desktop
+   - Hawaii-themed color scheme and background
+   - Clean and user-friendly layout
+
+3. JavaScript functionality:
+   - Form validation
+   - AJAX request to backend for trip planning
+   - Dynamic rendering of trip suggestions in results section
+   - Interactive elements (e.g., collapsible details for each suggestion)
+
+4. External libraries:
+   - jQuery for DOM manipulation and AJAX requests
+   - Date picker library (e.g., Pikaday) for selecting trip dates
+   - Optional: Animation library for smooth transitions
+
+5. Accessibility considerations:
+   - Proper use of ARIA attributes
+   - Keyboard navigation support
+
+6. Error handling:
+   - Display user-friendly error messages
+   - Loading indicators during AJAX requests
+</FRONTEND_DESIGN>

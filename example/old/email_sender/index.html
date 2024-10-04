@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ning CRM Version Update Workflow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">Ning CRM Version Update Workflow</h1>
+        
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-2">CRM Versions</h2>
+            <ul id="versions" class="list-disc pl-6"></ul>
+        </div>
+        
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-2">Customers</h2>
+            <select id="versionFilter" class="mb-4 p-2 border rounded">
+                <option value="all">All Versions</option>
+            </select>
+            <ul id="customers" class="space-y-4"></ul>
+        </div>
+        
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-2">Email Preview</h2>
+            <div id="emailPreview" class="bg-white p-4 border rounded"></div>
+        </div>
+        
+        <button id="sendEmails" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Send Update Emails</button>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:9878/api';
+        let versions = [];
+        let customers = [];
+        let selectedCustomers = [];
+
+        async function fetchData() {
+            const versionsResponse = await fetch(`${API_BASE_URL}/versions`);
+            versions = await versionsResponse.json();
+            
+            const customersResponse = await fetch(`${API_BASE_URL}/customers`);
+            customers = await customersResponse.json();
+            
+            displayVersions();
+            populateVersionFilter();
+            displayCustomers();
+        }
+
+        function displayVersions() {
+            const versionsList = document.getElementById('versions');
+            versionsList.innerHTML = versions.map(v => `<li>${v.version} (Released: ${v.release_date})</li>`).join('');
+        }
+
+        function populateVersionFilter() {
+            const versionFilter = document.getElementById('versionFilter');
+            versions.forEach(v => {
+                const option = document.createElement('option');
+                option.value = v.version;
+                option.textContent = v.version;
+                versionFilter.appendChild(option);
+            });
+        }
+
+        function displayCustomers() {
+            const customersList = document.getElementById('customers');
+            const selectedVersion = document.getElementById('versionFilter').value;
+            
+            const filteredCustomers = selectedVersion === 'all' 
+                ? customers 
+                : customers.filter(c => c.current_version === selectedVersion);
+            
+            customersList.innerHTML = filteredCustomers.map(c => `
+                <li class="bg-white p-4 rounded shadow">
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" value="${c.id}" class="customer-checkbox">
+                        <span>${c.name} (Current Version: ${c.current_version})</span>
+                    </label>
+                    <p class="mt-2 text-sm text-gray-600">Contact: ${c.contact} | Email: ${c.email} | Phone: ${c.phone}</p>
+                </li>
+            `).join('');
+            
+            updateSelectedCustomers();
+        }
+
+        function updateSelectedCustomers() {
+            const checkboxes = document.querySelectorAll('.customer-checkbox:checked');
+            selectedCustomers = Array.from(checkboxes).map(cb => customers.find(c => c.id === parseInt(cb.value)));
+            updateEmailPreview();
+        }
+
+        function updateEmailPreview() {
+            const emailPreview = document.getElementById('emailPreview');
+            if (selectedCustomers.length === 0) {
+                emailPreview.innerHTML = '<p class="text-gray-500">No customers selected</p>';
+                return;
+            }
+            
+            const latestVersion = versions[versions.length - 1].version;
+            const emailContent = `
+                <h3 class="font-semibold">Subject: Ning CRM Version Update Available</h3>
+                <p>Dear Valued Customer,</p>
+                <p>We are excited to announce that a new version of Ning CRM (${latestVersion}) is now available.</p>
+                <p>Your current version: [Customer's Current Version]</p>
+                <p>To update your CRM, please contact our support team.</p>
+                <p>Best regards,<br>Ning CRM Team</p>
+            `;
+            emailPreview.innerHTML = emailContent;
+        }
+
+        function sendEmails() {
+            if (selectedCustomers.length === 0) {
+                alert('Please select at least one customer to send the update email.');
+                return;
+            }
+            
+            const customerNames = selectedCustomers.map(c => c.name).join(', ');
+            alert(`Update emails sent to: ${customerNames}`);
+        }
+
+        document.getElementById('versionFilter').addEventListener('change', displayCustomers);
+        document.getElementById('customers').addEventListener('change', updateSelectedCustomers);
+        document.getElementById('sendEmails').addEventListener('click', sendEmails);
+
+        fetchData();
+    </script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+create a dashboard show all running docker containers.
+And let me able to kill them, ssh to them or inspect them.
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's a design for the Docker container management dashboard app based on your description:
+
+<BACKEND_DESIGN>
+The backend will be a Python Flask server that interacts with the Docker daemon to retrieve container information and perform actions. Key components:
+
+1. Docker API Integration:
+   - Use the `docker` Python library to interact with Docker
+   - Implement functions to:
+     - List all running containers
+     - Kill a container
+     - Get container details for inspection
+     - Execute commands in a container (for SSH-like functionality)
+
+2. API Endpoints:
+   - GET /containers: Return list of all running containers
+   - POST /container/<container_id>/kill: Kill specified container
+   - GET /container/<container_id>/inspect: Get detailed info about container
+   - POST /container/<container_id>/exec: Execute command in container
+
+3. WebSocket Support:
+   - Implement WebSocket connection to push real-time updates about container status
+
+4. Authentication:
+   - Basic authentication system to ensure only authorized users can access and control containers
+
+5. Logging:
+   - Implement logging for all actions performed on containers
+
+The server will run on port 5000 and serve the single HTML page for the frontend.
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+The frontend will be a single HTML page with embedded JavaScript and CSS for a responsive, dynamic user interface. Key features:
+
+1. Container List:
+   - Table displaying all running containers
+   - Columns: Container ID, Name, Image, Status, Created, Ports
+   - Real-time updates via WebSocket
+
+2. Action Buttons:
+   - For each container: Kill, SSH, Inspect buttons
+   - Confirmation dialogs for destructive actions (e.g., killing a container)
+
+3. Inspection Modal:
+   - Pop-up modal to display detailed container information
+   - Formatted JSON view of container details
+
+4. SSH Terminal:
+   - In-browser terminal emulator for SSH-like access
+   - Opens in a modal window
+   - Supports basic terminal operations
+
+5. Search and Filter:
+   - Search bar to filter containers by name or ID
+   - Dropdown to filter by status or image
+
+6. Responsive Design:
+   - Mobile-friendly layout using CSS flexbox/grid
+   - Collapsible sidebar for additional options on desktop
+
+7. Authentication:
+   - Login form for user authentication
+   - Session management using cookies or local storage
+
+8. Notifications:
+   - Toast notifications for action results (success/failure)
+
+The page will use modern CSS for styling and vanilla JavaScript for interactivity, with the option to integrate a lightweight framework like Alpine.js for more complex state management if needed.
+</FRONTEND_DESIGN>

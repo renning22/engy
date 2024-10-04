@@ -1,0 +1,30 @@
+
+Python Flask server:
+
+1. Dependencies:
+   - Flask
+   - web3.py
+
+2. Routes:
+   - GET /: Serve the main HTML page
+   - POST /connect: Connect to MetaMask and return account address
+   - GET /balance: Fetch ETH balance for connected account
+
+3. Functions:
+   - connect_metamask(): Establish connection with MetaMask
+   - get_eth_balance(address): Retrieve ETH balance for given address
+
+4. Web3 integration:
+   - Use web3.py to interact with Ethereum blockchain
+   - Connect to Ethereum mainnet via Infura or similar provider
+
+5. Error handling:
+   - Handle connection errors
+   - Manage cases where MetaMask is not installed or user rejects connection
+
+6. Security:
+   - Implement CORS to allow requests only from frontend origin
+   - Use environment variables for sensitive data (e.g., Infura API key)
+
+7. Logging:
+   - Log connection attempts and balance queries for debugging

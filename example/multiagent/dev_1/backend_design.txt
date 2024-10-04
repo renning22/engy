@@ -1,0 +1,141 @@
+ with the modifications you requested. This server will expose APIs to control agent executions, reflect execution status and results, serve a static "index.html" file, and avoid using task frameworks like Celery.
+
+Here's the implementation:
+
+<SERVER_PYTHON_CODE>
+import os
+import json
+import uuid
+from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
+from flask_socketio import SocketIO
+from threading import Thread
+from agents import research_and_write_report
+
+app = Flask(__name__)
+CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+# In-memory storage for simplicity
+research_jobs = {}
+agents = [
+    {"name": "Dr. Amelia Reeves", "role": "Research Director"},
+    {"name": "Lucas Ortiz", "role": "Data Scientist"},
+    {"name": "Zara Chen", "role": "Research Analyst"},
+    {"name": "Oliver Nkosi", "role": "Insights Specialist"},
+    {"name": "Sophia Larsson", "role": "Technical Writer"},
+    {"name": "Dr. Rajesh Patel", "role": "Scientific Reviewer"},
+    {"name": "Emma Dubois", "role": "Data Visualization Specialist"}
+]
+
+workflow = [
+    "Define research scope",
+    "Conduct literature review",
+    "Design and conduct primary research",
+    "Analyze primary data",
+    "Synthesize findings",
+    "Create data visualizations",
+    "Develop report outline",
+    "Write first draft",
+    "Review for scientific rigor",
+    "Incorporate feedback",
+    "Design final layout",
+    "Conduct final review"
+]
+
+def run_research(job_id, topic):
+    research_jobs[job_id]['status'] = 'in_progress'
+    socketio.emit('research_update', {'job_id': job_id, 'status': 'in_progress'})
+
+    for i, step in enumerate(workflow):
+        research_jobs[job_id]['current_step'] = i + 1
+        socketio.emit('research_update', {
+            'job_id': job_id,
+            'status': 'in_progress',
+            'current_step': i + 1,
+            'total_steps': len(workflow)
+        })
+        # Simulate work being done
+        socketio.sleep(5)
+
+    result = research_and_write_report(topic)
+    research_jobs[job_id]['status'] = 'completed'
+    research_jobs[job_id]['result'] = result
+    socketio.emit('research_update', {
+        'job_id': job_id,
+        'status': 'completed',
+        'result': result
+    })
+
+@app.route('/')
+def serve_index():
+    return send_from_directory('.', 'index.html')
+
+@app.route('/api/research', methods=['POST'])
+def start_research():
+    topic = request.json['topic']
+    job_id = str(uuid.uuid4())
+    research_jobs[job_id] = {'status': 'pending', 'topic': topic}
+    Thread(target=run_research, args=(job_id, topic)).start()
+    return jsonify({'job_id': job_id}), 202
+
+@app.route('/api/research/<job_id>/status', methods=['GET'])
+def get_research_status(job_id):
+    job = research_jobs.get(job_id)
+    if not job:
+        return jsonify({'error': 'Job not found'}), 404
+    return jsonify({
+        'status': job['status'],
+        'current_step': job.get('current_step', 0),
+        'total_steps': len(workflow)
+    })
+
+@app.route('/api/research/<job_id>/results', methods=['GET'])
+def get_research_results(job_id):
+    job = research_jobs.get(job_id)
+    if not job:
+        return jsonify({'error': 'Job not found'}), 404
+    if job['status'] != 'completed':
+        return jsonify({'error': 'Research not completed yet'}), 400
+    return jsonify({'results': job['result']})
+
+@app.route('/api/agents', methods=['GET'])
+def get_agents():
+    return jsonify(agents)
+
+@app.route('/api/workflow', methods=['GET'])
+def get_workflow():
+    return jsonify(workflow)
+
+if __name__ == '__main__':
+    socketio.run(app, host='localhost', port=5901, debug=True)
+</SERVER_PYTHON_CODE>
+
+This implementation does the following:
+
+1. It uses Flask to create a web server that exposes APIs to control agent executions and reflect the status of execution and results.
+
+2. It serves "index.html" as a static file when the root URL is accessed.
+
+3. Instead of using Celery, it uses Python's built-in `threading` module to run research tasks asynchronously.
+
+4. It implements the following API endpoints:
+   - POST /api/research: Start a new research job
+   - GET /api/research/{job_id}/status: Get the status of a research job
+   - GET /api/research/{job_id}/results: Get the results of a completed research job
+   - GET /api/agents: Get the list of agents
+   - GET /api/workflow: Get the workflow steps
+
+5. It uses Flask-SocketIO to provide real-time updates on research progress.
+
+6. It uses in-memory storage (Python dictionaries) to store job information for simplicity. In a production environment, you'd want to use a database for persistence.
+
+7. The server runs on localhost:5901 as requested.
+
+To use this server:
+
+1. Make sure you have the required dependencies installed (Flask, Flask-CORS, Flask-SocketIO).
+2. Place this "server.py" file in the same directory as your "agents.py" file and an "index.html" file.
+3. Run the server using `python server.py`.
+
+Note that this implementation simulates the research process for demonstration purposes. In a real-world scenario, you would replace the simulation in the `run_research` function with actual calls to your agent functions from "agents.py".

@@ -1,0 +1,51 @@
+
+[
+  {
+    "step": 1,
+    "description": "Collect comprehensive data about competitors from various sources",
+    "expected_output": "Raw data in JSON format, including website content, social media data, news articles, press releases, and customer reviews",
+    "agent": "DataHarvester"
+  },
+  {
+    "step": 2,
+    "description": "Analyze market trends and industry benchmarks",
+    "expected_output": "JSON document containing identified market trends, industry benchmarks, and visualizations of key patterns",
+    "agent": "TrendSpotter"
+  },
+  {
+    "step": 3,
+    "description": "Create SWOT analyses and competitive benchmarks",
+    "expected_output": "JSON document with detailed SWOT analyses for each competitor and comparative benchmarks of key performance indicators",
+    "agent": "CompetitorProfiler"
+  },
+  {
+    "step": 4,
+    "description": "Analyze competitor pricing strategies",
+    "expected_output": "JSON document containing price comparisons across different platforms, identified pricing patterns, and potential pricing strategies",
+    "agent": "PriceWatcher"
+  },
+  {
+    "step": 5,
+    "description": "Generate actionable insights and unique selling points",
+    "expected_output": "List of actionable insights and unique selling points for each competitor in JSON format",
+    "agent": "InsightSynthesizer"
+  },
+  {
+    "step": 6,
+    "description": "Compile and format the final competitor analysis report",
+    "expected_output": "Draft of the comprehensive competitor analysis report in a structured document format (e.g., markdown or HTML)",
+    "agent": "ReportCrafter"
+  },
+  {
+    "step": 7,
+    "description": "Review and refine the compiled report",
+    "expected_output": "Refined and polished competitor analysis report with enhanced insights and narratives",
+    "agent": "InsightSynthesizer"
+  },
+  {
+    "step": 8,
+    "description": "Finalize report and prepare data for export",
+    "expected_output": "Final competitor analysis report in multiple formats (PDF, HTML, etc.) and structured data ready for export to other tools",
+    "agent": "IntegrationMaster"
+  }
+]

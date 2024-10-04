@@ -1,0 +1,86 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+create a charts show how many weeks past in my life. Assume I will live 100 years. One week per dot in this chart.
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's my design for the app based on your description:
+
+<BACKEND_DESIGN>
+The backend will be a Python Flask server with the following components:
+
+1. Main Flask app:
+   - Import necessary libraries (Flask, datetime, math)
+   - Create a Flask app instance
+
+2. Route: "/"
+   - Serve the main HTML page
+
+3. Route: "/calculate_weeks"
+   - Accept POST request with user's birthdate
+   - Calculate total weeks in 100 years
+   - Calculate weeks lived based on birthdate
+   - Calculate weeks remaining
+   - Return JSON response with calculated data
+
+4. Helper function: calculate_weeks(birthdate)
+   - Parse birthdate string to datetime object
+   - Calculate weeks lived using current date and birthdate
+   - Calculate total weeks in 100 years
+   - Calculate remaining weeks
+   - Return dictionary with weeks lived, total weeks, and remaining weeks
+
+5. Run the Flask app
+
+The backend will handle date calculations and provide data to the frontend via an API endpoint.
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+The frontend will be a single HTML page with embedded JavaScript and CSS. It will have the following components:
+
+1. HTML structure:
+   - Title: "Life in Weeks"
+   - Input field for birthdate
+   - Button to submit birthdate
+   - Canvas element for drawing the chart
+   - Information display area for showing calculated weeks
+
+2. CSS styles:
+   - Center-align content
+   - Style input field, button, and canvas
+   - Create a grid layout for the week dots
+
+3. JavaScript:
+   - Function to handle form submission
+   - AJAX call to backend API to get calculated weeks
+   - Function to draw the chart using canvas
+   - Chart drawing:
+     - Create a 52x100 grid (52 weeks per year, 100 years)
+     - Color dots based on weeks lived (e.g., blue for lived weeks, gray for remaining)
+   - Update information display with calculated weeks
+
+4. Responsive design:
+   - Adjust canvas size and dot size based on screen width
+   - Ensure mobile-friendly layout
+
+The frontend will provide an interactive interface for users to input their birthdate and visualize their life in weeks using a dot chart.
+</FRONTEND_DESIGN>

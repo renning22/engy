@@ -1,0 +1,3 @@
+I don't see any data..
+Remove login and authentication, make it public.
+Also add ways (buttons) to add random data to database. 

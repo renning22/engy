@@ -1,0 +1,35 @@
+
+Python Flask server:
+
+1. Main route ('/'):
+   - Serve the single HTML page
+
+2. API route ('/schools'):
+   - Fetch school data from a database or external API
+   - Return JSON with school information:
+     - School name
+     - Address
+     - Overall rating (1-10)
+     - Art program rating (1-10)
+     - Brief description of art program
+     - Latitude and longitude for map display
+
+3. Database or data source:
+   - Store information about local schools in Fremont, CA
+   - Include fields for school name, address, ratings, and art program details
+
+4. External API integration:
+   - Google Maps API for geocoding addresses and displaying map
+
+5. Data processing:
+   - Calculate distance from user's location to each school
+   - Sort schools by distance, rating, or art program strength
+
+6. Error handling:
+   - Gracefully handle API errors or missing data
+
+7. Caching:
+   - Implement caching to improve performance for repeated requests
+
+8. Security:
+   - Implement rate limiting and API key validation for external requests

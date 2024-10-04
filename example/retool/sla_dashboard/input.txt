@@ -1,0 +1,7 @@
+If you’re managing a customer support team, you want to ensure your team is providing the best possible customer experience and adhering to agreed-upon SLAs with customers.
+Building a dashboard that offers visibility into team performance helps keep track of key support metrics like ticket volume, response time, and time to resolution.
+
+Assume we have a database about person, ticket and response time.
+Have a way to generate random data.
+
+Have banner/ticker to show overview.

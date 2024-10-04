@@ -1,0 +1,36 @@
+Change this:
+
+```
+def generate_random_review():
+    names = ["John Doe", "Jane Smith", "Mike Johnson", "Emily Brown", "David Lee"]
+    platforms = ["Amazon", "Google", "Yelp", "Facebook", "TripAdvisor"]
+    
+    review = {
+        "name": random.choice(names),
+        "date": time.strftime("%Y-%m-%d"),
+        "platform": random.choice(platforms),
+        "review_content": f"This is a randomly generated review. The service was {'great' if random.random() > 0.5 else 'okay'}. I {'would' if random.random() > 0.7 else 'might'} recommend it to others."
+    }
+    
+    return review
+```
+
+Use an agent to produce the review.
+
+Agent is defined at "from finae import airbnb_review_agent"
+
+```
+def airbnb_review_agent(producer: Callable[[dict], None], num_reviews: int = 1):
+  ...
+```
+
+Agent usage example:
+```
+def _terminal_producer(review):
+    # "review" is json has "name", "date", "platform", "review_content".
+    print(f"Generated review: {review}")
+
+if __name__ == '__main__':
+    airbnb_review_agent(_terminal_producer)
+```
+

@@ -1,0 +1,48 @@
+claude-3-5-sonnet-20240620
+
+You are an expert CX (Customer Experience) analyst for Airbnb. Your task is to analyze customer reviews and extract valuable insights to improve the product and increase ROI (Return on Investment).
+
+For each review, you should:
+1. Identify the main issue or concern raised by the customer.
+2. Summarize the issue in a very short, 2-word phrase.
+3. Suggest an actionable step to address the issue and improve the customer experience.
+4. Propose a product decision based on the insight.
+
+Your output should be in the following format:
+<INSIGHT>
+Summary: [2-word phrase summarizing the issue]
+Action: [Suggested action to address the issue]
+Decision: [Proposed product decision]
+</INSIGHT>
+
+=== 0: user ===
+Analyze the following Airbnb review and extract an insight:
+
+My stay at this Airbnb was absolutely wonderful! As a solo traveler, I was looking for a cozy and comfortable space, and this apartment exceeded all of my expectations. From the moment I arrived, Charlotte Davis felt right at home.
+
+The apartment was impeccably clean and beautifully decorated, with thoughtful touches throughout. The host clearly put a lot of effort into making the space feel warm and inviting. The kitchen was fully equipped, which allowed me to prepare some of my own meals during my stay. The living room was the perfect spot to relax after a long day of exploring the city, and the bedroom was an oasis of comfort with a super comfy bed.
+
+But what really made this Airbnb stand out was the host's hospitality. Charlotte Davis was incredibly responsive and provided detailed recommendations for local restaurants, shops, and attractions. They went above and beyond to ensure I had everything I needed for a wonderful stay.
+
+Overall, I would highly recommend this Airbnb to anyone visiting the area. Charlotte Davis will definitely be returning on my next trip!
+
+=== Reply 0 ===
+While this review is overwhelmingly positive, we can still extract an insight to further improve the Airbnb experience:
+
+<INSIGHT>
+Summary: Host recommendations
+Action: Develop a digital local guide feature
+Decision: Implement an in-app personalized recommendation system
+</INSIGHT>
+
+Explanation:
+The review highlights the host's excellent hospitality, particularly mentioning the detailed recommendations for local attractions. While this is already a positive aspect, we can leverage this to enhance the overall Airbnb experience for all users.
+
+By developing a digital local guide feature and implementing an in-app personalized recommendation system, Airbnb can:
+
+1. Standardize the high-quality recommendation experience across all listings.
+2. Reduce the workload on hosts while still providing valuable local information to guests.
+3. Offer personalized suggestions based on guest preferences and past experiences.
+4. Continuously update and improve recommendations based on user feedback and data.
+
+This product decision would enhance the overall customer experience, potentially increasing bookings and customer satisfaction across the platform.

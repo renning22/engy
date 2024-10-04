@@ -1,0 +1,95 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+Using Airtable API, and create an editable dashboard let me editor a datasource in Airtable like Pandas table.
+Give me input to the datasource name, and my API key.
+Give me button that I can dump the table to CSV
+Give me button that I can refresh the table from datasource. 
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's a design for the app based on your description:
+
+<BACKEND_DESIGN>
+The backend will be a Python Flask server that handles API requests and interacts with the Airtable API. Here's an outline of the main components:
+
+1. Dependencies:
+   - Flask
+   - Requests (for Airtable API calls)
+   - Pandas (for data manipulation)
+
+2. Routes:
+   - GET /: Serve the main HTML page
+   - POST /connect: Connect to Airtable using provided API key and base ID
+   - GET /fetch_table: Fetch data from Airtable and return as JSON
+   - POST /update_table: Update Airtable with modified data
+   - GET /export_csv: Export current table data as CSV
+
+3. Main functions:
+   - connect_to_airtable(api_key, base_id): Establish connection to Airtable
+   - fetch_table_data(table_name): Retrieve data from specified Airtable table
+   - update_table_data(table_name, data): Update Airtable with modified data
+   - export_to_csv(data): Convert table data to CSV format
+
+4. Error handling:
+   - Handle API connection errors
+   - Validate input data
+
+The server will maintain a session to store the Airtable connection details and current table data.
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+The frontend will be a single HTML page with embedded JavaScript for interactivity. Here's an outline of the main components:
+
+1. HTML structure:
+   - Header with app title
+   - Input fields for Airtable API key and base ID
+   - Connect button
+   - Table name input field
+   - Refresh button
+   - Editable table display area
+   - Save changes button
+   - Export to CSV button
+   - Status/error message area
+
+2. CSS styling:
+   - Responsive design for various screen sizes
+   - Modern, clean look with a color scheme based on Airtable's branding
+   - Styled input fields and buttons
+   - Table styling with alternating row colors and hover effects
+
+3. JavaScript functionality:
+   - Connect to Airtable API using provided credentials
+   - Fetch and display table data
+   - Enable in-place editing of table cells
+   - Handle table updates and send changes to the server
+   - Implement table refresh functionality
+   - Export table data to CSV
+   - Display loading indicators during API calls
+   - Show error messages and status updates
+
+4. Libraries/Frameworks:
+   - Use a lightweight table editor library like DataTables or AG Grid
+   - Axios for AJAX requests
+   - Optional: Add a CSS framework like Bootstrap for responsive design
+
+The page will be dynamic, updating the table display without full page reloads. It will provide a seamless editing experience similar to working with a spreadsheet application.
+</FRONTEND_DESIGN>

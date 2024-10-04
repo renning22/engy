@@ -1,0 +1,2 @@
+create a dashboard show all running docker containers.
+And let me able to kill them, ssh to them or inspect them.

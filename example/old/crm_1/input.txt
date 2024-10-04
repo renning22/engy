@@ -1,0 +1,5 @@
+Database is an email CRM, contain custormer name, company, emails.
+
+
+Generate workflow page that I can filter target email by if already sent, by sex. I can click a button to send to all.
+There is also a button send QA email to "test@finae.ai".

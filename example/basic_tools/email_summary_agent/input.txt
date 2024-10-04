@@ -1,0 +1,1 @@
+Create an agent using CrewAI that connects to my gmail and summarize all my recent emails.

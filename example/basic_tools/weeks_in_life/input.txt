@@ -1,0 +1,1 @@
+create a charts show how many weeks past in my life. Assume I will live 100 years. One week per dot in this chart.

@@ -1,0 +1,38 @@
+
+The frontend will be a single HTML page with embedded JavaScript and CSS. Key components include:
+
+1. HTML structure:
+   - Header with app title
+   - Image upload section
+   - Invoice input form (items, prices, company info)
+   - Preview section
+   - Generated invoices list
+   - Footer
+
+2. CSS:
+   - Responsive design for various screen sizes
+   - Styling for form elements, buttons, and invoice preview
+   - Grid layout for invoice table
+
+3. JavaScript functions:
+   - handleImageUpload(): Process and display uploaded image
+   - generateInvoice(): Send form data to backend and display preview
+   - displayInvoicePreview(): Show generated invoice in PNG format
+   - loadInvoiceList(): Fetch and display list of generated invoices
+   - downloadInvoice(): Trigger invoice download (PDF or PNG)
+
+4. API interactions:
+   - Use fetch() for AJAX calls to backend APIs
+
+5. Libraries:
+   - Use vanilla JavaScript for DOM manipulation
+   - Consider using a lightweight CSS framework like Milligram for basic styling
+
+6. Key features:
+   - Real-time preview of invoice as user inputs data
+   - Drag-and-drop image upload
+   - Responsive table for invoice items
+   - Modal for displaying invoice preview
+   - Sortable and filterable list of generated invoices
+
+The frontend will provide an intuitive interface for users to create invoices, preview them in real-time, and manage previously generated invoices. It will communicate with the backend via API calls to handle data processing and storage.

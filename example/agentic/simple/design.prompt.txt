@@ -1,0 +1,110 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+create my personal search LLM Agent, using Claude 3.5 haiku.
+Store search history in local database.
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's a design for your personal search LLM Agent app using Claude 3.5 Haiku, with a Python backend and HTML frontend:
+
+<BACKEND_DESIGN>
+1. Flask web server:
+   - Handle HTTP requests
+   - Serve the HTML frontend
+   - Process search queries
+
+2. Claude 3.5 Haiku integration:
+   - Use Anthropic's API to send queries to Claude
+   - Process and format Claude's responses
+
+3. SQLite database:
+   - Store search history
+   - Table structure:
+     - id (primary key)
+     - query (text)
+     - response (text)
+     - timestamp (datetime)
+
+4. Main components:
+   - app.py: Flask application setup
+   - llm_agent.py: Claude 3.5 Haiku integration
+   - database.py: SQLite database operations
+
+5. API endpoints:
+   - GET /: Serve the HTML frontend
+   - POST /search: Process search queries
+   - GET /history: Retrieve search history
+
+6. Requirements:
+   - Flask
+   - Anthropic API library
+   - SQLite3
+
+7. Environment variables:
+   - ANTHROPIC_API_KEY: For authenticating with the Anthropic API
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+1. Single HTML page (index.html):
+   - Responsive design using CSS flexbox
+
+2. Header:
+   - Title: "Personal Search LLM Agent"
+   - Subtitle: "Powered by Claude 3.5 Haiku"
+
+3. Search section:
+   - Large input field for entering search queries
+   - "Search" button
+   - Loading spinner (hidden by default)
+
+4. Results section:
+   - Display formatted response from Claude
+   - Expandable/collapsible for long responses
+
+5. History section:
+   - Tabular view of recent searches
+   - Columns: Timestamp, Query, Action (to re-run the query)
+
+6. Styling:
+   - Modern, minimalist design
+   - Light/dark mode toggle
+
+7. JavaScript functionality:
+   - Asynchronous search submission
+   - Dynamic update of search results
+   - Fetch and display search history
+   - Re-run queries from history
+
+8. Responsive design:
+   - Adapt layout for mobile devices
+
+9. Accessibility features:
+   - Proper ARIA labels
+   - Keyboard navigation support
+
+10. Error handling:
+    - Display user-friendly error messages
+
+11. External resources:
+    - Google Fonts for typography
+    - Font Awesome for icons
+</FRONTEND_DESIGN>

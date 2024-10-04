@@ -1,0 +1,33 @@
+
+Backend Design (Python Flask server):
+
+1. Database:
+   - Use SQLite for simplicity
+   - Table: videos
+     - id (primary key)
+     - youtube_id (string)
+     - title (string)
+     - description (text)
+     - tags (string, comma-separated)
+     - added_date (datetime)
+
+2. Routes:
+   - GET /: Serve the main HTML page
+   - GET /videos: Return all videos in JSON format
+   - POST /videos: Add a new video to the collection
+   - DELETE /videos/<id>: Remove a video from the collection
+   - GET /videos/search: Search videos by title or tags
+
+3. Functions:
+   - fetch_video_info(youtube_id): Use YouTube Data API to fetch video title and description
+   - parse_tags(description): Extract potential tags from video description
+
+4. Dependencies:
+   - Flask
+   - SQLite3
+   - requests (for YouTube API calls)
+
+5. Configuration:
+   - YouTube Data API key (for fetching video information)
+
+The server will handle CRUD operations for the video collection, including fetching video information from YouTube and managing tags.

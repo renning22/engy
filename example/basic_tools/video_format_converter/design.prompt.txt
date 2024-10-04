@@ -1,0 +1,99 @@
+claude-3-5-sonnet-20240620
+
+You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are a software designer.
+Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
+The given input is the app description.
+Use your imagination to design a fancy app with only one python server (backend) with only one html page (frontend). 
+
+The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
+The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
+There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
+
+
+=== 0: user ===
+The app description:
+```
+Create an app I can upload a video in any format and convert to mp4.
+Better let me select the output video play speed and resolutions.
+```
+
+Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
+<BACKEND_DESIGN> will be written in "backend_design.txt".
+<FRONTEND_DESIGN> will be written in "frontend_design.txt".
+
+
+=== Reply 0 ===
+Here's a design for the video conversion app based on your description:
+
+<BACKEND_DESIGN>
+The backend will be a Python Flask server with the following key components:
+
+1. Flask app setup:
+   - Import necessary libraries (Flask, FFmpeg-python, os, etc.)
+   - Initialize Flask app
+
+2. File upload route (/upload):
+   - Accept POST requests with video file
+   - Save uploaded file temporarily
+   - Return a unique job ID
+
+3. Conversion route (/convert):
+   - Accept POST requests with job ID, desired speed, and resolution
+   - Use FFmpeg-python to convert the video:
+     - Change format to MP4
+     - Adjust playback speed
+     - Resize to selected resolution
+   - Save converted video
+   - Return download link
+
+4. Download route (/download/<job_id>):
+   - Serve the converted video file
+
+5. Status route (/status/<job_id>):
+   - Return current status of conversion job
+
+6. Cleanup function:
+   - Periodically remove old temporary and converted files
+
+The server will use FFmpeg-python for video processing, which allows for easy manipulation of video properties like format, speed, and resolution.
+</BACKEND_DESIGN>
+
+<FRONTEND_DESIGN>
+The frontend will be a single HTML page with embedded JavaScript for interactivity. Key elements include:
+
+1. Header:
+   - Title: "Video Converter"
+   - Brief description of the app's functionality
+
+2. File Upload Section:
+   - Drag-and-drop area for file upload
+   - "Select File" button as an alternative
+   - Display selected file name
+
+3. Conversion Options:
+   - Playback Speed slider (0.5x to 2x)
+   - Resolution dropdown (e.g., 360p, 480p, 720p, 1080p)
+
+4. Convert Button:
+   - Triggers file upload and conversion process
+
+5. Progress Section:
+   - Progress bar for upload and conversion
+   - Status messages (e.g., "Uploading...", "Converting...", "Done!")
+
+6. Download Section:
+   - Download button (appears when conversion is complete)
+
+7. Footer:
+   - Copyright information
+   - Link to developer's website
+
+The page will use modern CSS for styling, making it responsive and visually appealing. JavaScript will handle:
+- File selection and upload
+- Sending conversion parameters to the server
+- Updating progress and status
+- Enabling the download button when conversion is complete
+
+The design will be clean and intuitive, with a color scheme that's easy on the eyes for users who might be working with video frequently.
+</FRONTEND_DESIGN>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Worlds Explorer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        #threeKingdoms, #gameOfThrones {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        #characterInfo {
+            font-style: italic;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        input[type="text"] {
+            padding: 5px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fantasy Worlds Explorer</h1>
+
+    <div id="threeKingdoms">
+        <h2>Three Kingdoms Live Feed</h2>
+        <div id="characterInfo">Waiting for character information...</div>
+    </div>
+
+    <div id="gameOfThrones">
+        <h2>Game of Thrones Explorer</h2>
+        <button id="getAllCharacters">Get All Characters</button>
+        <button id="getAllCountries">Get All Countries</button>
+        <div>
+            <input type="text" id="characterId" placeholder="Enter character ID">
+            <button id="getCharacter">Get Character</button>
+        </div>
+        <div>
+            <input type="text" id="countryId" placeholder="Enter country ID">
+            <button id="getCountry">Get Country</button>
+        </div>
+        <div>
+            <h3>Add New Character</h3>
+            <input type="text" id="newCharName" placeholder="Name">
+            <input type="text" id="newCharHouse" placeholder="House">
+            <input type="text" id="newCharCountry" placeholder="Country">
+            <button id="addCharacter">Add Character</button>
+        </div>
+        <div>
+            <h3>Add New Country</h3>
+            <input type="text" id="newCountryName" placeholder="Name">
+            <input type="text" id="newCountryCapital" placeholder="Capital">
+            <button id="addCountry">Add Country</button>
+        </div>
+        <div id="gotResult"></div>
+    </div>
+
+    <script>
+        // Three Kingdoms WebSocket
+        const ws = new WebSocket('ws://localhost:8765');
+
+        ws.onmessage = function(event) {
+            const character = JSON.parse(event.data);
+            document.getElementById('characterInfo').innerHTML = `
+                Name: ${character.name}<br>
+                Kingdom: ${character.kingdom}<br>
+                Title: ${character.title}
+            `;
+        };
+
+        // Game of Thrones REST API
+        const apiUrl = 'http://localhost:5000';
+
+        function fetchData(endpoint) {
+            fetch(apiUrl + endpoint)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('gotResult').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('gotResult').innerHTML = 'Error fetching data';
+                });
+        }
+
+        document.getElementById('getAllCharacters').addEventListener('click', () => fetchData('/characters'));
+        document.getElementById('getAllCountries').addEventListener('click', () => fetchData('/countries'));
+
+        document.getElementById('getCharacter').addEventListener('click', () => {
+            const id = document.getElementById('characterId').value;
+            fetchData(`/characters/${id}`);
+        });
+
+        document.getElementById('getCountry').addEventListener('click', () => {
+            const id = document.getElementById('countryId').value;
+            fetchData(`/countries/${id}`);
+        });
+
+        document.getElementById('addCharacter').addEventListener('click', () => {
+            const newCharacter = {
+                name: document.getElementById('newCharName').value,
+                house: document.getElementById('newCharHouse').value,
+                country: document.getElementById('newCharCountry').value
+            };
+
+            fetch(apiUrl + '/characters', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newCharacter),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('gotResult').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('gotResult').innerHTML = 'Error adding character';
+            });
+        });
+
+        document.getElementById('addCountry').addEventListener('click', () => {
+            const newCountry = {
+                name: document.getElementById('newCountryName').value,
+                capital: document.getElementById('newCountryCapital').value
+            };
+
+            fetch(apiUrl + '/countries', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newCountry),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('gotResult').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('gotResult').innerHTML = 'Error adding country';
+            });
+        });
+    </script>
+</body>
+</html>

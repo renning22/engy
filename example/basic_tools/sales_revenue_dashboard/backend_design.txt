@@ -1,0 +1,35 @@
+
+The backend will be a Python Flask server with the following components:
+
+1. Data Storage:
+   - Use SQLite database to store sales data
+   - Table structure: id, product_name, sale_date, quantity, price
+
+2. API Endpoints:
+   - GET /api/quarterly_revenue
+     - Returns quarterly revenue data for the dashboard
+   - GET /api/quarterly_breakdown/<quarter>
+     - Returns detailed breakdown for a specific quarter
+   - GET /api/sales_report
+     - Generates and returns a sales report
+   - POST /api/sales_report
+     - Accepts edited sales report data and saves it
+
+3. Data Processing:
+   - Implement functions to calculate quarterly revenue
+   - Create functions to generate detailed breakdowns
+   - Develop a report generator using a template engine (e.g., Jinja2)
+
+4. Libraries:
+   - Flask: Web framework
+   - SQLAlchemy: Database ORM
+   - Pandas: Data manipulation and analysis
+   - Jinja2: Templating engine for report generation
+
+5. File Structure:
+   - app.py: Main Flask application
+   - models.py: Database models
+   - utils.py: Helper functions for data processing
+   - templates/: Folder for report templates
+
+The server will handle data retrieval, processing, and report generation, serving the frontend with JSON responses for the dashboard and providing downloadable reports.

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Finae AI</title>
+    <meta name="description" content="Generate fully working AI tools in seconds"/>
+    <link rel="icon" href="/favicon.ico"/>
+    <meta property="og:title" content="Finae AI"/>
+    <meta property="og:description" content="Generate fully working AI tools in seconds"/>
+    <meta property="og:url" content="https://finae.ai/"/>
+    <meta property="og:image" content="https://finae.ai/og-image.png"/>
+    <meta name="twitter:title" content="Finae AI"/>
+    <meta name="twitter:description" content="Generate fully working AI tools in seconds"/>
+    <meta name="twitter:image" content="/og-image.png"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3182ce',
+                        secondary: '#4fd1c5',
+                        accent: '#f6e05e',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header class="flex justify-between items-center py-6 border-b border-gray-200">
+            <div class="text-2xl font-bold text-primary">
+                <img src="/static/finae_labs.png" alt="Logo" style="width: 170px; height: auto;">
+            </div>
+            <div class="space-x-4">
+                <a href="/login" class="text-gray-600 hover:text-primary transition-colors">Log In</a>
+                <a href="/signup" class="bg-primary text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">Sign Up</a>
+            </div>
+        </header>
+        <main>
+            <section class="text-center py-20">
+                <h1 class="text-5xl font-bold mb-4">
+                    Idea to application, powered by English
+                    <span class="block text-2xl text-secondary mt-4 font-medium">Easily build powerful business solutions</span>
+                </h1>
+                <div class="max-w-2xl mx-auto">
+                    <textarea id="idea-input" rows="8" class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-primary focus:border-primary mb-4" placeholder="Build an application for ..."></textarea>
+                    <button id="generate-button" class="bg-primary text-white px-6 py-3 rounded-md text-lg font-semibold hover:bg-blue-700 transition-colors">Build now</button>
+                </div>
+                <div class="flex flex-wrap justify-center gap-2 mt-9">
+                    <div class="example-chip bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">Income expense tracker</div>
+                    <div class="example-chip bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">Shopify product inventory sync</div>
+                    <div class="example-chip bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">Customer insights dashboard</div>
+                    <div class="example-chip bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">Invoice manager</div>
+                    <div class="example-chip bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">Product lookup tool</div>
+                    <div class="example-chip bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">PDF merger</div>
+                    <div class="example-chip bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-medium cursor-pointer hover:bg-gray-300 transition-colors">Competitor research agent</div>
+                </div>
+            </section>
+            <section id="output-container" class="fixed inset-0 bg-gray-900 bg-opacity-90 z-50 hidden opacity-0 transition-opacity duration-300 ease-in-out flex justify-center items-center">
+                <button id="close-output" class="absolute top-4 right-4 text-white text-3xl">&times;</button>
+                <pre id="output-area" class="w-4/5 h-4/5 max-w-3xl bg-white text-gray-800 p-6 font-mono text-sm leading-relaxed overflow-y-auto rounded-lg shadow-lg"></pre>
+            </section>
+        </main>
+        <footer class="text-center py-10 text-gray-600 border-t border-gray-200">
+            <p>&copy; 2024 Finae Labs Inc. All rights reserved.</p>
+            <p>Contact us at <a href="mailto:founders@finae.ai" class="text-primary hover:underline">founders@finae.ai</a></p>
+        </footer>
+    </div>
+    <script>
+        const exampleDescriptions = {
+            "Income expense tracker": "Build a tool for accountants and controllers to efficiently track income and expenses from customer transactions.\n\nThe database should include columns for 'Week', 'Deposit Complete Amount', 'Withdraw Complete Amount', 'Deposit Amount', 'Deposit Other Amount', 'Withdraw Amount', and 'Withdraw Other Amount'. Enable functionalities to add, edit, and remove rows, with pagination for navigating large datasets.\n\nInclude a button that allows users to increase the 'Deposit Amount' by $100 for all records.\nAnd a toggle to select and highlight those rows with less 'Withdraw Amount' > 'Withdraw Amount'",
+            "Shopify product inventory sync": "Build a tool that automatically syncs product inventory across multiple platforms, including Shopify, Google Shopping, and Amazon.\n\nThe tool should ensure that inventory levels are always accurate and up-to-date to provide the best customer experience.",
+            "Customer insights dashboard": "Create a secure and accessible customer insights dashboard that serves as a centralized control center.\n\nThe dashboard should allow users to easily look up, edit, and configure customer accounts.\n\nEnsure data security while enabling quick access to customer information.",
+            "Invoice manager": "Develop an invoice management tool that tracks all aspects of accounting for a service business using subcontractors.\n\nThis tool should manage invoices, purchase orders, jobs, payables, and receipts, ensuring that all financials are up-to-date.",
+            "Product lookup tool": "Create a product lookup tool for customer support teams to easily search for product details such as price, availability, and shipping times.\n\nThis tool should handle large product inventories and provide accurate, real-time information about each item.",
+            "PDF merger": "I have 10 PDFs, want to merge them into 1.",
+            "Competitor research agent": "I want a web research Agent to scrape webpages related to Wordware AI.",
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const textarea = document.getElementById('idea-input');
+            const generateButton = document.getElementById('generate-button');
+            const outputContainer = document.getElementById('output-container');
+            const outputArea = document.getElementById('output-area');
+            const closeOutputButton = document.getElementById('close-output');
+            const exampleChips = document.querySelectorAll('.example-chip');
+
+            const socket = io();
+
+            function showOutput() {
+                outputContainer.style.display = 'flex';
+                setTimeout(() => {
+                    outputContainer.classList.remove('opacity-0');
+                }, 50);
+                document.body.style.overflow = 'hidden';
+            }
+
+            function hideOutput() {
+                outputContainer.classList.add('opacity-0');
+                setTimeout(() => {
+                    outputContainer.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }, 300);
+            }
+
+            generateButton.addEventListener('click', function() {
+                const idea = textarea.value;
+                socket.emit('generate', {idea: idea});
+                showOutput();
+                outputArea.textContent = 'Generating... Please wait.\n';
+                generateButton.disabled = true;
+            });
+
+            closeOutputButton.addEventListener('click', function() {
+                hideOutput();
+                generateButton.disabled = false;
+            });
+
+            socket.on('output', function(data) {
+                outputArea.textContent += data.output + '\n';
+                outputArea.scrollTop = outputArea.scrollHeight;
+            });
+
+            socket.on('generation_complete', function() {
+                generateButton.disabled = false;
+            });
+
+            exampleChips.forEach(chip => {
+                chip.addEventListener('click', function() {
+                    const chipText = this.textContent;
+                    if (exampleDescriptions[chipText]) {
+                        textarea.value = exampleDescriptions[chipText];
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

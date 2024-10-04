@@ -1,0 +1,1105 @@
+claude-3-5-sonnet-20240620
+
+# Example Project
+This is the example project which has 3 main files "server.py", "index.html" and "run.sh".
+Here are their contents:
+
+## server.py
+```python
+import sqlite3
+import threading
+import time
+from functools import partial
+
+from flask import Flask, jsonify, request, send_from_directory
+from flask_cors import CORS
+from flask_socketio import SocketIO, emit
+
+from finae import web_search_agent
+
+app = Flask(__name__)
+CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+DATABASE = 'crm.db'
+ENTRIES_PER_PAGE = 10
+
+# Virtual Agent Configuration
+AGENT_NAME = "DataBot"
+AGENT_AVATAR = "https://robohash.org/DataBot.png?size=100x100&set=set3"
+AGENT_PROMPT = '''Advanced competitor searcher.
+
+Search internet to find all information of competitor comapny "wordware.ai". 
+'''
+
+# Data generation control
+data_generation_active = False
+data_generation_thread = None
+
+
+def init_db():
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS crm_entries
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  title TEXT,
+                  link TEXT,
+                  content TEXT,
+                  timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+    conn.commit()
+    conn.close()
+
+
+def produce_data_point(conn, c, data_entry: dict):
+    try:
+        # Generate sample data
+        title = data_entry['title']
+        link = data_entry['link']
+        content = data_entry['content']
+
+        c.execute("INSERT INTO crm_entries (title, link, content) VALUES (?, ?, ?)",
+                  (title, link, content))
+        conn.commit()
+
+        # Fetch the newly inserted entry
+        c.execute("SELECT * FROM crm_entries WHERE id = last_insert_rowid()")
+        new_entry = c.fetchone()
+        conn.close()
+
+        # Emit the new entry to all connected clients
+        socketio.emit('new_entry', {
+            'id': new_entry[0],
+            'title': new_entry[1],
+            'link': new_entry[2],
+            'content': new_entry[3],
+            'timestamp': new_entry[4]
+        })
+    except:
+        pass
+
+
+def ingest_data():
+    global data_generation_active
+    while data_generation_active:
+        conn = sqlite3.connect(DATABASE)
+        c = conn.cursor()
+        web_search_agent(AGENT_PROMPT, partial(produce_data_point, conn, c))
+        time.sleep(5)  # Simulate delay between data points
+
+
+@app.route('/')
+def index():
+    return send_from_directory('.', 'index.html')
+
+
+@app.route('/api/entries', methods=['GET'])
+def get_entries():
+    page = request.args.get('page', 1, type=int)
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+
+    # Get total count of entries
+    c.execute("SELECT COUNT(*) FROM crm_entries")
+    total_entries = c.fetchone()[0]
+
+    # Calculate offset
+    offset = (page - 1) * ENTRIES_PER_PAGE
+
+    # Fetch paginated entries
+    c.execute("SELECT * FROM crm_entries ORDER BY timestamp DESC LIMIT ? OFFSET ?",
+              (ENTRIES_PER_PAGE, offset))
+    entries = c.fetchall()
+    conn.close()
+
+    return jsonify({
+        'entries': [{
+            'id': entry[0],
+            'title': entry[1],
+            'link': entry[2],
+            'content': entry[3],
+            'timestamp': entry[4]
+        } for entry in entries],
+        'total_entries': total_entries,
+        'total_pages': (total_entries + ENTRIES_PER_PAGE - 1) // ENTRIES_PER_PAGE
+    })
+
+
+@app.route('/api/entries', methods=['POST'])
+def add_entry():
+    data = request.json
+    if not data or 'title' not in data or 'link' not in data or 'content' not in data:
+        return jsonify({'error': 'Invalid data'}), 400
+
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute("INSERT INTO crm_entries (title, link, content) VALUES (?, ?, ?)",
+              (data['title'], data['link'], data['content']))
+    conn.commit()
+    new_id = c.lastrowid
+
+    # Fetch the newly inserted entry
+    c.execute("SELECT * FROM crm_entries WHERE id = ?", (new_id,))
+    new_entry = c.fetchone()
+    conn.close()
+
+    # Emit the new entry to all connected clients
+    socketio.emit('new_entry', {
+        'id': new_entry[0],
+        'title': new_entry[1],
+        'link': new_entry[2],
+        'content': new_entry[3],
+        'timestamp': new_entry[4]
+    })
+
+    return jsonify({'id': new_id, 'message': 'Entry added successfully'}), 201
+
+
+@app.route('/api/agent', methods=['GET'])
+def get_agent_info():
+    return jsonify({
+        'name': AGENT_NAME,
+        'avatar': AGENT_AVATAR
+    })
+
+
+@app.route('/api/data_generation/start', methods=['POST'])
+def start_data_generation():
+    global data_generation_active, data_generation_thread
+    if not data_generation_active:
+        data_generation_active = True
+        data_generation_thread = threading.Thread(target=ingest_data)
+        data_generation_thread.start()
+        return jsonify({'message': 'Data generation started'}), 200
+    return jsonify({'message': 'Data generation already running'}), 200
+
+
+@app.route('/api/data_generation/stop', methods=['POST'])
+def stop_data_generation():
+    global data_generation_active, data_generation_thread
+    if data_generation_active:
+        data_generation_active = False
+        if data_generation_thread:
+            data_generation_thread.join()
+        return jsonify({'message': 'Data generation stopped'}), 200
+    return jsonify({'message': 'Data generation not running'}), 200
+
+
+@app.route('/api/data_generation/status', methods=['GET'])
+def get_data_generation_status():
+    global data_generation_active
+    return jsonify({'active': data_generation_active})
+
+
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
+
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Client disconnected')
+
+
+if __name__ == '__main__':
+    init_db()
+    port = 8889
+    print(f"Server running on port {port}")
+    socketio.run(app, host='localhost', port=port, debug=True)
+
+```
+
+## index.html
+```html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini CRM with DataBot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-bounce {
+            animation: bounce 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <header class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6 flex justify-between items-center">
+            <h1 class="text-3xl font-bold">Mini CRM</h1>
+            <div id="agentInfo" class="flex items-center">
+                <img id="agentAvatar" src="" alt="Agent Avatar" class="w-12 h-12 rounded-full mr-3 animate-bounce">
+                <div>
+                    <p class="text-sm">Data Agent</p>
+                    <p id="agentName" class="font-bold"></p>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <button id="startBtn" class="bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600 transition duration-300 ease-in-out mr-2">
+                    Start Data Gen
+                </button>
+                <button id="stopBtn" class="bg-red-500 text-white px-4 py-2 rounded-lg shadow hover:bg-red-600 transition duration-300 ease-in-out mr-2">
+                    Stop Data Gen
+                </button>
+                <span id="statusIndicator" class="mr-2">⚪</span>
+                <button id="refreshBtn" class="bg-white text-indigo-600 px-4 py-2 rounded-lg shadow hover:bg-indigo-100 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+        </div>
+    </header>
+    <main class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <table id="crmTable" class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Link</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Content</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <!-- Table rows will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-4 flex justify-between items-center">
+            <div>
+                <span id="pageInfo" class="text-sm text-gray-600"></span>
+            </div>
+            <div>
+                <button id="prevBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition duration-300 ease-in-out mr-2">Previous</button>
+                <button id="nextBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition duration-300 ease-in-out">Next</button>
+            </div>
+        </div>
+        <div id="loadingSpinner" class="hidden fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div>
+        </div>
+    </main>
+    <script>
+        const API_URL = `http://${window.location.hostname}:${window.location.port}/api`;
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const pageInfo = document.getElementById('pageInfo');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const statusIndicator = document.getElementById('statusIndicator');
+        let currentPage = 1;
+        let totalPages = 1;
+
+        const socket = io(`http://${window.location.hostname}:${window.location.port}`);
+
+        socket.on('connect', () => {
+            console.log('Connected to WebSocket');
+        });
+
+        socket.on('new_entry', (entry) => {
+            if (currentPage === 1) {
+                prependEntry(entry);
+            }
+        });
+
+        async function fetchAgentInfo() {
+            try {
+                const response = await fetch(`${API_URL}/agent`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                document.getElementById('agentName').textContent = data.name;
+                document.getElementById('agentAvatar').src = data.avatar;
+            } catch (error) {
+                console.error('Error fetching agent info:', error);
+            }
+        }
+
+        async function fetchEntries(page = 1) {
+            try {
+                loadingSpinner.classList.remove('hidden');
+                const response = await fetch(`${API_URL}/entries?page=${page}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                updateTable(data.entries);
+                updatePagination(page, data.total_pages);
+            } catch (error) {
+                console.error('Error fetching entries:', error);
+            } finally {
+                loadingSpinner.classList.add('hidden');
+            }
+        }
+
+        function updateTable(entries) {
+            const tableBody = document.querySelector('#crmTable tbody');
+            tableBody.innerHTML = '';
+
+            entries.forEach(entry => {
+                const row = createTableRow(entry);
+                tableBody.appendChild(row);
+            });
+        }
+
+        function createTableRow(entry) {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50 transition duration-150 ease-in-out';
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${escapeHtml(entry.title)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-indigo-600 hover:text-indigo-900">
+                    <a href="${escapeHtml(entry.link)}" target="_blank" class="hover:underline">${escapeHtml(entry.link)}</a>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${escapeHtml(entry.content)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(entry.timestamp).toLocaleString()}</td>
+            `;
+            return row;
+        }
+
+        function prependEntry(entry) {
+            const tableBody = document.querySelector('#crmTable tbody');
+            const row = createTableRow(entry);
+            tableBody.insertBefore(row, tableBody.firstChild);
+            
+            // Remove the last row if we have more than 10 entries
+            if (tableBody.children.length > 10) {
+                tableBody.removeChild(tableBody.lastChild);
+            }
+        }
+
+        function updatePagination(page, total) {
+            currentPage = page;
+            totalPages = total;
+            pageInfo.textContent = `Page ${page} of ${total}`;
+            prevBtn.disabled = page === 1;
+            nextBtn.disabled = page === total;
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+
+        async function startDataGeneration() {
+            try {
+                const response = await fetch(`${API_URL}/data_generation/start`, { method: 'POST' });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                updateDataGenerationStatus(true);
+            } catch (error) {
+                console.error('Error starting data generation:', error);
+            }
+        }
+
+        async function stopDataGeneration() {
+            try {
+                const response = await fetch(`${API_URL}/data_generation/stop`, { method: 'POST' });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                updateDataGenerationStatus(false);
+            } catch (error) {
+                console.error('Error stopping data generation:', error);
+            }
+        }
+
+        async function checkDataGenerationStatus() {
+            try {
+                const response = await fetch(`${API_URL}/data_generation/status`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                updateDataGenerationStatus(data.active);
+            } catch (error) {
+                console.error('Error checking data generation status:', error);
+            }
+        }
+
+        function updateDataGenerationStatus(active) {
+            if (active) {
+                statusIndicator.textContent = '🟢';
+                statusIndicator.title = 'Data generation is active';
+            } else {
+                statusIndicator.textContent = '🔴';
+                statusIndicator.title = 'Data generation is inactive';
+            }
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                fetchEntries(currentPage - 1);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                fetchEntries(currentPage + 1);
+            }
+        });
+
+        document.getElementById('refreshBtn').addEventListener('click', () => fetchEntries(currentPage));
+        startBtn.addEventListener('click', startDataGeneration);
+        stopBtn.addEventListener('click', stopDataGeneration);
+
+        // Initial setup
+        fetchAgentInfo();
+        fetchEntries();
+        checkDataGenerationStatus();
+
+        // Periodically check data generation status
+        setInterval(checkDataGenerationStatus, 5000);
+    </script>
+</body>
+</html>
+
+```
+
+## run.sh
+```bash
+
+#!/bin/bash
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+# Create a virtual environment if it doesn't exist
+if [ ! -d "venv" ]; then
+    echo "Creating virtual environment..."
+    python3 -m venv venv
+fi
+
+# Activate the virtual environment
+source venv/bin/activate
+
+# Upgrade pip
+pip install --upgrade pip
+
+# Install required libraries
+echo "Installing required libraries..."
+pip install Flask flask-cors flask-socketio
+
+# Install local library if it exists
+if [ -d "/data/finae/finae" ]; then
+    echo "Installing local finae library..."
+    pip install /data/finae/finae
+else
+    echo "Local finae library not found. Skipping..."
+fi
+
+# Start the server
+echo "Starting the server..."
+python server.py
+
+# Keep the script running
+while true; do
+    echo "Server is running. Press Ctrl+C to stop."
+    sleep 60
+done
+
+```
+
+# Objective
+Modify and re-generate these files based on new <FEATURE_REQUEST></FEATURE_REQUEST> statements.
+
+# Output
+1. Output new "server.py" source code in <SERVER_PYTHON_CODE></SERVER_PYTHON_CODE> block.
+2. Output new "index.html" source code in <INDEX_HTML_CODE></INDEX_HTML_CODE> block.
+3. Output new "run.sh" source code in <RUN_BASH_CODE></RUN_BASH_CODE> block.
+
+Only output one of them in each conversation round, based on user query.
+
+
+=== 0: user ===
+<FEATURE_REQUEST>
+1. make the frontend show ID, and fix CONTENT doesn't wrap and fit.
+2. rename the agent to "Web Search Agent".
+3. rename "Mini CRM" title to "Web Search Agent".
+</FEATURE_REQUEST>
+
+Generate "server.py" first (re-assign a new PORT, to localhost:5453).
+
+=== 1: assistant ===
+Certainly! I'll modify the "server.py" file according to your feature requests and change the port to 5453. Here's the updated "server.py" code:
+
+<SERVER_PYTHON_CODE>
+import sqlite3
+import threading
+import time
+from functools import partial
+
+from flask import Flask, jsonify, request, send_from_directory
+from flask_cors import CORS
+from flask_socketio import SocketIO, emit
+
+from finae import web_search_agent
+
+app = Flask(__name__)
+CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+DATABASE = 'crm.db'
+ENTRIES_PER_PAGE = 10
+
+# Virtual Agent Configuration
+AGENT_NAME = "Web Search Agent"
+AGENT_AVATAR = "https://robohash.org/WebSearchAgent.png?size=100x100&set=set3"
+AGENT_PROMPT = '''Advanced competitor searcher.
+
+Search internet to find all information of competitor comapny "wordware.ai". 
+'''
+
+# Data generation control
+data_generation_active = False
+data_generation_thread = None
+
+
+def init_db():
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS crm_entries
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  title TEXT,
+                  link TEXT,
+                  content TEXT,
+                  timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+    conn.commit()
+    conn.close()
+
+
+def produce_data_point(conn, c, data_entry: dict):
+    try:
+        # Generate sample data
+        title = data_entry['title']
+        link = data_entry['link']
+        content = data_entry['content']
+
+        c.execute("INSERT INTO crm_entries (title, link, content) VALUES (?, ?, ?)",
+                  (title, link, content))
+        conn.commit()
+
+        # Fetch the newly inserted entry
+        c.execute("SELECT * FROM crm_entries WHERE id = last_insert_rowid()")
+        new_entry = c.fetchone()
+        conn.close()
+
+        # Emit the new entry to all connected clients
+        socketio.emit('new_entry', {
+            'id': new_entry[0],
+            'title': new_entry[1],
+            'link': new_entry[2],
+            'content': new_entry[3],
+            'timestamp': new_entry[4]
+        })
+    except:
+        pass
+
+
+def ingest_data():
+    global data_generation_active
+    while data_generation_active:
+        conn = sqlite3.connect(DATABASE)
+        c = conn.cursor()
+        web_search_agent(AGENT_PROMPT, partial(produce_data_point, conn, c))
+        time.sleep(5)  # Simulate delay between data points
+
+
+@app.route('/')
+def index():
+    return send_from_directory('.', 'index.html')
+
+
+@app.route('/api/entries', methods=['GET'])
+def get_entries():
+    page = request.args.get('page', 1, type=int)
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+
+    # Get total count of entries
+    c.execute("SELECT COUNT(*) FROM crm_entries")
+    total_entries = c.fetchone()[0]
+
+    # Calculate offset
+    offset = (page - 1) * ENTRIES_PER_PAGE
+
+    # Fetch paginated entries
+    c.execute("SELECT * FROM crm_entries ORDER BY timestamp DESC LIMIT ? OFFSET ?",
+              (ENTRIES_PER_PAGE, offset))
+    entries = c.fetchall()
+    conn.close()
+
+    return jsonify({
+        'entries': [{
+            'id': entry[0],
+            'title': entry[1],
+            'link': entry[2],
+            'content': entry[3],
+            'timestamp': entry[4]
+        } for entry in entries],
+        'total_entries': total_entries,
+        'total_pages': (total_entries + ENTRIES_PER_PAGE - 1) // ENTRIES_PER_PAGE
+    })
+
+
+@app.route('/api/entries', methods=['POST'])
+def add_entry():
+    data = request.json
+    if not data or 'title' not in data or 'link' not in data or 'content' not in data:
+        return jsonify({'error': 'Invalid data'}), 400
+
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute("INSERT INTO crm_entries (title, link, content) VALUES (?, ?, ?)",
+              (data['title'], data['link'], data['content']))
+    conn.commit()
+    new_id = c.lastrowid
+
+    # Fetch the newly inserted entry
+    c.execute("SELECT * FROM crm_entries WHERE id = ?", (new_id,))
+    new_entry = c.fetchone()
+    conn.close()
+
+    # Emit the new entry to all connected clients
+    socketio.emit('new_entry', {
+        'id': new_entry[0],
+        'title': new_entry[1],
+        'link': new_entry[2],
+        'content': new_entry[3],
+        'timestamp': new_entry[4]
+    })
+
+    return jsonify({'id': new_id, 'message': 'Entry added successfully'}), 201
+
+
+@app.route('/api/agent', methods=['GET'])
+def get_agent_info():
+    return jsonify({
+        'name': AGENT_NAME,
+        'avatar': AGENT_AVATAR
+    })
+
+
+@app.route('/api/data_generation/start', methods=['POST'])
+def start_data_generation():
+    global data_generation_active, data_generation_thread
+    if not data_generation_active:
+        data_generation_active = True
+        data_generation_thread = threading.Thread(target=ingest_data)
+        data_generation_thread.start()
+        return jsonify({'message': 'Data generation started'}), 200
+    return jsonify({'message': 'Data generation already running'}), 200
+
+
+@app.route('/api/data_generation/stop', methods=['POST'])
+def stop_data_generation():
+    global data_generation_active, data_generation_thread
+    if data_generation_active:
+        data_generation_active = False
+        if data_generation_thread:
+            data_generation_thread.join()
+        return jsonify({'message': 'Data generation stopped'}), 200
+    return jsonify({'message': 'Data generation not running'}), 200
+
+
+@app.route('/api/data_generation/status', methods=['GET'])
+def get_data_generation_status():
+    global data_generation_active
+    return jsonify({'active': data_generation_active})
+
+
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
+
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Client disconnected')
+
+
+if __name__ == '__main__':
+    init_db()
+    port = 5453
+    print(f"Server running on port {port}")
+    socketio.run(app, host='localhost', port=port, debug=True)
+</SERVER_PYTHON_CODE>
+
+The main changes in this updated "server.py" file are:
+
+1. Changed the `AGENT_NAME` to "Web Search Agent".
+2. Updated the port to 5453 in the `__main__` section.
+
+The other requested changes (showing ID and fixing content wrapping) will be implemented in the "index.html" file, which we'll update in the next step.
+=== 2: user ===
+Generate "index.html"
+=== 3: assistant ===
+Certainly! Here's the updated "index.html" file that incorporates the requested changes:
+
+<INDEX_HTML_CODE>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Search Agent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-bounce {
+            animation: bounce 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <header class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6 flex justify-between items-center">
+            <h1 class="text-3xl font-bold">Web Search Agent</h1>
+            <div id="agentInfo" class="flex items-center">
+                <img id="agentAvatar" src="" alt="Agent Avatar" class="w-12 h-12 rounded-full mr-3 animate-bounce">
+                <div>
+                    <p class="text-sm">Data Agent</p>
+                    <p id="agentName" class="font-bold"></p>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <button id="startBtn" class="bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600 transition duration-300 ease-in-out mr-2">
+                    Start Data Gen
+                </button>
+                <button id="stopBtn" class="bg-red-500 text-white px-4 py-2 rounded-lg shadow hover:bg-red-600 transition duration-300 ease-in-out mr-2">
+                    Stop Data Gen
+                </button>
+                <span id="statusIndicator" class="mr-2">⚪</span>
+                <button id="refreshBtn" class="bg-white text-indigo-600 px-4 py-2 rounded-lg shadow hover:bg-indigo-100 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+        </div>
+    </header>
+    <main class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <table id="crmTable" class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Link</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Content</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <!-- Table rows will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-4 flex justify-between items-center">
+            <div>
+                <span id="pageInfo" class="text-sm text-gray-600"></span>
+            </div>
+            <div>
+                <button id="prevBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition duration-300 ease-in-out mr-2">Previous</button>
+                <button id="nextBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition duration-300 ease-in-out">Next</button>
+            </div>
+        </div>
+        <div id="loadingSpinner" class="hidden fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div>
+        </div>
+    </main>
+    <script>
+        const API_URL = `http://${window.location.hostname}:5453/api`;
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const pageInfo = document.getElementById('pageInfo');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const statusIndicator = document.getElementById('statusIndicator');
+        let currentPage = 1;
+        let totalPages = 1;
+
+        const socket = io(`http://${window.location.hostname}:5453`);
+
+        socket.on('connect', () => {
+            console.log('Connected to WebSocket');
+        });
+
+        socket.on('new_entry', (entry) => {
+            if (currentPage === 1) {
+                prependEntry(entry);
+            }
+        });
+
+        async function fetchAgentInfo() {
+            try {
+                const response = await fetch(`${API_URL}/agent`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                document.getElementById('agentName').textContent = data.name;
+                document.getElementById('agentAvatar').src = data.avatar;
+            } catch (error) {
+                console.error('Error fetching agent info:', error);
+            }
+        }
+
+        async function fetchEntries(page = 1) {
+            try {
+                loadingSpinner.classList.remove('hidden');
+                const response = await fetch(`${API_URL}/entries?page=${page}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                updateTable(data.entries);
+                updatePagination(page, data.total_pages);
+            } catch (error) {
+                console.error('Error fetching entries:', error);
+            } finally {
+                loadingSpinner.classList.add('hidden');
+            }
+        }
+
+        function updateTable(entries) {
+            const tableBody = document.querySelector('#crmTable tbody');
+            tableBody.innerHTML = '';
+
+            entries.forEach(entry => {
+                const row = createTableRow(entry);
+                tableBody.appendChild(row);
+            });
+        }
+
+        function createTableRow(entry) {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50 transition duration-150 ease-in-out';
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${escapeHtml(entry.id)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${escapeHtml(entry.title)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-indigo-600 hover:text-indigo-900">
+                    <a href="${escapeHtml(entry.link)}" target="_blank" class="hover:underline">${escapeHtml(entry.link)}</a>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500 break-words">${escapeHtml(entry.content)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(entry.timestamp).toLocaleString()}</td>
+            `;
+            return row;
+        }
+
+        function prependEntry(entry) {
+            const tableBody = document.querySelector('#crmTable tbody');
+            const row = createTableRow(entry);
+            tableBody.insertBefore(row, tableBody.firstChild);
+            
+            // Remove the last row if we have more than 10 entries
+            if (tableBody.children.length > 10) {
+                tableBody.removeChild(tableBody.lastChild);
+            }
+        }
+
+        function updatePagination(page, total) {
+            currentPage = page;
+            totalPages = total;
+            pageInfo.textContent = `Page ${page} of ${total}`;
+            prevBtn.disabled = page === 1;
+            nextBtn.disabled = page === total;
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+
+        async function startDataGeneration() {
+            try {
+                const response = await fetch(`${API_URL}/data_generation/start`, { method: 'POST' });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                updateDataGenerationStatus(true);
+            } catch (error) {
+                console.error('Error starting data generation:', error);
+            }
+        }
+
+        async function stopDataGeneration() {
+            try {
+                const response = await fetch(`${API_URL}/data_generation/stop`, { method: 'POST' });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                updateDataGenerationStatus(false);
+            } catch (error) {
+                console.error('Error stopping data generation:', error);
+            }
+        }
+
+        async function checkDataGenerationStatus() {
+            try {
+                const response = await fetch(`${API_URL}/data_generation/status`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                updateDataGenerationStatus(data.active);
+            } catch (error) {
+                console.error('Error checking data generation status:', error);
+            }
+        }
+
+        function updateDataGenerationStatus(active) {
+            if (active) {
+                statusIndicator.textContent = '🟢';
+                statusIndicator.title = 'Data generation is active';
+            } else {
+                statusIndicator.textContent = '🔴';
+                statusIndicator.title = 'Data generation is inactive';
+            }
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                fetchEntries(currentPage - 1);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                fetchEntries(currentPage + 1);
+            }
+        });
+
+        document.getElementById('refreshBtn').addEventListener('click', () => fetchEntries(currentPage));
+        startBtn.addEventListener('click', startDataGeneration);
+        stopBtn.addEventListener('click', stopDataGeneration);
+
+        // Initial setup
+        fetchAgentInfo();
+        fetchEntries();
+        checkDataGenerationStatus();
+
+        // Periodically check data generation status
+        setInterval(checkDataGenerationStatus, 5000);
+    </script>
+</body>
+</html>
+</INDEX_HTML_CODE>
+
+The main changes in this updated "index.html" file are:
+
+1. Changed the title from "Mini CRM with DataBot" to "Web Search Agent".
+2. Updated the header title from "Mini CRM" to "Web Search Agent".
+3. Added an "ID" column to the table header.
+4. Modified the `createTableRow` function to include the ID in the table row.
+5. Changed the content cell's class from `whitespace-nowrap` to `break-words` to allow content wrapping.
+6. Updated the WebSocket and API_URL to use port 5453.
+
+These changes address all the requested features:
+1. The frontend now shows the ID column.
+2. The content column now wraps and fits within the table cell.
+3. The agent name has been updated to "Web Search Agent".
+4. The "Mini CRM" title has been changed to "Web Search Agent".
+
+The layout and functionality of the page remain the same, with these updates improving the display of information and reflecting the new focus on web search.
+=== 4: user ===
+Generate "run.sh".
+
+=== Reply 0 ===
+Certainly! Here's the updated "run.sh" script that incorporates the changes and ensures compatibility with the new setup:
+
+<RUN_BASH_CODE>
+#!/bin/bash
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+# Create a virtual environment if it doesn't exist
+if [ ! -d "venv" ]; then
+    echo "Creating virtual environment..."
+    python3 -m venv venv
+fi
+
+# Activate the virtual environment
+source venv/bin/activate
+
+# Upgrade pip
+pip install --upgrade pip
+
+# Install required libraries
+echo "Installing required libraries..."
+pip install Flask flask-cors flask-socketio
+
+# Install local library if it exists
+if [ -d "/data/finae/finae" ]; then
+    echo "Installing local finae library..."
+    pip install /data/finae/finae
+else
+    echo "Local finae library not found. Skipping..."
+fi
+
+# Start the server
+echo "Starting the Web Search Agent server..."
+python server.py
+
+# Keep the script running
+while true; do
+    echo "Web Search Agent server is running. Press Ctrl+C to stop."
+    sleep 60
+done
+</RUN_BASH_CODE>
+
+The main changes in this updated "run.sh" file are:
+
+1. Updated the echo message when starting the server to "Starting the Web Search Agent server..."
+2. Updated the running message to "Web Search Agent server is running. Press Ctrl+C to stop."
+
+These changes reflect the new focus on the Web Search Agent rather than the previous Mini CRM concept. The rest of the script remains the same, as it still performs the necessary steps to set up the environment, install dependencies, and run the server.
+
+This script will:
+1. Create a virtual environment if it doesn't exist
+2. Activate the virtual environment
+3. Upgrade pip
+4. Install the required libraries (Flask, flask-cors, flask-socketio)
+5. Install the local finae library if it exists
+6. Start the server by running server.py
+7. Keep the script running and display a message every 60 seconds
+
+To use this script, save it as "run.sh" in the same directory as your "server.py" and "index.html" files, make it executable with `chmod +x run.sh`, and then run it with `./run.sh`. This will start your Web Search Agent server on the specified port (5453).

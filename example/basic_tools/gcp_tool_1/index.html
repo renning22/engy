@@ -1,0 +1,190 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GCP Instance Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .instance-card {
+            margin-bottom: 20px;
+        }
+        .status-running {
+            color: green;
+        }
+        .status-stopped {
+            color: red;
+        }
+        #loadingSpinner {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">GCP Instance Manager</h1>
+        <div class="text-end mb-3">
+            <button id="refreshBtn" class="btn btn-primary">Refresh</button>
+        </div>
+        <div id="instanceList" class="row"></div>
+        <div id="loadingSpinner" class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SSH Command Modal -->
+    <div class="modal fade" id="sshModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">SSH Command</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <pre id="sshCommand"></pre>
+                    <button id="copySSHBtn" class="btn btn-secondary mt-2">Copy to Clipboard</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_URL = 'http://localhost:6183';
+        let instances = [];
+        let refreshInterval;
+
+        function showLoading() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+
+        function showError(message) {
+            alert(message);
+        }
+
+        async function fetchInstances() {
+            showLoading();
+            try {
+                const response = await fetch(`${API_URL}/instances`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch instances');
+                }
+                instances = await response.json();
+                renderInstances();
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function renderInstances() {
+            const instanceList = document.getElementById('instanceList');
+            instanceList.innerHTML = '';
+            instances.forEach(instance => {
+                const card = document.createElement('div');
+                card.className = 'col-md-4 instance-card';
+                card.innerHTML = `
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">${instance.name}</h5>
+                            <p class="card-text">Status: <span class="status-${instance.status.toLowerCase()}">${instance.status}</span></p>
+                            <p class="card-text">Zone: ${instance.zone}</p>
+                            <button class="btn btn-primary ssh-btn" data-instance="${instance.name}" data-zone="${instance.zone}">SSH</button>
+                            <button class="btn btn-danger kill-btn" data-instance="${instance.name}" data-zone="${instance.zone}">Kill</button>
+                        </div>
+                    </div>
+                `;
+                instanceList.appendChild(card);
+            });
+        }
+
+        async function getSSHCommand(instanceName, zone) {
+            try {
+                const response = await fetch(`${API_URL}/ssh`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name: instanceName, zone: zone }),
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to get SSH command');
+                }
+                const data = await response.json();
+                return data.ssh_command;
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        async function killInstance(instanceName, zone) {
+            if (!confirm(`Are you sure you want to kill instance ${instanceName}?`)) {
+                return;
+            }
+            showLoading();
+            try {
+                const response = await fetch(`${API_URL}/kill`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name: instanceName, zone: zone }),
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to kill instance');
+                }
+                await fetchInstances();
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        document.getElementById('refreshBtn').addEventListener('click', fetchInstances);
+
+        document.getElementById('instanceList').addEventListener('click', async (event) => {
+            if (event.target.classList.contains('ssh-btn')) {
+                const instanceName = event.target.dataset.instance;
+                const zone = event.target.dataset.zone;
+                const sshCommand = await getSSHCommand(instanceName, zone);
+                document.getElementById('sshCommand').textContent = sshCommand;
+                new bootstrap.Modal(document.getElementById('sshModal')).show();
+            } else if (event.target.classList.contains('kill-btn')) {
+                const instanceName = event.target.dataset.instance;
+                const zone = event.target.dataset.zone;
+                await killInstance(instanceName, zone);
+            }
+        });
+
+        document.getElementById('copySSHBtn').addEventListener('click', () => {
+            const sshCommand = document.getElementById('sshCommand').textContent;
+            navigator.clipboard.writeText(sshCommand).then(() => {
+                alert('SSH command copied to clipboard!');
+            });
+        });
+
+        function startAutoRefresh() {
+            refreshInterval = setInterval(fetchInstances, 30000);
+        }
+
+        function stopAutoRefresh() {
+            clearInterval(refreshInterval);
+        }
+
+        window.addEventListener('focus', startAutoRefresh);
+        window.addEventListener('blur', stopAutoRefresh);
+
+        fetchInstances();
+        startAutoRefresh();
+    </script>
+</body>
+</html>

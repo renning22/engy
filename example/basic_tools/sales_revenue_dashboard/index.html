@@ -1,0 +1,201 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+        }
+        main {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 1rem;
+            flex-grow: 1;
+        }
+        section {
+            flex: 1;
+            min-width: 300px;
+            margin: 0.5rem;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        h1, h2 {
+            margin-top: 0;
+        }
+        #quarterlyChart, #breakdownChart {
+            width: 100%;
+            height: 300px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Sales Dashboard</h1>
+    </header>
+    <main>
+        <section id="dashboard">
+            <h2>Quarterly Revenue</h2>
+            <canvas id="quarterlyChart"></canvas>
+            <h2>Quarterly Breakdown</h2>
+            <canvas id="breakdownChart"></canvas>
+        </section>
+        <section id="salesReport">
+            <h2>Sales Report</h2>
+            <div id="reportContent"></div>
+            <button id="generateReport">Generate Report</button>
+            <button id="downloadReport">Download Report</button>
+        </section>
+    </main>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5008/api';
+        let quarterlyChart, breakdownChart;
+
+        async function fetchQuarterlyRevenue() {
+            const response = await fetch(`${API_BASE_URL}/quarterly_revenue`);
+            return await response.json();
+        }
+
+        async function fetchQuarterlyBreakdown(quarter) {
+            const response = await fetch(`${API_BASE_URL}/quarterly_breakdown/${quarter}`);
+            return await response.json();
+        }
+
+        async function fetchSalesReport() {
+            const response = await fetch(`${API_BASE_URL}/sales_report`);
+            return await response.text();
+        }
+
+        async function updateSalesReport(data) {
+            const response = await fetch(`${API_BASE_URL}/sales_report`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+            return await response.json();
+        }
+
+        function initQuarterlyChart(data) {
+            const ctx = document.getElementById('quarterlyChart').getContext('2d');
+            quarterlyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.quarter),
+                    datasets: [{
+                        label: 'Quarterly Revenue',
+                        data: data.map(d => d.revenue),
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            const quarter = data[elements[0].index].quarter;
+                            updateBreakdownChart(quarter);
+                        }
+                    }
+                }
+            });
+        }
+
+        function initBreakdownChart() {
+            const ctx = document.getElementById('breakdownChart').getContext('2d');
+            breakdownChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.6)',
+                            'rgba(54, 162, 235, 0.6)',
+                            'rgba(255, 206, 86, 0.6)',
+                            'rgba(75, 192, 192, 0.6)',
+                        ],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                }
+            });
+        }
+
+        async function updateBreakdownChart(quarter) {
+            const data = await fetchQuarterlyBreakdown(quarter);
+            breakdownChart.data.labels = data.map(d => d.product);
+            breakdownChart.data.datasets[0].data = data.map(d => d.revenue);
+            breakdownChart.update();
+        }
+
+        async function loadSalesReport() {
+            const reportHtml = await fetchSalesReport();
+            document.getElementById('reportContent').innerHTML = reportHtml;
+        }
+
+        document.getElementById('generateReport').addEventListener('click', loadSalesReport);
+
+        document.getElementById('downloadReport').addEventListener('click', async () => {
+            const reportHtml = await fetchSalesReport();
+            const blob = new Blob([reportHtml], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'sales_report.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        async function init() {
+            const quarterlyData = await fetchQuarterlyRevenue();
+            initQuarterlyChart(quarterlyData);
+            initBreakdownChart();
+            loadSalesReport();
+        }
+
+        init();
+    </script>
+</body>
+</html>

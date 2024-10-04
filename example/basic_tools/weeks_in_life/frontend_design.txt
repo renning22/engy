@@ -1,0 +1,29 @@
+
+The frontend will be a single HTML page with embedded JavaScript and CSS. It will have the following components:
+
+1. HTML structure:
+   - Title: "Life in Weeks"
+   - Input field for birthdate
+   - Button to submit birthdate
+   - Canvas element for drawing the chart
+   - Information display area for showing calculated weeks
+
+2. CSS styles:
+   - Center-align content
+   - Style input field, button, and canvas
+   - Create a grid layout for the week dots
+
+3. JavaScript:
+   - Function to handle form submission
+   - AJAX call to backend API to get calculated weeks
+   - Function to draw the chart using canvas
+   - Chart drawing:
+     - Create a 52x100 grid (52 weeks per year, 100 years)
+     - Color dots based on weeks lived (e.g., blue for lived weeks, gray for remaining)
+   - Update information display with calculated weeks
+
+4. Responsive design:
+   - Adjust canvas size and dot size based on screen width
+   - Ensure mobile-friendly layout
+
+The frontend will provide an interactive interface for users to input their birthdate and visualize their life in weeks using a dot chart.

@@ -1,0 +1,301 @@
+claude-3-5-sonnet-20240620
+
+You are an expert in Web development, including CSS, JavaScript, React, Tailwind, Node.JS and Hugo / Markdown. You are expert at selecting and choosing the best tools, and doing your utmost to avoid unnecessary duplication and complexity.
+When making a suggestion, you break things down in to discrete changes, and suggest a small test after each stage to make sure things are on the right track.
+Produce code to illustrate examples, or when directed to in the conversation. If you can answer without code, that is preferred, and you will be asked to elaborate if it is required.
+Before writing or suggesting code, you conduct a deep-dive review of the existing code and describe how it works between <CODE_REVIEW> tags. Once you have completed the review, you produce a careful plan for the change in <PLANNING> tags. Pay attention to variable names and string literals - when reproducing code make sure that these do not change unless necessary or directed. If naming something by convention surround in double colons and in ::UPPERCASE::.
+Finally, you produce correct outputs that provide the right balance between solving the immediate problem and remaining generic and flexible.
+You always ask for clarifications if anything is unclear or ambiguous. You stop to discuss trade-offs and implementation options if there are choices to make.
+It is important that you follow this approach, and do your best to teach your interlocutor about making effective decisions. You avoid apologising unnecessarily, and review the conversation to never repeat earlier mistakes.
+You are keenly aware of security, and make sure at every step that we don't do anything that could compromise data or introduce new vulnerabilities. Whenever there is a potential security risk (e.g. input handling, authentication management) you will do an additional review, showing your reasoning between <SECURITY_REVIEW> tags.
+Finally, it is important that everything produced is operationally sound. We consider how to host, manage, monitor and maintain our solutions. You consider operational concerns at every step, and highlight them where they are relevant.
+
+Assume the server is already running at `localhost:9878`, generate html code that connects to the server.  
+
+Final html code should be included in <INDEX_HTML_CODE></INDEX_HTML_CODE> block.
+
+
+=== 0: user ===
+Generate "server.py".
+Database has versions of a software called "Ning CRM" (e.g. three versions).
+The database also has few custormer with contact information and currrent using versions.
+=== 1: assistant ===
+Certainly! I'll create a "server.py" file that implements a simple Flask-based web server with in-memory data for the Ning CRM software versions and customer information. The server will be bound to localhost:9878 and will have CORS enabled.
+
+Here's the Python code for "server.py":
+
+<SERVER_PYTHON_CODE>
+from flask import Flask, jsonify
+from flask_cors import CORS
+import random
+
+app = Flask(__name__)
+CORS(app)
+
+# In-memory database
+crm_versions = [
+    {"id": 1, "version": "1.0.0", "release_date": "2023-01-15"},
+    {"id": 2, "version": "1.1.0", "release_date": "2023-06-30"},
+    {"id": 3, "version": "2.0.0", "release_date": "2024-01-10"}
+]
+
+customers = [
+    {
+        "id": 1,
+        "name": "Acme Corp",
+        "contact": "John Doe",
+        "email": "john.doe@acme.com",
+        "phone": "+1 (555) 123-4567",
+        "current_version": "1.1.0"
+    },
+    {
+        "id": 2,
+        "name": "TechSolutions Inc",
+        "contact": "Jane Smith",
+        "email": "jane.smith@techsolutions.com",
+        "phone": "+1 (555) 987-6543",
+        "current_version": "2.0.0"
+    },
+    {
+        "id": 3,
+        "name": "Global Enterprises",
+        "contact": "Bob Johnson",
+        "email": "bob.johnson@globalent.com",
+        "phone": "+1 (555) 246-8135",
+        "current_version": "1.0.0"
+    }
+]
+
+@app.route('/api/versions', methods=['GET'])
+def get_versions():
+    return jsonify(crm_versions)
+
+@app.route('/api/customers', methods=['GET'])
+def get_customers():
+    return jsonify(customers)
+
+@app.route('/api/customer/<int:customer_id>', methods=['GET'])
+def get_customer(customer_id):
+    customer = next((c for c in customers if c['id'] == customer_id), None)
+    if customer:
+        return jsonify(customer)
+    else:
+        return jsonify({"error": "Customer not found"}), 404
+
+@app.route('/api/customer/<int:customer_id>/version', methods=['GET'])
+def get_customer_version(customer_id):
+    customer = next((c for c in customers if c['id'] == customer_id), None)
+    if customer:
+        return jsonify({"current_version": customer['current_version']})
+    else:
+        return jsonify({"error": "Customer not found"}), 404
+
+if __name__ == '__main__':
+    app.run(host='localhost', port=9878, debug=True)
+</SERVER_PYTHON_CODE>
+
+This server.py file includes the following features:
+
+1. It uses Flask and Flask-CORS to create a web server with CORS enabled.
+2. The server is bound to localhost:9878.
+3. It has in-memory databases for CRM versions and customer information.
+4. It provides the following API endpoints:
+   - GET /api/versions: Returns all CRM versions
+   - GET /api/customers: Returns all customers
+   - GET /api/customer/<customer_id>: Returns information for a specific customer
+   - GET /api/customer/<customer_id>/version: Returns the current version for a specific customer
+
+To run this server, you'll need to install the required dependencies:
+
+```
+pip install flask flask-cors
+```
+
+Then you can run the server using:
+
+```
+python server.py
+```
+
+The server will start and listen on http://localhost:9878. You can then use these API endpoints to retrieve information about Ning CRM versions and customers.
+=== 2: user ===
+Generate "index.html" that connect to the server.
+The "index.html" should function: Generate workflow page that:
+1. show all versions and all custormers.
+2. I can select custormer by versions and send them version update emails by clicking a button.
+3. Show my the content of the email being sent.
+
+=== Reply 0 ===
+Certainly! I'll create an "index.html" file that connects to the server and implements the functionality you've described. First, let's review the requirements and plan our approach.
+
+<PLANNING>
+1. Create a basic HTML structure with necessary CSS and JavaScript.
+2. Fetch and display all versions and customers from the server.
+3. Implement a filtering mechanism to select customers by version.
+4. Create a function to generate and display email content for version updates.
+5. Implement a button to "send" emails (we'll simulate this action).
+6. Use Tailwind CSS for styling to keep the design clean and responsive.
+</PLANNING>
+
+Now, let's create the "index.html" file:
+
+<INDEX_HTML_CODE>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ning CRM Version Update Workflow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">Ning CRM Version Update Workflow</h1>
+        
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-2">CRM Versions</h2>
+            <ul id="versions" class="list-disc pl-6"></ul>
+        </div>
+        
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-2">Customers</h2>
+            <select id="versionFilter" class="mb-4 p-2 border rounded">
+                <option value="all">All Versions</option>
+            </select>
+            <ul id="customers" class="space-y-4"></ul>
+        </div>
+        
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-2">Email Preview</h2>
+            <div id="emailPreview" class="bg-white p-4 border rounded"></div>
+        </div>
+        
+        <button id="sendEmails" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Send Update Emails</button>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:9878/api';
+        let versions = [];
+        let customers = [];
+        let selectedCustomers = [];
+
+        async function fetchData() {
+            const versionsResponse = await fetch(`${API_BASE_URL}/versions`);
+            versions = await versionsResponse.json();
+            
+            const customersResponse = await fetch(`${API_BASE_URL}/customers`);
+            customers = await customersResponse.json();
+            
+            displayVersions();
+            populateVersionFilter();
+            displayCustomers();
+        }
+
+        function displayVersions() {
+            const versionsList = document.getElementById('versions');
+            versionsList.innerHTML = versions.map(v => `<li>${v.version} (Released: ${v.release_date})</li>`).join('');
+        }
+
+        function populateVersionFilter() {
+            const versionFilter = document.getElementById('versionFilter');
+            versions.forEach(v => {
+                const option = document.createElement('option');
+                option.value = v.version;
+                option.textContent = v.version;
+                versionFilter.appendChild(option);
+            });
+        }
+
+        function displayCustomers() {
+            const customersList = document.getElementById('customers');
+            const selectedVersion = document.getElementById('versionFilter').value;
+            
+            const filteredCustomers = selectedVersion === 'all' 
+                ? customers 
+                : customers.filter(c => c.current_version === selectedVersion);
+            
+            customersList.innerHTML = filteredCustomers.map(c => `
+                <li class="bg-white p-4 rounded shadow">
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" value="${c.id}" class="customer-checkbox">
+                        <span>${c.name} (Current Version: ${c.current_version})</span>
+                    </label>
+                    <p class="mt-2 text-sm text-gray-600">Contact: ${c.contact} | Email: ${c.email} | Phone: ${c.phone}</p>
+                </li>
+            `).join('');
+            
+            updateSelectedCustomers();
+        }
+
+        function updateSelectedCustomers() {
+            const checkboxes = document.querySelectorAll('.customer-checkbox:checked');
+            selectedCustomers = Array.from(checkboxes).map(cb => customers.find(c => c.id === parseInt(cb.value)));
+            updateEmailPreview();
+        }
+
+        function updateEmailPreview() {
+            const emailPreview = document.getElementById('emailPreview');
+            if (selectedCustomers.length === 0) {
+                emailPreview.innerHTML = '<p class="text-gray-500">No customers selected</p>';
+                return;
+            }
+            
+            const latestVersion = versions[versions.length - 1].version;
+            const emailContent = `
+                <h3 class="font-semibold">Subject: Ning CRM Version Update Available</h3>
+                <p>Dear Valued Customer,</p>
+                <p>We are excited to announce that a new version of Ning CRM (${latestVersion}) is now available.</p>
+                <p>Your current version: [Customer's Current Version]</p>
+                <p>To update your CRM, please contact our support team.</p>
+                <p>Best regards,<br>Ning CRM Team</p>
+            `;
+            emailPreview.innerHTML = emailContent;
+        }
+
+        function sendEmails() {
+            if (selectedCustomers.length === 0) {
+                alert('Please select at least one customer to send the update email.');
+                return;
+            }
+            
+            const customerNames = selectedCustomers.map(c => c.name).join(', ');
+            alert(`Update emails sent to: ${customerNames}`);
+        }
+
+        document.getElementById('versionFilter').addEventListener('change', displayCustomers);
+        document.getElementById('customers').addEventListener('change', updateSelectedCustomers);
+        document.getElementById('sendEmails').addEventListener('click', sendEmails);
+
+        fetchData();
+    </script>
+</body>
+</html>
+</INDEX_HTML_CODE>
+
+This HTML file includes the following features:
+
+1. It uses Tailwind CSS for styling, loaded via CDN for simplicity.
+2. It displays all CRM versions and customers fetched from the server.
+3. It allows filtering customers by their current CRM version.
+4. Users can select multiple customers using checkboxes.
+5. It generates and displays an email preview for the selected customers.
+6. It has a button to simulate sending update emails to the selected customers.
+
+To use this file:
+
+1. Save it as "index.html" in the same directory as your "server.py" file.
+2. Make sure your server is running (python server.py).
+3. Open the "index.html" file in a web browser.
+
+The page will connect to the server running on localhost:9878 and fetch the necessary data. You can then interact with the page to filter customers, select them, and simulate sending update emails.
+
+<SECURITY_REVIEW>
+Security considerations:
+1. Cross-Origin Resource Sharing (CORS): The server is configured to allow CORS, which is necessary for this local development setup. In a production environment, you should restrict CORS to specific origins.
+2. Input validation: The client-side code doesn't perform extensive input validation. In a real-world scenario, you should implement proper input validation and sanitization on both client and server sides.
+3. Authentication and Authorization: This example doesn't include any authentication or authorization mechanisms. In a production environment, you should implement proper user authentication and role-based access control.
+4. HTTPS: For local development, we're using HTTP. In a production environment, always use HTTPS to encrypt data in transit.
+5. Error Handling: The current implementation doesn't have comprehensive error handling. In a production environment, you should implement proper error handling and logging.
+</SECURITY_REVIEW>
+
+This implementation provides a functional workflow for managing CRM version updates and sending emails to customers. However, it's important to note that this is a simplified version for demonstration purposes. In a real-world scenario, you would need to implement proper email sending functionality, error handling, and additional security measures.

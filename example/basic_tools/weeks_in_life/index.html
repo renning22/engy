@@ -1,0 +1,187 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life in Weeks</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            background-color: #f0f0f0;
+        }
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2vh;
+            box-sizing: border-box;
+        }
+        h1 {
+            margin: 0 0 2vh 0;
+            font-size: 3vh;
+        }
+        .input-container {
+            margin-bottom: 2vh;
+        }
+        input[type="date"] {
+            padding: 1vh;
+            margin-right: 1vh;
+            font-size: 2vh;
+        }
+        button {
+            padding: 1vh 2vh;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 2vh;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #weekChart {
+            max-width: 100%;
+            max-height: 80vh;
+        }
+        #info {
+            margin-top: 2vh;
+            font-weight: bold;
+            font-size: 2vh;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Life in Weeks</h1>
+        <div class="input-container">
+            <input type="date" id="birthdate" required>
+            <button onclick="calculateWeeks()">Calculate</button>
+        </div>
+        <canvas id="weekChart"></canvas>
+        <div id="info"></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('weekChart');
+        const ctx = canvas.getContext('2d');
+        const info = document.getElementById('info');
+
+        function calculateWeeks() {
+            const birthdate = document.getElementById('birthdate').value;
+            if (!birthdate) {
+                alert('Please enter your birthdate');
+                return;
+            }
+
+            fetch('http://localhost:9825/calculate_weeks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ birthdate }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    drawChart(data);
+                    updateInfo(data);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        }
+
+        function drawChart(data) {
+            const { weeks_lived, total_weeks } = data;
+            const rows = 100;
+            const cols = 52;
+            const aspectRatio = cols / rows;
+
+            const containerWidth = canvas.parentElement.clientWidth;
+            const containerHeight = window.innerHeight * 0.8; // 80% of viewport height
+
+            let canvasWidth, canvasHeight;
+
+            if (containerWidth / containerHeight > aspectRatio) {
+                canvasHeight = containerHeight;
+                canvasWidth = canvasHeight * aspectRatio;
+            } else {
+                canvasWidth = containerWidth;
+                canvasHeight = canvasWidth / aspectRatio;
+            }
+
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+
+            const dotSize = Math.floor(Math.min(canvasWidth / cols, canvasHeight / rows)) - 1;
+            const spacingX = canvasWidth / cols;
+            const spacingY = canvasHeight / rows;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < total_weeks; i++) {
+                const col = i % cols;
+                const row = Math.floor(i / cols);
+                const x = col * spacingX;
+                const y = row * spacingY;
+
+                ctx.beginPath();
+                ctx.arc(x + spacingX/2, y + spacingY/2, dotSize/2, 0, 2 * Math.PI);
+                ctx.fillStyle = i < weeks_lived ? '#007bff' : '#d0d0d0';
+                ctx.fill();
+            }
+        }
+
+        function updateInfo(data) {
+            const { weeks_lived, total_weeks, remaining_weeks } = data;
+            info.innerHTML = `
+                Weeks lived: ${weeks_lived}<br>
+                Weeks remaining: ${remaining_weeks}<br>
+                Total weeks in 100 years: ${total_weeks}
+            `;
+        }
+
+        function resizeCanvas() {
+            const containerWidth = canvas.parentElement.clientWidth;
+            const containerHeight = window.innerHeight * 0.8; // 80% of viewport height
+            const aspectRatio = 52 / 100;
+
+            let canvasWidth, canvasHeight;
+
+            if (containerWidth / containerHeight > aspectRatio) {
+                canvasHeight = containerHeight;
+                canvasWidth = canvasHeight * aspectRatio;
+            } else {
+                canvasWidth = containerWidth;
+                canvasHeight = canvasWidth / aspectRatio;
+            }
+
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+        }
+
+        resizeCanvas();
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            const birthdate = document.getElementById('birthdate').value;
+            if (birthdate) {
+                calculateWeeks();
+            }
+        });
+    </script>
+</body>
+</html>

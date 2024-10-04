@@ -1,0 +1,26 @@
+
+The backend will be a Python Flask server that handles API requests and interacts with the Airtable API. Here's an outline of the main components:
+
+1. Dependencies:
+   - Flask
+   - Requests (for Airtable API calls)
+   - Pandas (for data manipulation)
+
+2. Routes:
+   - GET /: Serve the main HTML page
+   - POST /connect: Connect to Airtable using provided API key and base ID
+   - GET /fetch_table: Fetch data from Airtable and return as JSON
+   - POST /update_table: Update Airtable with modified data
+   - GET /export_csv: Export current table data as CSV
+
+3. Main functions:
+   - connect_to_airtable(api_key, base_id): Establish connection to Airtable
+   - fetch_table_data(table_name): Retrieve data from specified Airtable table
+   - update_table_data(table_name, data): Update Airtable with modified data
+   - export_to_csv(data): Convert table data to CSV format
+
+4. Error handling:
+   - Handle API connection errors
+   - Validate input data
+
+The server will maintain a session to store the Airtable connection details and current table data.
