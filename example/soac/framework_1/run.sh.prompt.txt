@@ -5,7 +5,7 @@ You are experts in python 3.11, and familier with popular libraries, and also go
 
 You are currently on a task to write "run.sh" that:
 1. create a temp venv
-2. use pip to install all the required libaries (plus local library /data/engy/engy)
+2. use pip to install all the required libaries (plus local library /data/finae/engy)
 3. use python to start the webserver. ("python server.py")
 
 (Assume anaconda and pip are installed.)
@@ -20,7 +20,7 @@ E.g.
 python3 -m venv venv
 source venv/bin/activate
 
-pip install Flask websocket /data/engy/engy
+pip install Flask websocket /data/finae/engy
 
 python server.py
 </RUN_BASH_CODE>
@@ -639,7 +639,7 @@ source venv/bin/activate
 
 # Install required packages
 echo "Installing required packages..."
-pip install Flask flask-cors /data/engy/engy
+pip install Flask flask-cors /data/finae/engy
 
 # Start the server
 echo "Starting the server..."
@@ -669,4 +669,4 @@ The script will set up the environment and start the server. You should see outp
 
 Note: This script assumes that you have Python 3 installed on your system and that it's accessible via the `python3` command. If your Python 3 executable is named differently (e.g., just `python`), you may need to adjust the script accordingly.
 
-Also, make sure that the path to your local engy library (/data/engy/engy) is correct. If it's located elsewhere, update the path in the pip install command.
+Also, make sure that the path to your local engy library (/data/finae/engy) is correct. If it's located elsewhere, update the path in the pip install command.

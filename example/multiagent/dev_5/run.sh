@@ -18,7 +18,7 @@ pip install --upgrade pip
 
 # Install required libraries
 echo "Installing required libraries..."
-pip install flask flask-socketio flask-cors /data/engy/engy
+pip install flask flask-socketio flask-cors /data/finae/engy
 
 # Start the server
 echo "Starting the server..."

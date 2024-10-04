@@ -628,7 +628,7 @@ source venv/bin/activate
 
 # Install required packages
 echo "Installing required packages..."
-pip install Flask flask-cors /data/engy/engy
+pip install Flask flask-cors /data/finae/engy
 
 # Start the server
 echo "Starting the server..."
@@ -658,7 +658,7 @@ The script will set up the environment and start the server. You should see outp
 
 Note: This script assumes that you have Python 3 installed on your system and that it's accessible via the `python3` command. If your Python 3 executable is named differently (e.g., just `python`), you may need to adjust the script accordingly.
 
-Also, make sure that the path to your local engy library (/data/engy/engy) is correct. If it's located elsewhere, update the path in the pip install command.
+Also, make sure that the path to your local engy library (/data/finae/engy) is correct. If it's located elsewhere, update the path in the pip install command.
 === 10: user ===
 great! rename title to "Competitor Analysis", also add a text logo left top "Engy.ai".
 

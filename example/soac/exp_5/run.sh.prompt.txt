@@ -544,9 +544,9 @@ echo "Installing required libraries..."
 pip install Flask flask-cors flask-socketio
 
 # Install local library if it exists
-if [ -d "/data/engy/engy" ]; then
+if [ -d "/data/finae/engy" ]; then
     echo "Installing local engy library..."
-    pip install /data/engy/engy
+    pip install /data/finae/engy
 else
     echo "Local engy library not found. Skipping..."
 fi
@@ -1138,9 +1138,9 @@ echo "Installing required libraries..."
 pip install -r $REQUIREMENTS_FILE
 
 # Install local library if it exists
-if [ -d "/data/engy/engy" ]; then
+if [ -d "/data/finae/engy" ]; then
     echo "Installing local engy library..."
-    pip install /data/engy/engy
+    pip install /data/finae/engy
 else
     echo "Local engy library not found. Skipping..."
 fi

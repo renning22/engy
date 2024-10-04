@@ -5,7 +5,7 @@ You are experts in python 3.11, and familier with popular libraries, and also go
 
 You are currently on a task to write "run.sh" that:
 1. create a temp venv
-2. use pip to install all the required libaries (plus local library /data/engy/engy)
+2. use pip to install all the required libaries (plus local library /data/finae/engy)
 3. use python to start the webserver. ("python server.py")
 
 (Assume anaconda and pip are installed.)
@@ -20,7 +20,7 @@ E.g.
 python3 -m venv venv
 source venv/bin/activate
 
-pip install Flask websocket /data/engy/engy
+pip install Flask websocket /data/finae/engy
 
 python server.py
 </RUN_BASH_CODE>
@@ -1300,11 +1300,11 @@ echo "Installing required libraries..."
 pip install Flask Flask-SQLAlchemy Flask-CORS Werkzeug Flask-HTTPAuth sqlalchemy-fulltext
 
 # Check if the local library exists and install it
-if [ -d "/data/engy/engy" ]; then
+if [ -d "/data/finae/engy" ]; then
     echo "Installing local library..."
-    pip install /data/engy/engy
+    pip install /data/finae/engy
 else
-    echo "Local library not found at /data/engy/engy. Skipping..."
+    echo "Local library not found at /data/finae/engy. Skipping..."
 fi
 
 # Start the server
@@ -1324,7 +1324,7 @@ This script does the following:
    - Werkzeug
    - Flask-HTTPAuth
    - sqlalchemy-fulltext
-5. Checks if the local library at "/data/engy/engy" exists and installs it if it does.
+5. Checks if the local library at "/data/finae/engy" exists and installs it if it does.
 6. Starts the server by running "server.py".
 
 To use this script:
@@ -1349,7 +1349,7 @@ The script itself doesn't introduce any significant security concerns, but here 
 1. The script uses a virtual environment, which is good practice for isolating dependencies.
 2. It upgrades pip, which helps ensure you're using the latest version with security fixes.
 3. The script installs packages from PyPI, which is generally safe but can potentially be a vector for supply chain attacks. Always be cautious when adding new dependencies.
-4. The local library installation (/data/engy/engy) assumes trust in that local code. Ensure that this directory is properly secured and that the code is trustworthy.
+4. The local library installation (/data/finae/engy) assumes trust in that local code. Ensure that this directory is properly secured and that the code is trustworthy.
 
 For production use, consider:
 1. Pinning dependency versions to ensure reproducibility and avoid unexpected updates.

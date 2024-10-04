@@ -18,7 +18,7 @@ pip install --upgrade pip
 
 # Install required libraries
 echo "Installing required libraries..."
-pip install Flask flask-cors flask-socketio /data/engy/engy
+pip install Flask flask-cors flask-socketio /data/finae/engy
 
 # Start the server
 echo "Starting the Customer Review Manager server..."

@@ -1323,10 +1323,10 @@ pip install --upgrade pip
 echo "Installing required packages..."
 pip install Flask Flask-SQLAlchemy Flask-CORS marshmallow
 
-# Check if /data/engy/engy exists and install it if it does
-if [ -d "/data/engy/engy" ]; then
+# Check if /data/finae/engy exists and install it if it does
+if [ -d "/data/finae/engy" ]; then
     echo "Installing local engy package..."
-    pip install /data/engy/engy
+    pip install /data/finae/engy
 fi
 
 # Run the server
@@ -1340,7 +1340,7 @@ This script does the following:
 2. Activates the virtual environment.
 3. Upgrades pip to the latest version.
 4. Installs the required packages: Flask, Flask-SQLAlchemy, Flask-CORS, and marshmallow.
-5. Checks if the local package `/data/engy/engy` exists and installs it if it does.
+5. Checks if the local package `/data/finae/engy` exists and installs it if it does.
 6. Starts the server by running `python server.py`.
 
 To use this script:
@@ -1361,31 +1361,31 @@ Note: This script assumes you're using a Unix-like system (Linux or macOS). If y
 === 10: user ===
 Fix bug:
 <BUG>Traceback (most recent call last):
-  File "/data/engy/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 1498, in __call__
+  File "/data/finae/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 1498, in __call__
     return self.wsgi_app(environ, start_response)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/data/engy/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 1476, in wsgi_app
+  File "/data/finae/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 1476, in wsgi_app
     response = self.handle_exception(e)
                ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/data/engy/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask_cors/extension.py", line 178, in wrapped_function
+  File "/data/finae/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask_cors/extension.py", line 178, in wrapped_function
     return cors_after_request(app.make_response(f(*args, **kwargs)))
                                                 ^^^^^^^^^^^^^^^^^^^^
-  File "/data/engy/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 1473, in wsgi_app
+  File "/data/finae/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 1473, in wsgi_app
     response = self.full_dispatch_request()
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/data/engy/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 882, in full_dispatch_request
+  File "/data/finae/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 882, in full_dispatch_request
     rv = self.handle_user_exception(e)
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/data/engy/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask_cors/extension.py", line 178, in wrapped_function
+  File "/data/finae/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask_cors/extension.py", line 178, in wrapped_function
     return cors_after_request(app.make_response(f(*args, **kwargs)))
                                                 ^^^^^^^^^^^^^^^^^^^^
-  File "/data/engy/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 880, in full_dispatch_request
+  File "/data/finae/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 880, in full_dispatch_request
     rv = self.dispatch_request()
          ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/data/engy/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 865, in dispatch_request
+  File "/data/finae/engy/demo/retool/account_manager_1/venv/lib/python3.11/site-packages/flask/app.py", line 865, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/data/engy/engy/demo/retool/account_manager_1/server.py", line 79, in add_transaction
+  File "/data/finae/engy/demo/retool/account_manager_1/server.py", line 79, in add_transaction
     return transaction_schema.jsonify(new_transaction), 201
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 AttributeError: 'TransactionSchema' object has no attribute 'jsonify'</BUG>
