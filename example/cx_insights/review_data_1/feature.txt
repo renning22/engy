@@ -17,7 +17,7 @@ def generate_random_review():
 
 Use an agent to produce the review.
 
-Agent is defined at "from finae import airbnb_review_agent"
+Agent is defined at "from engy import airbnb_review_agent"
 
 ```
 def airbnb_review_agent(producer: Callable[[dict], None], num_reviews: int = 1):

@@ -18,7 +18,7 @@ from typing import Callable
 from flask import Flask, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 from flask_socketio import SocketIO
-from finae import airbnb_review_agent
+from engy import airbnb_review_agent
 
 app = Flask(__name__)
 CORS(app)
@@ -481,7 +481,7 @@ pip install --upgrade pip
 
 # Install required libraries
 echo "Installing required libraries..."
-pip install Flask flask-cors flask-socketio /data/finae/engy
+pip install Flask flask-cors flask-socketio /data/engy/engy
 
 # Start the server
 echo "Starting the Customer Review Manager server..."
@@ -525,7 +525,7 @@ import random
 import time
 from typing import Callable
 
-from finae import query_llm
+from engy import query_llm
 
 SYSTEM_PROMPT = '''**Role:** You are a creative review generation agent for Airbnb.
 
@@ -616,7 +616,7 @@ from typing import Callable
 from flask import Flask, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 from flask_socketio import SocketIO
-from finae import airbnb_review_agent, query_llm
+from engy import airbnb_review_agent, query_llm
 
 app = Flask(__name__)
 CORS(app)

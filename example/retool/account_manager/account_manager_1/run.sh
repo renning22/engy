@@ -20,10 +20,10 @@ pip install --upgrade pip
 echo "Installing required packages..."
 pip install Flask Flask-SQLAlchemy Flask-CORS marshmallow
 
-# Check if /data/finae/engy exists and install it if it does
-if [ -d "/data/finae/engy" ]; then
-    echo "Installing local finae package..."
-    pip install /data/finae/engy
+# Check if /data/engy/engy exists and install it if it does
+if [ -d "/data/engy/engy" ]; then
+    echo "Installing local engy package..."
+    pip install /data/engy/engy
 fi
 
 # Run the server

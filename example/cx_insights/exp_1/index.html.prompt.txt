@@ -18,7 +18,7 @@ from flask import Flask, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 from flask_socketio import SocketIO
 
-from finae import web_search_agent, web_scraper_agent
+from engy import web_search_agent, web_scraper_agent
 
 app = Flask(__name__)
 CORS(app)
@@ -717,7 +717,7 @@ from flask import Flask, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 from flask_socketio import SocketIO
 
-from finae import web_search_agent, web_scraper_agent
+from engy import web_search_agent, web_scraper_agent
 
 app = Flask(__name__)
 CORS(app)

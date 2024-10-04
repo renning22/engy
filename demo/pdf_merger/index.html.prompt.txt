@@ -409,8 +409,8 @@ Make the style match the entrance page, and make them consistent look like the s
     <link rel="icon" href="/favicon.ico"/>
     <meta property="og:title" content="Finae AI"/>
     <meta property="og:description" content="Generate fully working AI tools in seconds"/>
-    <meta property="og:url" content="https://finae.ai/"/>
-    <meta property="og:image" content="https://finae.ai/og-image.png"/>
+    <meta property="og:url" content="https://engy.ai/"/>
+    <meta property="og:image" content="https://engy.ai/og-image.png"/>
     <meta name="twitter:title" content="Finae AI"/>
     <meta name="twitter:description" content="Generate fully working AI tools in seconds"/>
     <meta name="twitter:image" content="/og-image.png"/>
@@ -632,7 +632,7 @@ Make the style match the entrance page, and make them consistent look like the s
         </main>
         <footer>
             <p>&copy; 2024 Finae Labs Inc. All rights reserved.</p>
-            <p>Contact us at <a href="mailto:founders@finae.ai">founders@finae.ai</a></p>
+            <p>Contact us at <a href="mailto:founders@engy.ai">founders@engy.ai</a></p>
         </footer>
     </div>
     <script>
@@ -858,8 +858,8 @@ Certainly! Here's the updated index.html file with the new UI styles to match th
     <link rel="icon" href="/favicon.ico"/>
     <meta property="og:title" content="PDF & Document Merger - Finae AI"/>
     <meta property="og:description" content="Merge multiple PDFs or Word documents into one PDF"/>
-    <meta property="og:url" content="https://finae.ai/"/>
-    <meta property="og:image" content="https://finae.ai/og-image.png"/>
+    <meta property="og:url" content="https://engy.ai/"/>
+    <meta property="og:image" content="https://engy.ai/og-image.png"/>
     <meta name="twitter:title" content="PDF & Document Merger - Finae AI"/>
     <meta name="twitter:description" content="Merge multiple PDFs or Word documents into one PDF"/>
     <meta name="twitter:image" content="/og-image.png"/>
@@ -1022,7 +1022,7 @@ Certainly! Here's the updated index.html file with the new UI styles to match th
         </main>
         <footer>
             <p>&copy; 2024 Finae Labs Inc. All rights reserved.</p>
-            <p>Contact us at <a href="mailto:founders@finae.ai">founders@finae.ai</a></p>
+            <p>Contact us at <a href="mailto:founders@engy.ai">founders@engy.ai</a></p>
         </footer>
     </div>
     <script>

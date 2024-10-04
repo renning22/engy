@@ -20,7 +20,7 @@ pip install --upgrade pip
 
 # Install required libraries
 echo "Installing required libraries..."
-pip install flask flask-socketio flask-cors /data/finae/engy
+pip install flask flask-socketio flask-cors /data/engy/engy
 
 # Check if server.py exists
 if [ ! -f "server.py" ]; then

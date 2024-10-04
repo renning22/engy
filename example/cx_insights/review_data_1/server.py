@@ -10,7 +10,7 @@ from typing import Callable
 from flask import Flask, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 from flask_socketio import SocketIO
-from finae import airbnb_review_agent
+from engy import airbnb_review_agent
 
 app = Flask(__name__)
 CORS(app)

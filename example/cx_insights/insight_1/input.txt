@@ -15,7 +15,7 @@ import random
 import time
 from typing import Callable
 
-from finae import query_llm
+from engy import query_llm
 
 SYSTEM_PROMPT = '''**Role:** You are a creative review generation agent for Airbnb.
 

@@ -18,7 +18,7 @@ from flask import Flask, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 from flask_socketio import SocketIO
 
-from finae import web_search_agent, web_scraper_agent
+from engy import web_search_agent, web_scraper_agent
 
 app = Flask(__name__)
 CORS(app)
@@ -717,7 +717,7 @@ from flask import Flask, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 from flask_socketio import SocketIO
 
-from finae import web_search_agent, web_scraper_agent
+from engy import web_search_agent, web_scraper_agent
 
 app = Flask(__name__)
 CORS(app)
@@ -1427,7 +1427,7 @@ pip install --upgrade pip
 
 # Install required libraries
 echo "Installing required libraries..."
-pip install Flask flask-cors flask-socketio finae
+pip install Flask flask-cors flask-socketio engy
 
 # Start the server
 echo "Starting the UX Insights Dashboard server..."
@@ -1442,8 +1442,8 @@ done
 
 The main changes in this updated "run.sh" script are:
 
-1. Added the installation of the `finae` library, which is used in the server.py file for web search and scraping functionality.
+1. Added the installation of the `engy` library, which is used in the server.py file for web search and scraping functionality.
 2. Updated the echo message to reflect the new name "UX Insights Dashboard".
 3. Changed the port number in the echo message to 8179 to match the new server configuration.
 
-These changes ensure that all necessary dependencies are installed, including the new `finae` library. The rest of the script remains largely the same, maintaining the simplicity and functionality of the original version.
+These changes ensure that all necessary dependencies are installed, including the new `engy` library. The rest of the script remains largely the same, maintaining the simplicity and functionality of the original version.

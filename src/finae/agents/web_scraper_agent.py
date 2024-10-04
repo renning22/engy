@@ -16,4 +16,4 @@ def _terminal_producer(entity):
 
 
 if __name__ == '__main__':
-    web_scraper_agent('https://finae.ai', _terminal_producer)
+    web_scraper_agent('https://engy.ai', _terminal_producer)

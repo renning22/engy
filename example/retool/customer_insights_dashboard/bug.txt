@@ -1,66 +1,66 @@
 Starting the server...
 Traceback (most recent call last):
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
     self.dialect.do_execute(
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 941, in do_execute
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 941, in do_execute
     cursor.execute(statement, parameters)
 sqlite3.OperationalError: near "(": syntax error
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/server.py", line 146, in <module>
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/server.py", line 146, in <module>
     db.create_all()
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/flask_sqlalchemy/extension.py", line 900, in create_all
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/flask_sqlalchemy/extension.py", line 900, in create_all
     self._call_for_binds(bind_key, "create_all")
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/flask_sqlalchemy/extension.py", line 881, in _call_for_binds
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/flask_sqlalchemy/extension.py", line 881, in _call_for_binds
     getattr(metadata, op_name)(bind=engine)
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/sql/schema.py", line 5866, in create_all
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/sql/schema.py", line 5866, in create_all
     bind._run_ddl_visitor(
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3253, in _run_ddl_visitor
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3253, in _run_ddl_visitor
     conn._run_ddl_visitor(visitorcallable, element, **kwargs)
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2459, in _run_ddl_visitor
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2459, in _run_ddl_visitor
     visitorcallable(self.dialect, self, **kwargs).traverse_single(element)
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/sql/visitors.py", line 664, in traverse_single
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/sql/visitors.py", line 664, in traverse_single
     return meth(obj, **kw)
            ^^^^^^^^^^^^^^^
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/sql/ddl.py", line 918, in visit_metadata
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/sql/ddl.py", line 918, in visit_metadata
     self.traverse_single(
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/sql/visitors.py", line 664, in traverse_single
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/sql/visitors.py", line 664, in traverse_single
     return meth(obj, **kw)
            ^^^^^^^^^^^^^^^
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/sql/ddl.py", line 938, in visit_table
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/sql/ddl.py", line 938, in visit_table
     with self.with_ddl_events(
-  File "/data2/anaconda3/envs/finae/lib/python3.11/contextlib.py", line 144, in __exit__
+  File "/data2/anaconda3/envs/engy/lib/python3.11/contextlib.py", line 144, in __exit__
     next(self.gen)
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/sql/ddl.py", line 826, in with_ddl_events
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/sql/ddl.py", line 826, in with_ddl_events
     target.dispatch.after_create(
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/event/attr.py", line 497, in __call__
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/event/attr.py", line 497, in __call__
     fn(*args, **kw)
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/sql/ddl.py", line 319, in __call__
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/sql/ddl.py", line 319, in __call__
     self.against(target)._invoke_with(bind)
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/sql/ddl.py", line 314, in _invoke_with
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/sql/ddl.py", line 314, in _invoke_with
     return bind.execute(self)
            ^^^^^^^^^^^^^^^^^^
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1418, in execute
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1418, in execute
     return meth(
            ^^^^^
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/sql/ddl.py", line 180, in _execute_on_connection
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/sql/ddl.py", line 180, in _execute_on_connection
     return connection._execute_ddl(
            ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1529, in _execute_ddl
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1529, in _execute_ddl
     ret = self._execute_context(
           ^^^^^^^^^^^^^^^^^^^^^^
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
     return self._exec_single_context(
            ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
     self._handle_dbapi_exception(
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2355, in _handle_dbapi_exception
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2355, in _handle_dbapi_exception
     raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
     self.dialect.do_execute(
-  File "/data/finae/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 941, in do_execute
+  File "/data/engy/engy/demo/retool/customer_insights_dashboard/venv/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 941, in do_execute
     cursor.execute(statement, parameters)
 sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) near "(": syntax error
 [SQL: ALTER TABLE customers ADD FULLTEXT (name, email)]

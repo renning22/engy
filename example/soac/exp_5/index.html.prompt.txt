@@ -37,7 +37,7 @@ from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from flask_socketio import SocketIO
 
-from finae import web_search_agent
+from engy import web_search_agent
 
 app = Flask(__name__)
 CORS(app)
@@ -579,11 +579,11 @@ echo "Installing required libraries..."
 pip install -r $REQUIREMENTS_FILE
 
 # Install local library if it exists
-if [ -d "/data/finae/engy" ]; then
-    echo "Installing local finae library..."
-    pip install /data/finae/engy
+if [ -d "/data/engy/engy" ]; then
+    echo "Installing local engy library..."
+    pip install /data/engy/engy
 else
-    echo "Local finae library not found. Skipping..."
+    echo "Local engy library not found. Skipping..."
 fi
 
 # Check if server.py exists

@@ -142,4 +142,4 @@ def _terminal_producer(entity):
 
 
 if __name__ == '__main__':
-    web_search_agent('finae.ai', _terminal_producer)
+    web_search_agent('engy.ai', _terminal_producer)

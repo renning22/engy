@@ -5,7 +5,7 @@ You are experts in python 3.11, and familier with popular libraries, and also go
 
 You are currently on a task to write "run.sh" that:
 1. create a temp venv
-2. use pip to install all the required libaries (plus local library /data/finae/engy)
+2. use pip to install all the required libaries (plus local library /data/engy/engy)
 3. use python to start the webserver. ("python server.py")
 
 (Assume anaconda and pip are installed.)
@@ -20,7 +20,7 @@ E.g.
 python3 -m venv venv
 source venv/bin/activate
 
-pip install Flask websocket /data/finae/engy
+pip install Flask websocket /data/engy/engy
 
 python server.py
 </RUN_BASH_CODE>
@@ -1287,8 +1287,8 @@ pip install --upgrade pip
 # Install required libraries
 pip install Flask Flask-CORS
 
-# Install local library (assuming it's in /data/finae/engy)
-pip install /data/finae/engy
+# Install local library (assuming it's in /data/engy/engy)
+pip install /data/engy/engy
 
 # Start the server
 python server.py
@@ -1300,7 +1300,7 @@ This script does the following:
 2. Activates the virtual environment.
 3. Upgrades pip to the latest version.
 4. Installs the required libraries: Flask and Flask-CORS.
-5. Installs the local library from /data/finae/engy (as per your requirements).
+5. Installs the local library from /data/engy/engy (as per your requirements).
 6. Starts the server by running server.py.
 
 To use this script:
@@ -1315,6 +1315,6 @@ To use this script:
    ./run.sh
    ```
 
-This script assumes that Python 3 is installed on your system and is accessible via the `python3` command. It also assumes that the local library is located at `/data/finae/engy`. If the library is located elsewhere or has a different name, you'll need to adjust the path in the script.
+This script assumes that Python 3 is installed on your system and is accessible via the `python3` command. It also assumes that the local library is located at `/data/engy/engy`. If the library is located elsewhere or has a different name, you'll need to adjust the path in the script.
 
 After running this script, your virtual environment will be set up with all the required libraries, and the server will start. You can then access your dashboard by opening a web browser and navigating to `http://localhost:5123/`.

@@ -18,7 +18,7 @@ from typing import Callable
 from flask import Flask, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 from flask_socketio import SocketIO
-from finae import airbnb_review_agent, query_llm
+from engy import airbnb_review_agent, query_llm
 
 app = Flask(__name__)
 CORS(app)
@@ -679,7 +679,7 @@ pip install --upgrade pip
 
 # Install required libraries
 echo "Installing required libraries..."
-pip install Flask flask-cors flask-socketio /data/finae/engy
+pip install Flask flask-cors flask-socketio /data/engy/engy
 
 # Start the server
 echo "Starting the Airbnb Review and Insights Manager server..."
@@ -730,7 +730,7 @@ from typing import Callable
 from flask import Flask, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 from flask_socketio import SocketIO
-from finae import airbnb_review_agent, query_llm
+from engy import airbnb_review_agent, query_llm
 
 app = Flask(__name__)
 CORS(app)
@@ -1579,7 +1579,7 @@ pip install --upgrade pip
 
 # Install required libraries
 echo "Installing required libraries..."
-pip install Flask flask-cors flask-socketio /data/finae/engy
+pip install Flask flask-cors flask-socketio /data/engy/engy
 
 # Start the server
 echo "Starting the Airbnb Review and Insights Manager server..."
@@ -1596,6 +1596,6 @@ In this updated "run.sh" script, the main changes are:
 
 1. The port number mentioned in the echo statement has been updated to 6442 to match the new port used in the server.py file.
 
-2. No new dependencies were added since the existing libraries (Flask, flask-cors, flask-socketio, and finae) are sufficient for the updated functionality.
+2. No new dependencies were added since the existing libraries (Flask, flask-cors, flask-socketio, and engy) are sufficient for the updated functionality.
 
 The rest of the script remains the same, as it already covers the necessary steps to set up the virtual environment, install dependencies, and run the server. This script will work with the updated server.py and index.html files to run the Airbnb Review and Insights Manager with the new features.

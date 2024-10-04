@@ -23,11 +23,11 @@ echo "Installing required libraries..."
 pip install Flask Flask-SQLAlchemy Flask-CORS Werkzeug Flask-HTTPAuth SQLAlchemy-FullText-Search
 
 # Check if the local library exists and install it
-if [ -d "/data/finae/engy" ]; then
+if [ -d "/data/engy/engy" ]; then
     echo "Installing local library..."
-    pip install /data/finae/engy
+    pip install /data/engy/engy
 else
-    echo "Local library not found at /data/finae/engy. Skipping..."
+    echo "Local library not found at /data/engy/engy. Skipping..."
 fi
 
 # Start the server

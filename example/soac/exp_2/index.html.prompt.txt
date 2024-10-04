@@ -786,11 +786,11 @@ echo "Installing required libraries..."
 pip install Flask flask-cors
 
 # Install local library if it exists
-if [ -d "/data/finae/engy" ]; then
-    echo "Installing local finae library..."
-    pip install /data/finae/engy
+if [ -d "/data/engy/engy" ]; then
+    echo "Installing local engy library..."
+    pip install /data/engy/engy
 else
-    echo "Local finae library not found. Skipping..."
+    echo "Local engy library not found. Skipping..."
 fi
 
 # Start the server
@@ -804,7 +804,7 @@ This script does the following:
 2. Activates the virtual environment.
 3. Upgrades pip to the latest version.
 4. Installs the required libraries (Flask and flask-cors).
-5. Attempts to install the local finae library if it exists in the specified path.
+5. Attempts to install the local engy library if it exists in the specified path.
 6. Starts the server by running server.py.
 
 To use this script:
@@ -1011,11 +1011,11 @@ echo "Installing required libraries..."
 pip install Flask flask-cors flask-socketio
 
 # Install local library if it exists
-if [ -d "/data/finae/engy" ]; then
-    echo "Installing local finae library..."
-    pip install /data/finae/engy
+if [ -d "/data/engy/engy" ]; then
+    echo "Installing local engy library..."
+    pip install /data/engy/engy
 else
-    echo "Local finae library not found. Skipping..."
+    echo "Local engy library not found. Skipping..."
 fi
 
 # Start the server

@@ -1,7 +1,7 @@
-from finae import Agent
+from engy import Agent
 
-# finae.Agent is my agent implementation.
-# The overview of finae.Agent class. 
+# engy.Agent is my agent implementation.
+# The overview of engy.Agent class. 
 # 
 # class Agent:
 #   def __init__(self, name, role, goal, backstory, tools, task_description, expected_output, send_to, receive_from):

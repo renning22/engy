@@ -3,14 +3,14 @@
 # package, this name will be registered for you. It will determine how
 # users can install this project, e.g.:
 #
-# $ pip install finae
+# $ pip install engy
 #
 # And where it will live on PyPI: https://pypi.org/project/sampleproject/
 #
 # There are some restrictions on what makes a valid project name
 # specification here:
 # https://packaging.python.org/specifications/core-metadata/#name
-name = "finae"  # Required
+name = "engy"  # Required
 
 # Versions should comply with PEP 440:
 # https://www.python.org/dev/peps/pep-0440/
@@ -118,7 +118,7 @@ dependencies = [
 # dependencies). Users will be able to install these using the "extras"
 # syntax, for example:
 #
-#   $ pip install finae[dev]
+#   $ pip install engy[dev]
 #
 # Similar to `dependencies` above, these must be valid existing
 # projects.
@@ -146,7 +146,7 @@ test = ["coverage"]
 # The following would provide a command line executable called `sample`
 # which executes the function `main` from this package when invoked.
 [project.scripts]  # Optional
-finae = "finae:main"
+engy = "engy:main"
 
 # This is configuration specific to the `setuptools` build backend.
 # If you are using a different build backend, you will need to change this.

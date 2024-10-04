@@ -698,10 +698,10 @@ pip install --upgrade pip
 echo "Installing required packages..."
 pip install Flask Flask-SQLAlchemy Flask-CORS marshmallow
 
-# Check if /data/finae/engy exists and install it if it does
-if [ -d "/data/finae/engy" ]; then
-    echo "Installing local finae package..."
-    pip install /data/finae/engy
+# Check if /data/engy/engy exists and install it if it does
+if [ -d "/data/engy/engy" ]; then
+    echo "Installing local engy package..."
+    pip install /data/engy/engy
 fi
 
 # Run the server
@@ -717,7 +717,7 @@ The script still performs the following actions:
 2. Activates the virtual environment.
 3. Upgrades pip to the latest version.
 4. Installs the required packages (Flask, Flask-SQLAlchemy, Flask-CORS, and marshmallow).
-5. Checks for and installs the local finae package if it exists.
+5. Checks for and installs the local engy package if it exists.
 6. Starts the server by running server.py.
 
 This script should work with the updated server.py and index.html files without any additional changes.

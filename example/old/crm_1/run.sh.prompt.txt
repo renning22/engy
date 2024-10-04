@@ -117,7 +117,7 @@ The server will start, and you can access the API endpoints using tools like cUR
 Generate "index.html" that connect to the server.
 The "index.html" should function: 
 Generate workflow page that I can filter target email by if already sent, by sex. I can click a button to send to all.
-There is also a button send QA email to "test@finae.ai".
+There is also a button send QA email to "test@engy.ai".
 === 3: assistant ===
 Certainly! I'll create an "index.html" file that connects to the server and provides the functionality you've requested. First, let's review the requirements and plan our approach.
 
@@ -250,8 +250,8 @@ Now, let's create the HTML file with the required functionality:
         }
 
         async function sendQAEmail() {
-            await sendEmail('test@finae.ai');
-            alert('QA email sent to test@finae.ai');
+            await sendEmail('test@engy.ai');
+            alert('QA email sent to test@engy.ai');
         }
 
         async function sendEmail(email) {

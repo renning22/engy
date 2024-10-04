@@ -7,7 +7,7 @@ source venv/bin/activate
 
 # Install required libraries
 pip install flask flask-socketio flask-cors
-pip install /data/finae/engy
+pip install /data/engy/engy
 
 # Start the server
 python server.py

@@ -34,8 +34,8 @@ Make the style match the entrance page, and make them consistent look like the s
     <link rel="icon" href="/favicon.ico"/>
     <meta property="og:title" content="Finae AI"/>
     <meta property="og:description" content="Generate fully working AI tools in seconds"/>
-    <meta property="og:url" content="https://finae.ai/"/>
-    <meta property="og:image" content="https://finae.ai/og-image.png"/>
+    <meta property="og:url" content="https://engy.ai/"/>
+    <meta property="og:image" content="https://engy.ai/og-image.png"/>
     <meta name="twitter:title" content="Finae AI"/>
     <meta name="twitter:description" content="Generate fully working AI tools in seconds"/>
     <meta name="twitter:image" content="/og-image.png"/>
@@ -257,7 +257,7 @@ Make the style match the entrance page, and make them consistent look like the s
         </main>
         <footer>
             <p>&copy; 2024 Finae Labs Inc. All rights reserved.</p>
-            <p>Contact us at <a href="mailto:founders@finae.ai">founders@finae.ai</a></p>
+            <p>Contact us at <a href="mailto:founders@engy.ai">founders@engy.ai</a></p>
         </footer>
     </div>
     <script>
@@ -931,10 +931,10 @@ pip install --upgrade pip
 echo "Installing required packages..."
 pip install Flask Flask-SQLAlchemy Flask-CORS marshmallow
 
-# Check if /data/finae/engy exists and install it if it does
-if [ -d "/data/finae/engy" ]; then
-    echo "Installing local finae package..."
-    pip install /data/finae/engy
+# Check if /data/engy/engy exists and install it if it does
+if [ -d "/data/engy/engy" ]; then
+    echo "Installing local engy package..."
+    pip install /data/engy/engy
 fi
 
 # Run the server
@@ -948,7 +948,7 @@ In this updated "run.sh" script, I haven't made any significant changes because 
 2. Activates the virtual environment
 3. Upgrades pip
 4. Installs the required packages (Flask, Flask-SQLAlchemy, Flask-CORS, and marshmallow)
-5. Checks for and installs the local finae package if it exists
+5. Checks for and installs the local engy package if it exists
 6. Starts the server
 
 These steps are sufficient for running the updated application. The new UI changes in the "index.html" file don't require any additional package installations, as they use Vue.js and Axios, which are loaded via CDN in the HTML file.

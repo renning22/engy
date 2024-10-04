@@ -20,7 +20,7 @@ Final html code should be included in <INDEX_HTML_CODE></INDEX_HTML_CODE> block.
 <FEATURE_REQUEST>
 Based on the example.
 
-Create a new agent that scrape the URL using "from finae import web_scraper_agent".
+Create a new agent that scrape the URL using "from engy import web_scraper_agent".
 
 ```
 def web_scraper_agent(url: str, producer: Callable[[dict], None]):
@@ -47,7 +47,7 @@ from flask import Flask, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 from flask_socketio import SocketIO
 
-from finae import web_search_agent, web_scraper_agent
+from engy import web_search_agent, web_scraper_agent
 
 app = Flask(__name__)
 CORS(app)
@@ -255,7 +255,7 @@ if __name__ == '__main__':
 
 This updated "server.py" file includes the following changes:
 
-1. Added the `web_scraper_agent` import from finae.
+1. Added the `web_scraper_agent` import from engy.
 2. Updated the `AGENT_NAME` to "Web Search & Scraper Agent".
 3. Modified the `AGENT_PROMPT` to include web scraping.
 4. Updated the database schema to include a `webpage_content` column.
@@ -703,11 +703,11 @@ echo "Installing required libraries..."
 pip install Flask flask-cors flask-socketio
 
 # Install local library if it exists
-if [ -d "/data/finae/engy" ]; then
-    echo "Installing local finae library..."
-    pip install /data/finae/engy
+if [ -d "/data/engy/engy" ]; then
+    echo "Installing local engy library..."
+    pip install /data/engy/engy
 else
-    echo "Local finae library not found. Skipping..."
+    echo "Local engy library not found. Skipping..."
 fi
 
 # Start the server
@@ -726,12 +726,12 @@ In this updated "run.sh" script, the changes are minimal:
 1. Updated the echo message to reflect the new name: "Web Search & Scraper Agent".
 2. Updated the port number in the final echo message to 8593.
 
-No new installations were necessary for the web scraper functionality, as the required `web_scraper_agent` is already part of the `finae` library, which is being installed if available.
+No new installations were necessary for the web scraper functionality, as the required `web_scraper_agent` is already part of the `engy` library, which is being installed if available.
 
 The script still performs the following main tasks:
 1. Creates and activates a virtual environment.
 2. Upgrades pip and installs the required libraries (Flask, flask-cors, flask-socketio).
-3. Installs the local finae library if it exists.
+3. Installs the local engy library if it exists.
 4. Starts the server.
 5. Keeps the script running with a message displaying the server status.
 
@@ -755,7 +755,7 @@ from flask import Flask, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 from flask_socketio import SocketIO
 
-from finae import web_search_agent, web_scraper_agent
+from engy import web_search_agent, web_scraper_agent
 
 app = Flask(__name__)
 CORS(app)

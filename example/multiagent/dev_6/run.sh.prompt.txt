@@ -5,7 +5,7 @@ You are experts in python 3.11, and familier with popular libraries, and also go
 
 You are currently on a task to write "run.sh" that:
 1. create a temp venv
-2. use pip to install all the required libaries (plus local library /data/finae/engy)
+2. use pip to install all the required libaries (plus local library /data/engy/engy)
 3. use python to start the webserver. ("python server.py")
 
 (Assume anaconda and pip are installed.)
@@ -20,7 +20,7 @@ E.g.
 python3 -m venv venv
 source venv/bin/activate
 
-pip install Flask websocket /data/finae/engy
+pip install Flask websocket /data/engy/engy
 
 python server.py
 </RUN_BASH_CODE>
@@ -159,10 +159,10 @@ I implemented the agents design in "agents.py" using my Agent class.
 
 Here is the content of "agents.py":
 ```python
-from finae import Agent
+from engy import Agent
 
-# finae.Agent is my agent implementation.
-# The overview of finae.Agent class. 
+# engy.Agent is my agent implementation.
+# The overview of engy.Agent class. 
 # 
 # class Agent:
 #   def __init__(self, name, role, goal, backstory, tools, task_description, expected_output, send_to, receive_from):
@@ -913,7 +913,7 @@ pip install --upgrade pip
 
 # Install required libraries
 echo "Installing required libraries..."
-pip install flask flask-socketio flask-cors /data/finae/engy
+pip install flask flask-socketio flask-cors /data/engy/engy
 
 # Check if server.py exists
 if [ ! -f "server.py" ]; then
@@ -931,7 +931,7 @@ This script does the following:
 1. Creates a virtual environment named "venv" if it doesn't already exist.
 2. Activates the virtual environment.
 3. Upgrades pip to the latest version.
-4. Installs the required libraries: Flask, Flask-SocketIO, Flask-CORS, and the local finae library.
+4. Installs the required libraries: Flask, Flask-SocketIO, Flask-CORS, and the local engy library.
 5. Checks if "server.py" exists in the current directory.
 6. Starts the server by running "server.py".
 
@@ -949,6 +949,6 @@ To use this script:
 
 This script will set up the environment and start your server. Make sure you have Python 3 installed on your system before running the script.
 
-Note: The script assumes that the finae library is located at "/data/finae/engy". If this is not the correct path, please adjust it in the pip install command.
+Note: The script assumes that the engy library is located at "/data/engy/engy". If this is not the correct path, please adjust it in the pip install command.
 
 Also, ensure that you have the necessary permissions to create directories and install packages in the current location. If you're working in a restricted environment, you might need to use `sudo` or adjust the installation path.

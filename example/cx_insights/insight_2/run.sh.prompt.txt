@@ -18,7 +18,7 @@ from typing import Callable
 from flask import Flask, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 from flask_socketio import SocketIO
-from finae import airbnb_review_agent, query_llm
+from engy import airbnb_review_agent, query_llm
 
 app = Flask(__name__)
 CORS(app)
@@ -696,7 +696,7 @@ pip install --upgrade pip
 
 # Install required libraries
 echo "Installing required libraries..."
-pip install Flask flask-cors flask-socketio /data/finae/engy
+pip install Flask flask-cors flask-socketio /data/engy/engy
 
 # Start the server
 echo "Starting the Airbnb Review and Insights Manager server..."
@@ -746,7 +746,7 @@ from typing import Callable
 from flask import Flask, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 from flask_socketio import SocketIO
-from finae import airbnb_review_agent, query_llm
+from engy import airbnb_review_agent, query_llm
 
 app = Flask(__name__)
 CORS(app)
@@ -1432,7 +1432,7 @@ pip install --upgrade pip
 
 # Install required libraries
 echo "Installing required libraries..."
-pip install Flask flask-cors flask-socketio /data/finae/engy
+pip install Flask flask-cors flask-socketio /data/engy/engy
 
 # Start the server
 echo "Starting the Airbnb Review and Insights Manager server..."
@@ -1449,6 +1449,6 @@ In this updated "run.sh" script, the only change made is:
 
 1. Updated the message at the end to reflect the new port number (5125) instead of the previous port (6376).
 
-No new installations were necessary for the changes we made to the server and frontend. The existing libraries (Flask, flask-cors, flask-socketio, and finae) are sufficient for the updated functionality.
+No new installations were necessary for the changes we made to the server and frontend. The existing libraries (Flask, flask-cors, flask-socketio, and engy) are sufficient for the updated functionality.
 
 This script will still create a virtual environment, install the required dependencies, and run the server on the new port 5125.

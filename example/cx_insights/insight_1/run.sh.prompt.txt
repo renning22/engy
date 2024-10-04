@@ -18,7 +18,7 @@ from typing import Callable
 from flask import Flask, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 from flask_socketio import SocketIO
-from finae import airbnb_review_agent
+from engy import airbnb_review_agent
 
 app = Flask(__name__)
 CORS(app)
@@ -481,7 +481,7 @@ pip install --upgrade pip
 
 # Install required libraries
 echo "Installing required libraries..."
-pip install Flask flask-cors flask-socketio /data/finae/engy
+pip install Flask flask-cors flask-socketio /data/engy/engy
 
 # Start the server
 echo "Starting the Customer Review Manager server..."
@@ -525,7 +525,7 @@ import random
 import time
 from typing import Callable
 
-from finae import query_llm
+from engy import query_llm
 
 SYSTEM_PROMPT = '''**Role:** You are a creative review generation agent for Airbnb.
 
@@ -616,7 +616,7 @@ from typing import Callable
 from flask import Flask, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 from flask_socketio import SocketIO
-from finae import airbnb_review_agent, query_llm
+from engy import airbnb_review_agent, query_llm
 
 app = Flask(__name__)
 CORS(app)
@@ -1319,7 +1319,7 @@ pip install --upgrade pip
 
 # Install required libraries
 echo "Installing required libraries..."
-pip install Flask flask-cors flask-socketio /data/finae/engy
+pip install Flask flask-cors flask-socketio /data/engy/engy
 
 # Start the server
 echo "Starting the Airbnb Review and Insights Manager server..."
@@ -1337,4 +1337,4 @@ In this updated "run.sh" file, the changes are minimal:
 1. Updated the echo message to reflect the new name: "Airbnb Review and Insights Manager server".
 2. Changed the port number in the echo message to 6376 to match the new port used in the server.py file.
 
-No new installations were needed for the additional functionality, as the existing libraries (Flask, flask-cors, flask-socketio, and finae) are sufficient for the new features. The script will still create a virtual environment, install the required libraries, and start the server as before.
+No new installations were needed for the additional functionality, as the existing libraries (Flask, flask-cors, flask-socketio, and engy) are sufficient for the new features. The script will still create a virtual environment, install the required libraries, and start the server as before.

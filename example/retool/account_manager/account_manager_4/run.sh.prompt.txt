@@ -664,10 +664,10 @@ pip install --upgrade pip
 echo "Installing required packages..."
 pip install Flask Flask-SQLAlchemy Flask-CORS marshmallow
 
-# Check if /data/finae/engy exists and install it if it does
-if [ -d "/data/finae/engy" ]; then
-    echo "Installing local finae package..."
-    pip install /data/finae/engy
+# Check if /data/engy/engy exists and install it if it does
+if [ -d "/data/engy/engy" ]; then
+    echo "Installing local engy package..."
+    pip install /data/engy/engy
 fi
 
 # Run the server
@@ -1222,10 +1222,10 @@ pip install --upgrade pip
 echo "Installing required packages..."
 pip install Flask Flask-SQLAlchemy Flask-CORS marshmallow
 
-# Check if /data/finae/engy exists and install it if it does
-if [ -d "/data/finae/engy" ]; then
-    echo "Installing local finae package..."
-    pip install /data/finae/engy
+# Check if /data/engy/engy exists and install it if it does
+if [ -d "/data/engy/engy" ]; then
+    echo "Installing local engy package..."
+    pip install /data/engy/engy
 fi
 
 # Run the server
@@ -1241,7 +1241,7 @@ The script still performs the following tasks:
 2. Activates the virtual environment
 3. Upgrades pip
 4. Installs the required packages (Flask, Flask-SQLAlchemy, Flask-CORS, and marshmallow)
-5. Installs the local finae package if it exists
+5. Installs the local engy package if it exists
 6. Starts the server by running server.py
 
 This script should work fine with the updated server.py and index.html files. The only change you might want to make (which is not related to installations) is to remind users that the server now runs on port 9404 instead of 5650. You could add a comment or echo statement to inform users about the new port:

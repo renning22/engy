@@ -35,7 +35,7 @@ def run_command(idea):
         with open('input.txt', 'w') as f:
             f.write(idea)
 
-        command = "conda run --no-capture-output -n finae finae --log-to-file"
+        command = "conda run --no-capture-output -n engy engy --log-to-file"
 
         process = subprocess.Popen(command, shell=True)
 

@@ -11,7 +11,7 @@ def parse_entities(input_text, produce):
 """
 import types
 
-import finae
+import engy
 
 from crewai_tools import (
     SerperDevTool,
@@ -91,7 +91,7 @@ def produce(entity):
 
 
 def main():
-    results = search_tool.run(query='finae.ai')
+    results = search_tool.run(query='engy.ai')
     parse_entities_function(results, produce)
 
 
