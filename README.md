@@ -31,7 +31,14 @@ pip install engy
    echo "create a calculator" > input.txt
    ```
 
-3. Run Engy:
+3. Add your API keys to the `.env` file:
+   ```bash
+   echo "ANTHROPIC_API_KEY=xxx" > .env
+   ```
+   The default model is `claude-3-5-sonnet`, so by default you only need `ANTHROPIC_API_KEY`.
+   To use other models, set `MODEL=xxx` in the `.env` file. See `llm.py` and the `litellm` backend for supported models.
+
+4. Run Engy:
    ```bash
    engy
    ```
@@ -81,6 +88,7 @@ To create a new app based on an existing one:
 
 ```bash
 mkdir my_app_2 && cd my_app_2
+echo "make change ..." > input.txt
 engy clone /path/to/my_app
 ```
 
