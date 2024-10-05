@@ -94,8 +94,6 @@ engy clone /path/to/my_app
 
 ## Examples
 
-## Examples
-
 Engy comes with a wide range of example projects to help you get started and understand its capabilities. Here's a selection of examples organized by category:
 
 ### Agentic Workflows
