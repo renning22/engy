@@ -1,71 +1,115 @@
-# engy
+# Engy
 
 ## Overview
 
-Engy is a lightweight dev tool to generate fully working web apps from simple prompts.
+Engy is a lightweight development tool that generates fully functional web applications from simple natural language prompts. It's designed for developers who want to rapidly prototype and build applications, taking them from 0 to 80% completion using just natural language descriptions.
 
-It's useful for developers who can create apps from 0 to 80% in natural language as a starting point.
-
-Behind, it's an agentic workflow do all the work including generaring design docs, back-end python server, front-end html, dockerfile, README.md. 
-
+Engy utilizes an agentic workflow to automate the entire development process, including:
+- Generating design documents
+- Creating backend Python servers
+- Developing frontend HTML
+- Producing Dockerfiles
+- Crafting README files
 
 ## Quick Start
 
-Install
-```
+### Installation
+
+```bash
 pip install engy
 ```
 
-Generate new app from scrapts.
-```bash
-mkdir my_app && cd my_app
-edit input.txt  # Your app idea, e.g. "create a calculator"
-engy
-```
+### Generate a New App
 
-To run the generated app, there will be a generated "run.sh" include everything you need.
+1. Create a new directory for your app:
+   ```bash
+   mkdir my_app && cd my_app
+   ```
+
+2. Create an `input.txt` file with your app idea:
+   ```bash
+   echo "create a calculator" > input.txt
+   ```
+
+3. Run Engy:
+   ```bash
+   engy
+   ```
+
+### Run the Generated App
+
+Engy creates a `run.sh` script with everything you need to run your app:
+
 ```bash
 bash run.sh
 ```
 
-Add feature to your app by prompts.
-```bash
-cd my_app
-edit feature.txt  # Feature you want to add, e.g. "make the calculator support calculus and algebra"
-engy feature
-```
+### Add Features to Your App
 
-Use prompts to edit front-end.
+1. Navigate to your app directory:
+   ```bash
+   cd my_app
+   ```
+
+2. Create a `feature.txt` file with the desired feature:
+   ```bash
+   echo "make the calculator support calculus and algebra" > feature.txt
+   ```
+
+3. Run Engy's feature addition:
+   ```bash
+   engy feature
+   ```
+
+### Edit Frontend or Backend
+
+Use prompts to modify your app's frontend or backend:
+
 ```bash
 engy frontend
-# Enter prompts in terminal
+# Enter prompts in the terminal
 ```
 
-Use prompts to edit back-end.
 ```bash
 engy backend
-# Enter prompts in terminal
+# Enter prompts in the terminal
 ```
 
-Clone a new app from generated one.
+### Clone an Existing App
+
+To create a new app based on an existing one:
+
 ```bash
 mkdir my_app_2 && cd my_app_2
-edit input.txt  # 
 engy clone /path/to/my_app
 ```
 
 ## Examples
 
-TODO
+[TODO: Add examples of apps created with Engy, including screenshots and brief descriptions]
 
-## Install locally for dev
+## Local Development Setup
 
-```
+To install Engy locally for development:
+
+```bash
 git clone https://github.com/renning22/engy.git
 cd engy
 pip install -e .
 ```
 
-## Contribute
+## Contributing
 
-Contact @renning22 and @mincomp.
+We welcome contributions to Engy! If you're interested in contributing, please contact:
+- @renning22
+- @mincomp
+
+[TODO: Add more detailed contribution guidelines, including how to submit pull requests, coding standards, and the development process]
+
+## License
+
+[TODO: Add license information]
+
+## Support
+
+[TODO: Add information on how to get support, such as linking to documentation, FAQ, or community forums]
