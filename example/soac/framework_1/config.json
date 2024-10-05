@@ -1,7 +1,0 @@
-{
-    "Web Search Agent": "http://localhost:8593",
-    "Web Scraper Agent": "http://localhost:8593",
-    "Social Media Agent": "http://localhost:8593",
-    "Research Agent": "http://localhost:8593",
-    "Trend Analysis Agent": "http://localhost:8593"
-}

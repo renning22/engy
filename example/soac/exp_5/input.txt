@@ -1,2 +1,0 @@
-Review the code, refactor and fix.
-Problem: I can see the print and confirm data is produced in backend, but not written in database and can't see in frontend.

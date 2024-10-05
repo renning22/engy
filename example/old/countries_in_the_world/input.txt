@@ -1,4 +1,0 @@
-Data is all major countries in the wolrd with their info like population, location, language.
-The server also has REST APIs to edit and admin the data.
-
-Like an Admin console that can view all data, and has way to edit the data interactively.

@@ -1,7 +1,0 @@
-Create a Slack bot named "Kim" who is a manager assistant help check-in team members weekly report.
-There is a button that I can click to upload some docs (to local folder) so Kim can view the doc.
-There should be a way to select interval days (e.g. every 2 days, every Friday).
-The slack bot will schedule check-in messages to all team members periodically based on the interval days.
-There should be a calendar highlight every scheduled sending dates.
-There is a table summaring all team member name with their last check-in date and current weekly report.
-There should be a way I can add team member (name and slack id)

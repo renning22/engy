@@ -1,7 +1,0 @@
-Database has versions of a software called "Ning CRM" (e.g. three versions).
-The database also has few custormer with contact information and currrent using versions.
-
-Generate workflow page that:
-1. show all versions and all custormers.
-2. I can select custormer by versions and send them version update emails by clicking a button.
-3. Show my the content of the email being sent.
