@@ -94,7 +94,55 @@ engy clone /path/to/my_app
 
 ## Examples
 
-[TODO: Add examples of apps created with Engy, including screenshots and brief descriptions]
+## Examples
+
+Engy comes with a wide range of example projects to help you get started and understand its capabilities. Here's a selection of examples organized by category:
+
+### Agentic Workflows
+- [Simple Agentic Example](examples/agentic/simple)
+- [Stock News Agent](examples/agentic/stock_news)
+
+### Airtable Integration
+- [Edit Airtable](examples/airtable/edit_airtable)
+- [Edit Airtable with Dashboard](examples/airtable/edit_airtable_dash)
+- [Product Roadmap](examples/airtable/product_roadmap)
+
+### Basic Tools
+- [Airtable CRM](examples/basic_tools/airtable_crm_1)
+- [Calculator](examples/basic_tools/calculator)
+- [Docker Containers Manager](examples/basic_tools/docker_containers)
+- [Document Summary Agent](examples/basic_tools/doc_summary_agent)
+- [Email Summary Agent](examples/basic_tools/email_summary_agent)
+- [Expense Tracker](examples/basic_tools/expense_tracker)
+- [Invoice Creator](examples/basic_tools/invoice_creator)
+- [Kubernetes Pods Manager](examples/basic_tools/k8s_pods)
+- [Trip Planner (Hawaii)](examples/basic_tools/plan_a_trip_hawaii)
+- [Sales Revenue Dashboard](examples/basic_tools/sales_revenue_dashboard)
+- [Text Diff Tool](examples/basic_tools/text_diff)
+- [Video Format Converter](examples/basic_tools/video_format_converter)
+- [Voice Note Taker](examples/basic_tools/voice_note_taker)
+- [Web3 Explorer](examples/basic_tools/web3_explorer_1)
+- [Weeks in Life Visualizer](examples/basic_tools/weeks_in_life)
+- [Meal Planner](examples/basic_tools/what_to_eat)
+- [YouTube Video Manager](examples/basic_tools/yt_videos)
+
+### Customer Experience Insights
+- [CX Insights Experiment](examples/cx_insights/exp_1)
+- [Customer Insight Generator](examples/cx_insights/insight_1)
+- [Review Data Analyzer](examples/cx_insights/review_data_1)
+
+### Demo Applications
+- [Account Manager](examples/demo/account_manager)
+- [PDF Merger](examples/demo/pdf_merger)
+- [Web Scraper](examples/demo/scraper_1)
+
+### Retool Integration
+- [Retool Account Manager](examples/retool/account_manager)
+- [Customer Insights Dashboard](examples/retool/customer_insights_dashboard)
+- [Food Delivery Tracker](examples/retool/food_delivery_tracker)
+- [SLA Dashboard](examples/retool/sla_dashboard)
+
+To explore these examples, navigate to the respective folders in the `examples` directory of the Engy repository. Each example includes its own README and source code to help you understand how it was built using Engy.
 
 ## Local Development Setup
 
