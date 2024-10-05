@@ -1,3 +1,0 @@
-Create agents help me to evaluate a given idea how much chance to be accepted by YC.
-Investigate recent accepted applications in recent batches.
-Do thorough analysis why they be accepted and evaluate ours.

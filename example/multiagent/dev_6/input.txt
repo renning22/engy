@@ -1,7 +1,0 @@
-Agents: advanced competitor data collection.
-
-1. **Automated Data Collection**
-    - **Web Scraping**: The agent autonomously scrapes competitor websites for relevant information, including product offerings, pricing, and promotional strategies.
-    - **Social Media**: Check competitors' social media account to gather data on followership, activities，including Linkedin, Youtube, Tiktok, Pinterest, Twitter/X, Instagram, Facebook, Discord
-    - **News and Press Release Aggregation**: Collects and analyzes news articles and press releases related to competitors to stay updated on their latest developments.
-    - **Customer reviews**: Collect relevant customer reviews and analyze sentiment related to product features and services from Trustpilot, G2, Google, Yelp, and more ([Smelter AI](https://youtu.be/LqjpZS73Ewo?si=zcW7e3di_8bht-u2)).
