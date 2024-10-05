@@ -1,49 +1,71 @@
 # engy
 
-## Basics
+## Overview
+
+Engy is a lightweight dev tool to generate fully working web apps from simple prompts.
+
+It's useful for developers who can create apps from 0 to 80% in natural language as a starting point.
+
+Behind, it's an agentic workflow do all the work including generaring design docs, back-end python server, front-end html, dockerfile, README.md. 
+
+
+## Quick Start
 
 Install
 ```
-pip install -e .
+pip install engy
 ```
 
-Generate new app.
-```
-mkdir xxx && cd xxx
-edit input.txt
+Generate new app from scrapts.
+```bash
+mkdir my_app && cd my_app
+edit input.txt  # Your app idea, e.g. "create a calculator"
 engy
 ```
 
-Add featrue
+To run the generated app, there will be a generated "run.sh" include everything you need.
+```bash
+bash run.sh
 ```
-edit feature.txt
+
+Add feature to your app by prompts.
+```bash
+cd my_app
+edit feature.txt  # Feature you want to add, e.g. "make the calculator support calculus and algebra"
 engy feature
 ```
 
-Only edit front-end (promprt from input in terminal)
-```
+Use prompts to edit front-end.
+```bash
 engy frontend
+# Enter prompts in terminal
 ```
 
-Only edit back-end (promprt from input in terminal)
-```
-engy frontend
-```
-
-Clone new app based on existng one.
-```
-mkdir yyy && cd yyy
-edit input.txt
-engy clone /path/to/xxx
+Use prompts to edit back-end.
+```bash
+engy backend
+# Enter prompts in terminal
 ```
 
-## Owner Tasks
+Clone a new app from generated one.
+```bash
+mkdir my_app_2 && cd my_app_2
+edit input.txt  # 
+engy clone /path/to/my_app
+```
 
-1. (P1.5) merge everything into a config.yaml. different sections contain initial prompt, features, bugs. have a separate state.yaml which is the current generated state. diff between config.yaml and state.yaml to figure out what to change
-2. (P1) doc add quick start, tutorials, examples, commandline usage
-3. (P2) optionally generate dockerfile
-4. (P2) optionally generate a doc page for the backend?
-5. (P1.5) generate README.md along side for each app.
-6. (P2) optionally tech explain: agentic workflow
-7. (P2) switch LLM back-end, user API key. (i.e. .env)
+## Examples
 
+TODO
+
+## Install locally for dev
+
+```
+git clone https://github.com/renning22/engy.git
+cd engy
+pip install -e .
+```
+
+## Contribute
+
+Contact @renning22 and @mincomp.
