@@ -2,7 +2,7 @@
 
 ## Overview
 
-Engy is a lightweight development tool that generates fully functional web applications from simple natural language prompts. It's designed for developers who want to rapidly prototype and build applications, taking them from 0 to 80% completion using just natural language descriptions.
+Engy is a lightweight development tool that generates fully functional web applications from simple natural language prompts. It's designed for developers who want to rapidly prototype and build applications, taking them from 0 to ~80% completion using just natural language descriptions.
 
 Engy utilizes an agentic workflow to automate the entire development process, including:
 - Generating design documents
