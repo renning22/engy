@@ -5,12 +5,24 @@ import litellm
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
-# Load environment variables from .env file
-load_dotenv()
 
-# litellm.suppress_debug_info = True
-# litellm.success_callback = ["langfuse"]
-# litellm.failure_callback = ["langfuse"]
+def auto_load_dotenv():
+    # Get the current working directory
+    current_dir = os.getcwd()
+    
+    # Construct the path to the .env file
+    env_path = os.path.join(current_dir, '.env')
+    
+    # Check if the .env file exists
+    if os.path.exists(env_path):
+        # Load the .env file
+        load_dotenv(env_path)
+        print(f"Loaded .env file from {env_path}")
+    else:
+        load_dotenv()
+
+
+auto_load_dotenv()
 
 
 class ChatMessage(BaseModel):
