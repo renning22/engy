@@ -11,7 +11,6 @@ Engy is your personal AI development powerhouse! It takes your ideas and transfo
 ### 🛠️ Versatile App Generation
 Engy can help you create a variety of applications, including (but not limited to):
 - 📝 Productivity tools and task managers
-- 🧮 Calculators and converters
 - 🗂️ Data organization and management systems
 - 🌐 Web scrapers and data collectors
 - 📊 Simple data visualization tools
