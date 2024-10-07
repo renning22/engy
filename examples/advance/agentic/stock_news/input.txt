@@ -1,9 +1,0 @@
-create a stock and investment expert agent, help me to search news about the company GOOG.
-
-local file sql database.
-The agent store entry in the database.
-
-There is "run" and "stop" buttons.
-When I click run button, the agent is running, search one every 10 secs. Stop button to stop the agent.
-
-There should be UX table let me view the database (with pagination and search).

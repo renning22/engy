@@ -1,2 +1,0 @@
-create my personal search LLM Agent, using Claude 3.5 haiku.
-Store search history in local database.
