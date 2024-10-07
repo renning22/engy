@@ -20,15 +20,7 @@ pip install --upgrade pip
 
 # Install required libraries
 echo "Installing required libraries..."
-pip install flask flask_sqlalchemy flask_cors
-
-# Install local library if it exists
-if [ -d "/data/finae/engy" ]; then
-    echo "Installing local engy library..."
-    pip install /data/finae/engy
-else
-    echo "Local engy library not found, skipping..."
-fi
+pip install flask flask_sqlalchemy flask_cors engy
 
 # Start the server
 echo "Starting the server..."
