@@ -17,7 +17,7 @@ name = "engy"  # Required
 #
 # For a discussion on single-sourcing the version, see
 # https://packaging.python.org/guides/single-sourcing-package-version/
-version = "0.0.2"  # Required
+version = "0.0.3"  # Required
 
 # This is a one-line description or tagline of what your project does. This
 # corresponds to the "Summary" metadata field:
@@ -104,14 +104,9 @@ classifiers = [  # Optional
 # https://packaging.python.org/discussions/install-requires-vs-requirements/
 dependencies = [
   "anthropic",
-  "crewai-tools",
-  "crewai",
-  "duckduckgo-search",
   "langchain-anthropic",
-  "langfuse>=2.0.0",
   "litellm",
   "python-dotenv",
-  "ray[default]",
 ]
 
 # List additional groups of dependencies here (e.g. development

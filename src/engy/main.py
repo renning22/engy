@@ -5,7 +5,6 @@ from contextlib import contextmanager
 from .app_builder import (generate_all, regenerate_all, regenerate_backend,
                           regenerate_frontend)
 from .app_cloner import clone_all
-from .multi_agent_builder_3 import generate_all as agent_generate_all
 from .util import assert_file_exists_and_read
 
 
@@ -43,7 +42,6 @@ def main():
     clone_parser = subparsers.add_parser(
         "clone", help="Continue dev based on existing finapp")
     clone_parser.add_argument('path', type=str, help='path to clone')
-    agent_parser = subparsers.add_parser("agent", help="Agent App builder")
 
     args = parser.parse_args()
     input_prompts = assert_file_exists_and_read('input.txt')
@@ -68,9 +66,6 @@ def main():
         elif args.subcommand == "clone":
             print(f'Clone project {args.path}')
             clone_all(args.path, input_prompts)
-        elif args.subcommand == "agent":
-            print('Agent app builder')
-            agent_generate_all(input_prompts)
         else:
             print('App builder')
             generate_all(input_prompts)
