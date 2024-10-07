@@ -57,7 +57,7 @@ You are experts in python 3.11, and familier with popular libraries, and also go
 
 You are currently on a task to write "run.sh" that:
 1. create a temp venv
-2. use pip to install all the required libaries (plus "pip install engy")
+2. use pip to install all the required libaries
 3. use python to start the webserver. ("python server.py")
 
 (Assume anaconda and pip are installed.)
@@ -72,7 +72,7 @@ E.g.
 python3 -m venv venv
 source venv/bin/activate
 
-pip install Flask websocket engy
+pip install Flask websocket
 
 python server.py
 </RUN_BASH_CODE>
