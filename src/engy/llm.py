@@ -42,7 +42,8 @@ def query_llm(prompt: str, *,
               filename: Optional[str] = None,
               model: Optional[str] = None,
               max_tokens: int = 4096,
-              temperature: float = 0.1):
+              temperature: float = 0.1,
+              image_base64: List[str] = []):
     extra_headers = {}
     if not model:
         model = os.getenv('MODEL', 'claude-3-5-sonnet-20240620')
@@ -60,13 +61,28 @@ def query_llm(prompt: str, *,
             f.write(f'{model}\n\n{system_message}\n\n')
             for i, message in enumerate(messages):
                 f.write(f'=== {i}: {message.role} ===\n')
-                f.write(message.content)
+                f.write(str(message.content))
                 f.write('\n')
 
-    final_messages = [msg.to_dict() for msg in messages]
+    final_messages: List[Dict] = []
     if system_message:
-        final_messages = [
-            {"role": "system", "content": system_message}] + final_messages
+        final_messages.append({"role": "system", "content": system_message})
+
+    for msg in messages:
+        if msg.role == 'user' and image_base64:
+            content = [
+                {"type": "text", "text": msg.content}
+            ]
+            for img in image_base64:
+                content.append({
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{img}"
+                    }
+                })  # type: ignore
+            final_messages.append({"role": msg.role, "content": content})
+        else:
+            final_messages.append(msg.to_dict())
 
     response = litellm.completion(
         model=model,
