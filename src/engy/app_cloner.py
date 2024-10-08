@@ -2,7 +2,7 @@ import os
 import random
 import shutil
 
-from .llm import query_llm
+from .llm import auto_load_dotenv, query_llm
 from .util import load_history, save_history, assert_file_exists_and_read, produce_files
 
 
@@ -80,6 +80,7 @@ Only output one of them in each conversation round, based on user query.
 def clone_all(path, prompts):
     try:
         shutil.copy2(os.path.join(path, '.env'), '.env')
+        auto_load_dotenv()
     except (FileNotFoundError, shutil.SameFileError, OSError):
         pass  # Silently ignore errors
 
