@@ -17,12 +17,12 @@ name = "engy"  # Required
 #
 # For a discussion on single-sourcing the version, see
 # https://packaging.python.org/guides/single-sourcing-package-version/
-version = "0.0.5"  # Required
+version = "0.0.6"  # Required
 
 # This is a one-line description or tagline of what your project does. This
 # corresponds to the "Summary" metadata field:
 # https://packaging.python.org/specifications/core-metadata/#summary
-description = "A simple Python library"  # Optional
+description = "Engy is an AI-powered development tool that generates fully functional web applications from natural language, streamlining the process from idea to working prototype."  # Optional
 
 # This is an optional longer description of your project that represents
 # the body of text which users will see when they visit PyPI.
