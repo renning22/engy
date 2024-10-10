@@ -5,12 +5,8 @@ from contextlib import contextmanager
 
 import yaml
 
-from .app_builder import (
-    generate_all,
-    regenerate_all,
-    regenerate_backend,
-    regenerate_frontend,
-)
+from .app_builder import (generate_all, regenerate_all, regenerate_backend,
+                          regenerate_frontend)
 from .app_cloner import clone_all
 from .util import assert_file_exists_and_read
 
@@ -62,7 +58,7 @@ def diff_configs():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Application with subcommands")
+    parser = argparse.ArgumentParser(description="Generate python webapp from prompts. (require either `input.txt` or `config.yaml`)")
     parser.add_argument(
         "--log-to-file", action="store_true", help="Log output to terminal.log"
     )
@@ -76,18 +72,17 @@ def main():
         "feature", help="Add the feature stated in feature.txt"
     )
     clone_parser = subparsers.add_parser(
-        "clone", help="Continue dev based on existing finapp"
+        "clone", help="Clone a new engy app based on existing engy app"
     )
     clone_parser.add_argument("path", type=str, help="path to clone")
     diff_parser = subparsers.add_parser(
-        "diff", help="Diff between current and goal configurations"
+        "diff", help="Diff between current and goal configurations (config.yaml)"
     )
     apply_parser = subparsers.add_parser(
-        "apply", help="Apply diff to match goal configurations"
+        "apply", help="Apply diff to match goal configurations (config.yaml)"
     )
 
     args = parser.parse_args()
-    input_prompts = assert_file_exists_and_read("input.txt")
 
     with log_to_file(args.log_to_file):
         if args.subcommand == "backend":
@@ -109,6 +104,10 @@ def main():
             regenerate_all(prompts)
         elif args.subcommand == "clone":
             print(f"Clone project {args.path}")
+            if not os.path.exists('input.txt'):
+                parser.print_help()
+                sys.exit(1)
+            input_prompts = assert_file_exists_and_read("input.txt")
             clone_all(args.path, input_prompts)
         elif args.subcommand == "diff":
             print("Diff configs")
@@ -148,6 +147,10 @@ def main():
                 )
         else:
             print("App builder")
+            if not os.path.exists('input.txt'):
+                parser.print_help()
+                sys.exit(1)
+            input_prompts = assert_file_exists_and_read("input.txt")
             generate_all(input_prompts)
 
 
