@@ -2,8 +2,13 @@ import argparse
 import sys
 from contextlib import contextmanager
 
-from .app_builder import (generate_all, regenerate_all, regenerate_backend,
-                          regenerate_frontend)
+from .app_builder import (
+    generate_all,
+    generate_dockerfile,
+    regenerate_all,
+    regenerate_backend,
+    regenerate_frontend,
+)
 from .app_cloner import clone_all
 from .util import assert_file_exists_and_read
 
@@ -23,28 +28,27 @@ def log_to_file(should_log):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Application with subcommands")
-    parser.add_argument("--log-to-file", action="store_true",
-                        help="Log output to terminal.log")
+    parser = argparse.ArgumentParser(description="Application with subcommands")
+    parser.add_argument(
+        "--log-to-file", action="store_true", help="Log output to terminal.log"
+    )
     subparsers = parser.add_subparsers(dest="subcommand", help="Subcommands")
 
-    backend_parser = subparsers.add_parser(
-        "backend", help="Regenerate the backend")
-    frontend_parser = subparsers.add_parser(
-        "frontend", help="Regenerate the frontend")
-    iter_parser = subparsers.add_parser(
-        "iter", help="Regenerate both backend/frontend")
-    bug_parser = subparsers.add_parser(
-        "bug", help="Fix the bug in bug.txt")
+    backend_parser = subparsers.add_parser("backend", help="Regenerate the backend")
+    frontend_parser = subparsers.add_parser("frontend", help="Regenerate the frontend")
+    iter_parser = subparsers.add_parser("iter", help="Regenerate both backend/frontend")
+    bug_parser = subparsers.add_parser("bug", help="Fix the bug in bug.txt")
     feature_parser = subparsers.add_parser(
-        "feature", help="Add the feature stated in feature.txt")
+        "feature", help="Add the feature stated in feature.txt"
+    )
+    docker_parser = subparsers.add_parser("docker", help="Generate Dockerfile")
     clone_parser = subparsers.add_parser(
-        "clone", help="Continue dev based on existing finapp")
-    clone_parser.add_argument('path', type=str, help='path to clone')
+        "clone", help="Continue dev based on existing finapp"
+    )
+    clone_parser.add_argument("path", type=str, help="path to clone")
 
     args = parser.parse_args()
-    input_prompts = assert_file_exists_and_read('input.txt')
+    input_prompts = assert_file_exists_and_read("input.txt")
     with log_to_file(args.log_to_file):
         if args.subcommand == "backend":
             prompts = input("Input prompts:")
@@ -56,18 +60,21 @@ def main():
             prompts = input("Input prompts:")
             regenerate_all(prompts)
         elif args.subcommand == "bug":
-            bug_description = assert_file_exists_and_read('bug.txt')
-            prompts = f'Fix bug:\n<BUG>\n{bug_description}\n</BUG>'
+            bug_description = assert_file_exists_and_read("bug.txt")
+            prompts = f"Fix bug:\n<BUG>\n{bug_description}\n</BUG>"
             regenerate_all(prompts)
         elif args.subcommand == "feature":
-            feature_description = assert_file_exists_and_read('feature.txt')
-            prompts = f'<FEATURE_REQUEST>\n{feature_description}\n</FEATURE_REQUEST>'
+            feature_description = assert_file_exists_and_read("feature.txt")
+            prompts = f"<FEATURE_REQUEST>\n{feature_description}\n</FEATURE_REQUEST>"
             regenerate_all(prompts)
         elif args.subcommand == "clone":
-            print(f'Clone project {args.path}')
+            print(f"Clone project {args.path}")
             clone_all(args.path, input_prompts)
+        elif args.subcommand == "docker":
+            print("Dockerfile generator")
+            generate_dockerfile()
         else:
-            print('App builder')
+            print("App builder")
             generate_all(input_prompts)
 
 

@@ -1,12 +1,13 @@
+import os
 import random
 
 from .llm import query_llm
-from .util import load_history, save_history, assert_file_exists_and_read, produce_files
+from .util import assert_file_exists_and_read, load_history, produce_files, save_history
 
 PORT = random.randint(5000, 10000)
 
 
-DESIGN_SYSTEM_PROMPT = f'''You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+DESIGN_SYSTEM_PROMPT = f"""You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
 You are a software architecture.
 Your job to design an app. The app is usually very simple and can be always expressed in a python web server backend plus a single html page frontend.
 The given input is the app description.
@@ -16,9 +17,9 @@ You only write the design doc with high-level structure and psudocode, no need t
 The output backend design should be in <BACKEND_DESIGN></BACKEND_DESIGN> block.
 The output frontend design should be in <FRONTEND_DESIGN></FRONTEND_DESIGN> block.
 There should be exactly one <BACKEND_DESIGN> and one <FRONTEND_DESIGN>.
-'''
+"""
 
-SERVER_SYSTEM_PROMPT = f'''You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in backend development.
+SERVER_SYSTEM_PROMPT = f"""You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in backend development.
 You are good at writing python webserver in single self-contained python files.
 
 1. Regarding data or database.
@@ -34,9 +35,9 @@ When use Flask, also enable CORS.
 4. Bind to `0.0.0.0:{PORT}`.
 
 Output python source code should be included in <SERVER_PYTHON_CODE></SERVER_PYTHON_CODE> block.
-'''
+"""
 
-HTML_SYSTEM_PROMPT = f'''You are an expert in Web development, including CSS, JavaScript, React, Tailwind, Node.JS and Hugo / Markdown. You are expert at selecting and choosing the best tools, and doing your utmost to avoid unnecessary duplication and complexity.
+HTML_SYSTEM_PROMPT = f"""You are an expert in Web development, including CSS, JavaScript, React, Tailwind, Node.JS and Hugo / Markdown. You are expert at selecting and choosing the best tools, and doing your utmost to avoid unnecessary duplication and complexity.
 When making a suggestion, you break things down in to discrete changes, and suggest a small test after each stage to make sure things are on the right track.
 Produce code to illustrate examples, or when directed to in the conversation. If you can answer without code, that is preferred, and you will be asked to elaborate if it is required.
 Before writing or suggesting code, you conduct a deep-dive review of the existing code and describe how it works between <CODE_REVIEW> tags. Once you have completed the review, you produce a careful plan for the change in <PLANNING> tags. Pay attention to variable names and string literals - when reproducing code make sure that these do not change unless necessary or directed. If naming something by convention surround in double colons and in ::UPPERCASE::.
@@ -50,9 +51,9 @@ Bonus: if you can use 3djs or WebGL anywhere need a render or dashboard, use it.
 Assume the server is already running at `0.0.0.0:{PORT}`, generate html code that connects to the server.  
 
 Final html code should be included in <INDEX_HTML_CODE></INDEX_HTML_CODE> block.
-'''
+"""
 
-BASH_SYSTEM_PROMPT = '''You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+BASH_SYSTEM_PROMPT = """You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
 You are experts in python 3.11, and familier with popular libraries, and also good at writing linux bash scripts.
 
 You are currently on a task to write "run.sh" that:
@@ -76,12 +77,38 @@ pip install Flask websocket
 
 python server.py
 </RUN_BASH_CODE>
-'''
+"""
+
+DOCKERFILE_SYSTEM_PROMPT = """You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in software development.
+You are experts in python 3.11, and familier with popular libraries, and also good at writing Dockerfile.
+
+You are currently on a task to write "Dockerfile" that:
+1. create a temp venv
+2. use pip to install all the required libaries
+3. use python to start the webserver. ("python server.py")
+
+(Assume anaconda and pip are installed.)
+
+Generated scripts should be included in <RUN_BASH_CODE></RUN_BASH_CODE> block.
+
+E.g.
+<RUN_BASH_CODE>
+#!/bin/sh
+
+# Create and activate a virtual environment (optional but recommended)
+python3 -m venv venv
+source venv/bin/activate
+
+pip install Flask websocket
+
+python server.py
+</RUN_BASH_CODE>
+"""
 
 
 def generate_design(problem):
-    print('Generate system design', flush=True)
-    query = f'''# The problem to solve:
+    print("Generate system design", flush=True)
+    query = f"""# The problem to solve:
 <PROBLEM>
 {problem}
 </PROBLEM>
@@ -89,67 +116,113 @@ def generate_design(problem):
 Based on given app description, generate <BACKEND_DESIGN> and <FRONTEND_DESIGN>.
 <BACKEND_DESIGN> will be written in "backend_design.txt".
 <FRONTEND_DESIGN> will be written in "frontend_design.txt".
-'''
+"""
     responses, histories = query_llm(
-        query, system_message=DESIGN_SYSTEM_PROMPT, filename='design')
+        query, system_message=DESIGN_SYSTEM_PROMPT, filename="design"
+    )
     save_history(histories[0])
     produce_files(responses[0])
 
 
 def generate_backend():
-    backend_design_prompts = assert_file_exists_and_read('backend_design.txt')
-    print('Generate server.py', flush=True)
-    query = f'''Generate "server.py". Backend design:
+    backend_design_prompts = assert_file_exists_and_read("backend_design.txt")
+    print("Generate server.py", flush=True)
+    query = f"""Generate "server.py". Backend design:
 ```
 {backend_design_prompts}
 ```
-'''
+"""
     responses, histories = query_llm(
-        query, system_message=SERVER_SYSTEM_PROMPT, previous_history=load_history(), filename='server.py')
+        query,
+        system_message=SERVER_SYSTEM_PROMPT,
+        previous_history=load_history(),
+        filename="server.py",
+    )
     save_history(histories[0])
     produce_files(responses[0])
 
 
 def generate_frontend():
-    frontend_design_prompts = assert_file_exists_and_read(
-        'frontend_design.txt')
-    print('Generate index.html', flush=True)
-    query = f'''Generate "index.html" that connect to the server. The "index.html" design:
+    frontend_design_prompts = assert_file_exists_and_read("frontend_design.txt")
+    print("Generate index.html", flush=True)
+    query = f"""Generate "index.html" that connect to the server. The "index.html" design:
 ```
 {frontend_design_prompts}
 ```
-'''
+"""
     responses, histories = query_llm(
-        query, system_message=HTML_SYSTEM_PROMPT, previous_history=load_history(), filename='index.html')
+        query,
+        system_message=HTML_SYSTEM_PROMPT,
+        previous_history=load_history(),
+        filename="index.html",
+    )
     save_history(histories[0])
     produce_files(responses[0])
 
 
 def stylize_frontend():
-    print('Stylize index.html', flush=True)
-    query = f'''Stylize and make "index.html" beatuful, look production-ready, by using pure CSS website framework "Tailwind CSS".'''
+    print("Stylize index.html", flush=True)
+    query = f"""Stylize and make "index.html" beautiful, look production-ready, by using pure CSS website framework "Tailwind CSS"."""
     responses, histories = query_llm(
-        query, system_message=HTML_SYSTEM_PROMPT, previous_history=load_history(), filename='index.html')
+        query,
+        system_message=HTML_SYSTEM_PROMPT,
+        previous_history=load_history(),
+        filename="index.html",
+    )
     save_history(histories[0])
     produce_files(responses[0])
 
 
 def revise_backend():
-    print('Modify server.py', flush=True)
+    print("Modify server.py", flush=True)
     query = 'Modify "server.py" to also serve "index.html" like a static web server.'
     responses, histories = query_llm(
-        query, system_message=SERVER_SYSTEM_PROMPT, previous_history=load_history(), filename='server.py')
+        query,
+        system_message=SERVER_SYSTEM_PROMPT,
+        previous_history=load_history(),
+        filename="server.py",
+    )
     save_history(histories[0])
     produce_files(responses[0])
 
 
 def generate_run_bash():
-    print('Generate run.sh', flush=True)
+    print("Generate run.sh", flush=True)
     query = f'Generate "run.sh" to pip install required libraries and start the server.'
     responses, histories = query_llm(
-        query, system_message=BASH_SYSTEM_PROMPT, previous_history=load_history(), filename='run.sh')
+        query,
+        system_message=BASH_SYSTEM_PROMPT,
+        previous_history=load_history(),
+        filename="run.sh",
+    )
     save_history(histories[0])
     produce_files(responses[0])
+
+
+def generate_dockerfile():
+    print("Generate Dockerfile", flush=True)
+    current_dir = os.getcwd()
+    current_folder_name = os.path.basename(current_dir)
+    DOCKERFILE = f"""
+<DOCKERFILE>
+FROM python:3.10
+
+COPY ./src /engy/src
+COPY ./pyproject.toml /engy/pyproject.toml
+
+RUN pip install -e /engy
+
+# Install required libraries
+RUN pip install Flask Flask-CORS
+
+COPY ./{current_folder_name}/ /app/
+
+WORKDIR /app
+
+CMD [ "python", "server.py" ]
+</DOCKERFILE>
+"""
+    produce_files(DOCKERFILE)
 
 
 def generate_all(problem):
@@ -159,27 +232,35 @@ def generate_all(problem):
     stylize_frontend()
     revise_backend()
     generate_run_bash()
+    generate_dockerfile()
 
 
 def regenerate_backend(prompts):
-    print('Re-generate server.py', flush=True)
+    print("Re-generate server.py", flush=True)
     query = f'{prompts}\n\nRegenerate "server.py".'
     responses, histories = query_llm(
-        query, system_message=SERVER_SYSTEM_PROMPT, previous_history=load_history(), filename='server.py')
+        query,
+        system_message=SERVER_SYSTEM_PROMPT,
+        previous_history=load_history(),
+        filename="server.py",
+    )
     save_history(histories[0])
     produce_files(responses[0])
 
 
 def regenerate_frontend(prompts):
-    print('Re-generate index.html', flush=True)
+    print("Re-generate index.html", flush=True)
     query = f'{prompts}\n\nRegenerate "index.html".'
     responses, histories = query_llm(
-        query, system_message=HTML_SYSTEM_PROMPT, previous_history=load_history(), filename='index.html')
+        query,
+        system_message=HTML_SYSTEM_PROMPT,
+        previous_history=load_history(),
+        filename="index.html",
+    )
     save_history(histories[0])
     produce_files(responses[0])
 
 
 def regenerate_all(prompts):
     regenerate_backend(prompts)
-    regenerate_frontend('According the changes to the server.')
-
+    regenerate_frontend("According the changes to the server.")
