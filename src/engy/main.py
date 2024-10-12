@@ -5,8 +5,14 @@ from contextlib import contextmanager
 
 import yaml
 
-from .app_builder import (generate_all, regenerate_all, regenerate_backend,
-                          regenerate_frontend)
+from .app_builder import (
+    generate_all,
+    generate_dockerfile,
+    generate_run_docker_bash,
+    regenerate_all,
+    regenerate_backend,
+    regenerate_frontend,
+)
 from .app_cloner import clone_all
 from .util import assert_file_exists_and_read
 
@@ -58,7 +64,9 @@ def diff_configs():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate python webapp from prompts. (require either `input.txt` or `config.yaml`)")
+    parser = argparse.ArgumentParser(
+        description="Generate python webapp from prompts. (require either `input.txt` or `config.yaml`)"
+    )
     parser.add_argument(
         "--log-to-file", action="store_true", help="Log output to terminal.log"
     )
@@ -81,6 +89,8 @@ def main():
     apply_parser = subparsers.add_parser(
         "apply", help="Apply diff to match goal configurations (config.yaml)"
     )
+    docker_parser = subparsers.add_parser("docker", help="Generate Dockerfile")
+    run_docker_parser = subparsers.add_parser("run_docker", help="Generate Dockerfile")
 
     args = parser.parse_args()
 
@@ -104,7 +114,7 @@ def main():
             regenerate_all(prompts)
         elif args.subcommand == "clone":
             print(f"Clone project {args.path}")
-            if not os.path.exists('input.txt'):
+            if not os.path.exists("input.txt"):
                 parser.print_help()
                 sys.exit(1)
             input_prompts = assert_file_exists_and_read("input.txt")
@@ -145,9 +155,13 @@ def main():
                     file,
                     default_flow_style=False,
                 )
+        elif args.subcommand == "docker":
+            generate_dockerfile()
+        elif args.subcommand == "run_docker":
+            generate_run_docker_bash()
         else:
             print("App builder")
-            if not os.path.exists('input.txt'):
+            if not os.path.exists("input.txt"):
                 parser.print_help()
                 sys.exit(1)
             input_prompts = assert_file_exists_and_read("input.txt")
