@@ -205,12 +205,14 @@ def generate_dockerfile():
     current_folder_name = os.path.basename(current_dir)
     DOCKERFILE = f"""
 <DOCKERFILE>
-FROM python:3.10
+FROM continuumio/miniconda3
 
-COPY ./src /engy/src
+# Cache dependencies installation
 COPY ./pyproject.toml /engy/pyproject.toml
 
 RUN pip install -e /engy
+
+COPY ./src /engy/src
 
 # Install required libraries
 RUN pip install Flask Flask-CORS
@@ -225,6 +227,18 @@ CMD [ "python", "server.py" ]
     produce_files(DOCKERFILE)
 
 
+def generate_run_docker_bash():
+    print("Generate run_docker.sh", flush=True)
+    current_dir = os.getcwd()
+    current_folder_name = os.path.basename(current_dir)
+    RUN_DOCKER_BASH = f"""
+<RUN_DOCKER_BASH>
+docker build -f Dockerfile -t {current_folder_name}:latest ../ && docker run --network host {current_folder_name}:latest
+</RUN_DOCKER_BASH>
+"""
+    produce_files(RUN_DOCKER_BASH)
+
+
 def generate_all(problem):
     generate_design(problem)
     generate_backend()
@@ -233,6 +247,7 @@ def generate_all(problem):
     revise_backend()
     generate_run_bash()
     generate_dockerfile()
+    generate_run_docker_bash()
 
 
 def regenerate_backend(prompts):

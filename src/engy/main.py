@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from .app_builder import (
     generate_all,
     generate_dockerfile,
+    generate_run_docker_bash,
     regenerate_all,
     regenerate_backend,
     regenerate_frontend,
@@ -42,6 +43,7 @@ def main():
         "feature", help="Add the feature stated in feature.txt"
     )
     docker_parser = subparsers.add_parser("docker", help="Generate Dockerfile")
+    run_docker_parser = subparsers.add_parser("run_docker", help="Generate Dockerfile")
     clone_parser = subparsers.add_parser(
         "clone", help="Continue dev based on existing finapp"
     )
@@ -71,8 +73,9 @@ def main():
             print(f"Clone project {args.path}")
             clone_all(args.path, input_prompts)
         elif args.subcommand == "docker":
-            print("Dockerfile generator")
             generate_dockerfile()
+        elif args.subcommand == "run_docker":
+            generate_run_docker_bash()
         else:
             print("App builder")
             generate_all(input_prompts)

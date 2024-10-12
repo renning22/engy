@@ -42,6 +42,7 @@ _PRODUCE_FILE_MAPPING = {
     "FRONTEND_DESIGN": "frontend_design.txt",
     "AGENTS_PYTHON_CODE": "agents.py",
     "DOCKERFILE": "Dockerfile",
+    "RUN_DOCKER_BASH": "run_docker.sh",
 }
 
 
