@@ -205,7 +205,7 @@ def generate_dockerfile():
     current_folder_name = os.path.basename(current_dir)
     DOCKERFILE = f"""
 <DOCKERFILE>
-FROM continuumio/miniconda3
+FROM python:3.10
 
 # Cache dependencies installation
 COPY ./pyproject.toml /engy/pyproject.toml
