@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-purple-500 to-pink-500 min-h-screen flex items-center justify-center">
+    <div class="calculator bg-white rounded-3xl shadow-2xl p-8 w-120">
+        <div id="display" class="bg-gray-100 rounded-2xl p-4 text-right text-3xl font-bold mb-4 h-20 flex items-center justify-end overflow-hidden">0</div>
+        <div class="grid grid-cols-5 gap-4 mb-4">
+            <button onclick="appendNumber('7')" class="btn">7</button>
+            <button onclick="appendNumber('8')" class="btn">8</button>
+            <button onclick="appendNumber('9')" class="btn">9</button>
+            <button onclick="setOperation('divide')" class="btn bg-orange-500 hover:bg-orange-600">/</button>
+            <button onclick="appendSymbol('(')" class="btn bg-blue-500 hover:bg-blue-600">(</button>
+            <button onclick="appendNumber('4')" class="btn">4</button>
+            <button onclick="appendNumber('5')" class="btn">5</button>
+            <button onclick="appendNumber('6')" class="btn">6</button>
+            <button onclick="setOperation('multiply')" class="btn bg-orange-500 hover:bg-orange-600">*</button>
+            <button onclick="appendSymbol(')')" class="btn bg-blue-500 hover:bg-blue-600">)</button>
+            <button onclick="appendNumber('1')" class="btn">1</button>
+            <button onclick="appendNumber('2')" class="btn">2</button>
+            <button onclick="appendNumber('3')" class="btn">3</button>
+            <button onclick="setOperation('subtract')" class="btn bg-orange-500 hover:bg-orange-600">-</button>
+            <button onclick="appendSymbol('^')" class="btn bg-blue-500 hover:bg-blue-600">^</button>
+            <button onclick="appendNumber('0')" class="btn">0</button>
+            <button onclick="appendNumber('.')" class="btn">.</button>
+            <button onclick="calculateResult()" class="btn bg-green-500 hover:bg-green-600">=</button>
+            <button onclick="setOperation('add')" class="btn bg-orange-500 hover:bg-orange-600">+</button>
+            <button onclick="appendSymbol('x')" class="btn bg-blue-500 hover:bg-blue-600">x</button>
+        </div>
+        <div class="grid grid-cols-5 gap-4 mb-4">
+            <button onclick="clearCalculator()" class="btn bg-red-500 hover:bg-red-600">C</button>
+            <button onclick="setOperation('derivative')" class="btn bg-purple-500 hover:bg-purple-600">d/dx</button>
+            <button onclick="setOperation('integral')" class="btn bg-purple-500 hover:bg-purple-600">∫ dx</button>
+            <button onclick="setOperation('solve')" class="btn bg-purple-500 hover:bg-purple-600">Solve</button>
+            <button onclick="appendSymbol('=')" class="btn bg-blue-500 hover:bg-blue-600">=</button>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <button onclick="setOperation('expand')" class="btn bg-purple-500 hover:bg-purple-600">Expand</button>
+            <button onclick="setOperation('factor')" class="btn bg-purple-500 hover:bg-purple-600">Factor</button>
+        </div>
+    </div>
+
+    <script>
+        let currentInput = '0';
+        let currentOperation = null;
+        let previousInput = null;
+
+        function updateDisplay() {
+            document.getElementById('display').textContent = currentInput;
+        }
+
+        function appendNumber(number) {
+            if (currentInput === '0' && number !== '.') {
+                currentInput = number;
+            } else {
+                currentInput += number;
+            }
+            updateDisplay();
+        }
+
+        function appendSymbol(symbol) {
+            if (currentInput === '0') {
+                currentInput = symbol;
+            } else {
+                currentInput += symbol;
+            }
+            updateDisplay();
+        }
+
+        function setOperation(op) {
+            if (currentOperation !== null) {
+                calculateResult();
+            }
+            previousInput = currentInput;
+            currentInput = '0';
+            currentOperation = op;
+            updateDisplay();
+        }
+
+        function clearCalculator() {
+            currentInput = '0';
+            currentOperation = null;
+            previousInput = null;
+            updateDisplay();
+        }
+
+        function calculateResult() {
+            if (currentOperation === null) {
+                return;
+            }
+
+            let body = {};
+            if (['add', 'subtract', 'multiply', 'divide'].includes(currentOperation)) {
+                body = {
+                    operation: currentOperation,
+                    a: parseFloat(previousInput),
+                    b: parseFloat(currentInput)
+                };
+            } else if (['derivative', 'integral', 'solve', 'expand', 'factor'].includes(currentOperation)) {
+                body = {
+                    operation: currentOperation,
+                    expression: currentInput
+                };
+            }
+
+            fetch('/calculate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(body),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    currentInput = 'Error';
+                } else {
+                    currentInput = data.result.toString();
+                }
+                currentOperation = null;
+                previousInput = null;
+                updateDisplay();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                currentInput = 'Error';
+                updateDisplay();
+            });
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (event) => {
+            if (event.key >= '0' && event.key <= '9' || event.key === '.') {
+                appendNumber(event.key);
+            } else if (event.key === '+') {
+                setOperation('add');
+            } else if (event.key === '-') {
+                setOperation('subtract');
+            } else if (event.key === '*') {
+                setOperation('multiply');
+            } else if (event.key === '/') {
+                setOperation('divide');
+            } else if (event.key === 'Enter' || event.key === '=') {
+                calculateResult();
+            } else if (event.key === 'Escape') {
+                clearCalculator();
+            } else if (event.key === 'x' || event.key === '(' || event.key === ')' || event.key === '^') {
+                appendSymbol(event.key);
+            }
+        });
+    </script>
+
+    <style>
+        .btn {
+            @apply bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-4 px-6 rounded-xl transition duration-200 ease-in-out transform hover:scale-105;
+        }
+    </style>
+</body>
+</html>

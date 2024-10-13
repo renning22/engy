@@ -1,11 +1,11 @@
 import os
 import random
 import shutil
+from pathlib import Path
 
 from .llm import auto_load_dotenv, query_llm
 from .produce_files import produce_files
-from .util import load_history, save_history, assert_file_exists_and_read
-
+from .util import assert_file_exists_and_read, load_history, save_history
 
 PORT = random.randint(5000, 10000)
 
@@ -43,39 +43,37 @@ def generate_run_bash(system_prompts):
 
 
 def load_example(path):
-    server_py = assert_file_exists_and_read(os.path.join(path, 'server.py'))
-    index_html = assert_file_exists_and_read(os.path.join(path, 'index.html'))
-    run_sh = assert_file_exists_and_read(os.path.join(path, 'run.sh'))
+    file_contents = {}
+    file_types = ['.py', '.html', '.css', '.js', '.sh']
+    
+    for file_path in Path(path).iterdir():
+        if file_path.suffix in file_types:
+            file_contents[file_path.name] = assert_file_exists_and_read(file_path)
 
-    return f'''# Example Project
-This is the example project which has 3 main files "server.py", "index.html" and "run.sh".
-Here are their contents:
+    content = "# Example Project\n"
+    content += "This is the example project which contains the following files:\n\n"
 
-## server.py
-```python
-{server_py}
-```
+    for filename, file_content in file_contents.items():
+        content += f"## {filename}\n"
+        content += f"```{filename.split('.')[-1]}\n"
+        content += file_content
+        content += "\n```\n\n"
 
-## index.html
-```html
-{index_html}
-```
+    content += "# Objective\n"
+    content += "Modify and re-generate any of these files (if necessary) based on new <FEATURE_REQUEST></FEATURE_REQUEST> statements.\n\n"
 
-## run.sh
-```bash
-{run_sh}
-```
+    content += "# Output\n"
+    content += "Output new or modified file contents using the following format:\n"
+    content += "<filename_extension>File content goes here</filename_extension>\n"
+    content += "For example:\n"
+    content += "<myfile_py>print('Hello, World!')</myfile_py>\n"
+    content += "This will create or update a file named 'myfile.py' with the given content.\n\n"
+    content += "## Note\n"
+    content += "1. Only output one file in each conversation round, based on the user query.\n"
+    content += "2. Once a file is updated, already print the entire new content of the file.\n"
+    content += "3. When no file is needed to update, output \"===end of generation===\".\n"
 
-# Objective
-Modify and re-generate these files based on new <FEATURE_REQUEST></FEATURE_REQUEST> statements.
-
-# Output
-1. Output new "server.py" source code in <SERVER_PYTHON_CODE></SERVER_PYTHON_CODE> block.
-2. Output new "index.html" source code in <INDEX_HTML_CODE></INDEX_HTML_CODE> block.
-3. Output new "run.sh" source code in <RUN_BASH_CODE></RUN_BASH_CODE> block.
-
-Only output one of them in each conversation round, based on user query.
-'''
+    return content
 
 
 def clone_all(path, prompts):
