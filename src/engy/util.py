@@ -1,5 +1,6 @@
 import os
 import pickle
+import subprocess
 from pathlib import Path
 from typing import List
 
@@ -42,7 +43,7 @@ _PRODUCE_FILE_MAPPING = {
     "FRONTEND_DESIGN": "frontend_design.txt",
     "AGENTS_PYTHON_CODE": "agents.py",
     "DOCKERFILE": "Dockerfile",
-    "RUN_DOCKER_BASH": "run_docker.sh",
+    "SERVER_UNIT_TESTS_PYTHON_CODE": "server_unit_test.py",
 }
 
 
@@ -64,3 +65,27 @@ def produce_files(response_text):
         if block_content is not None:
             with open(filename, "w") as f:
                 f.write(block_content)
+
+
+def run_process(cmd):
+    process = subprocess.Popen(
+        cmd,
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1,
+    )
+
+    for line in iter(process.stdout.readline, ""):
+        print(line, end="")
+
+    exit_code = process.wait()
+    return exit_code
+
+
+def run_docker():
+    current_dir = os.getcwd()
+    current_folder_name = os.path.basename(current_dir)
+    cmd = f"docker build -f Dockerfile -t {current_folder_name}:latest ../ && docker run --network host {current_folder_name}:latest"
+    return run_process(cmd)

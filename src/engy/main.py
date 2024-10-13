@@ -1,5 +1,6 @@
 import argparse
 import os
+import subprocess
 import sys
 from contextlib import contextmanager
 
@@ -7,14 +8,14 @@ import yaml
 
 from .app_builder import (
     generate_all,
+    generate_backend_unit_tests,
     generate_dockerfile,
-    generate_run_docker_bash,
     regenerate_all,
     regenerate_backend,
     regenerate_frontend,
 )
 from .app_cloner import clone_all
-from .util import assert_file_exists_and_read
+from .util import assert_file_exists_and_read, run_docker, run_unit_tests
 
 
 @contextmanager
@@ -90,7 +91,15 @@ def main():
         "apply", help="Apply diff to match goal configurations (config.yaml)"
     )
     docker_parser = subparsers.add_parser("docker", help="Generate Dockerfile")
-    run_docker_parser = subparsers.add_parser("run_docker", help="Generate Dockerfile")
+    run_docker_parser = subparsers.add_parser(
+        "run_docker", help="Start the app with docker"
+    )
+    backend_unit_tests_parser = subparsers.add_parser(
+        "unit_tests", help="Generate backend unit tests"
+    )
+    backend_run_unit_tests_parser = subparsers.add_parser(
+        "run_unit_tests", help="Run backend unit tests"
+    )
 
     args = parser.parse_args()
 
@@ -158,7 +167,9 @@ def main():
         elif args.subcommand == "docker":
             generate_dockerfile()
         elif args.subcommand == "run_docker":
-            generate_run_docker_bash()
+            run_docker()
+        elif args.subcommand == "unit_tests":
+            generate_backend_unit_tests()
         else:
             print("App builder")
             if not os.path.exists("input.txt"):

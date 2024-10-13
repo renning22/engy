@@ -37,6 +37,14 @@ When use Flask, also enable CORS.
 Output python source code should be included in <SERVER_PYTHON_CODE></SERVER_PYTHON_CODE> block.
 """
 
+SERVER_UNIT_TESTS_SYSTEM_PROMPT = f"""You are Claude, an AI assistant powered by Anthropic's Claude-3.5-Sonnet model, specialized in backend development.
+You are good at writing python unit tests for webservers in single self-contained python files.
+
+Don't add explanation after the generated code.
+
+Output python source code should be included in <SERVER_UNIT_TESTS_PYTHON_CODE></SERVER_UNIT_TESTS_PYTHON_CODE> block.
+"""
+
 HTML_SYSTEM_PROMPT = f"""You are an expert in Web development, including CSS, JavaScript, React, Tailwind, Node.JS and Hugo / Markdown. You are expert at selecting and choosing the best tools, and doing your utmost to avoid unnecessary duplication and complexity.
 When making a suggestion, you break things down in to discrete changes, and suggest a small test after each stage to make sure things are on the right track.
 Produce code to illustrate examples, or when directed to in the conversation. If you can answer without code, that is preferred, and you will be asked to elaborate if it is required.
@@ -142,6 +150,29 @@ def generate_backend():
     produce_files(responses[0])
 
 
+def generate_backend_unit_tests():
+    backend_design_prompts = assert_file_exists_and_read("backend_design.txt")
+    backend_prompts = assert_file_exists_and_read("server.py")
+    print("Generate server_unit_tests.py", flush=True)
+    query = f"""Generate "server_unit_tests.py". Backend design:
+```
+{backend_design_prompts}
+```
+Backend server implementation:
+```
+{backend_prompts}
+```
+"""
+    responses, histories = query_llm(
+        query,
+        system_message=SERVER_UNIT_TESTS_SYSTEM_PROMPT,
+        previous_history=load_history(),
+        filename="server_unit_tests.py",
+    )
+    save_history(histories[0])
+    produce_files(responses[0])
+
+
 def generate_frontend():
     frontend_design_prompts = assert_file_exists_and_read("frontend_design.txt")
     print("Generate index.html", flush=True)
@@ -227,18 +258,6 @@ CMD [ "python", "server.py" ]
     produce_files(DOCKERFILE)
 
 
-def generate_run_docker_bash():
-    print("Generate run_docker.sh", flush=True)
-    current_dir = os.getcwd()
-    current_folder_name = os.path.basename(current_dir)
-    RUN_DOCKER_BASH = f"""
-<RUN_DOCKER_BASH>
-docker build -f Dockerfile -t {current_folder_name}:latest ../ && docker run --network host {current_folder_name}:latest
-</RUN_DOCKER_BASH>
-"""
-    produce_files(RUN_DOCKER_BASH)
-
-
 def generate_all(problem):
     generate_design(problem)
     generate_backend()
@@ -247,7 +266,7 @@ def generate_all(problem):
     revise_backend()
     generate_run_bash()
     generate_dockerfile()
-    generate_run_docker_bash()
+    generate_backend_unit_tests()
 
 
 def regenerate_backend(prompts):
