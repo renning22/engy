@@ -2,7 +2,8 @@ import os
 import random
 
 from .llm import query_llm
-from .util import assert_file_exists_and_read, load_history, produce_files, save_history
+from .produce_files import produce_files
+from .util import assert_file_exists_and_read, load_history, save_history
 
 PORT = random.randint(5000, 10000)
 

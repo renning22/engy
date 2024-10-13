@@ -3,7 +3,8 @@ import random
 import shutil
 
 from .llm import auto_load_dotenv, query_llm
-from .util import load_history, save_history, assert_file_exists_and_read, produce_files
+from .produce_files import produce_files
+from .util import load_history, save_history, assert_file_exists_and_read
 
 
 PORT = random.randint(5000, 10000)
