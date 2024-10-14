@@ -14,6 +14,7 @@ from .app_builder import (
     regenerate_frontend,
 )
 from .app_cloner import clone_all
+from .app_refactor import refactor_frontend
 from .util import assert_file_exists_and_read
 
 
@@ -90,6 +91,7 @@ def main():
     )
     docker_parser = subparsers.add_parser("docker", help="Generate Dockerfile")
     run_docker_parser = subparsers.add_parser("run_docker", help="Generate Dockerfile")
+    refactor_frontend_parser = subparsers.add_parser("refactor_frontend", help="Refactor the frontend into modular files")
 
     args = parser.parse_args()
 
@@ -155,6 +157,8 @@ def main():
             generate_dockerfile()
         elif args.subcommand == "run_docker":
             generate_run_docker_bash()
+        elif args.subcommand == "refactor_frontend":
+            refactor_frontend()
         else:
             print("App builder")
             if not os.path.exists("input.txt"):
