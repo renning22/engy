@@ -74,7 +74,6 @@ def main():
 
     backend_parser = subparsers.add_parser("backend", help="Regenerate the backend")
     frontend_parser = subparsers.add_parser("frontend", help="Regenerate the frontend")
-    iter_parser = subparsers.add_parser("iter", help="Regenerate both backend/frontend")
     bug_parser = subparsers.add_parser("bug", help="Fix the bug in bug.txt")
     feature_parser = subparsers.add_parser(
         "feature", help="Add the feature stated in feature.txt"
@@ -101,9 +100,6 @@ def main():
         elif args.subcommand == "frontend":
             prompts = input("Input prompts:")
             regenerate_frontend(prompts)
-        elif args.subcommand == "iter":
-            prompts = input("Input prompts:")
-            regenerate_all(prompts)
         elif args.subcommand == "bug":
             bug_description = assert_file_exists_and_read("bug.txt")
             prompts = f"Fix bug:\n<BUG>\n{bug_description}\n</BUG>"
