@@ -1,11 +1,11 @@
 import os
 import random
 import shutil
-from pathlib import Path
 
+from .code_map import load_code_folder_to_system_prompt
 from .llm import auto_load_dotenv, query_llm
 from .produce_files import produce_files
-from .util import assert_file_exists_and_read, load_history, save_history
+from .util import load_history, save_history
 
 PORT = random.randint(5000, 10000)
 
@@ -42,40 +42,6 @@ def generate_run_bash(system_prompts):
     produce_files(responses[0])
 
 
-def load_example(path):
-    file_contents = {}
-    file_types = ['.py', '.html', '.css', '.js', '.sh']
-    
-    for file_path in Path(path).iterdir():
-        if file_path.suffix in file_types:
-            file_contents[file_path.name] = assert_file_exists_and_read(file_path)
-
-    content = "# Example Project\n"
-    content += "This is the example project which contains the following files:\n\n"
-
-    for filename, file_content in file_contents.items():
-        content += f"## {filename}\n"
-        content += f"```{filename.split('.')[-1]}\n"
-        content += file_content
-        content += "\n```\n\n"
-
-    content += "# Objective\n"
-    content += "Modify and re-generate any of these files (if necessary) based on new <FEATURE_REQUEST></FEATURE_REQUEST> statements.\n\n"
-
-    content += "# Output\n"
-    content += "Output new or modified file contents using the following format:\n"
-    content += "<filename_extension>File content goes here</filename_extension>\n"
-    content += "For example:\n"
-    content += "<myfile_py>print('Hello, World!')</myfile_py>\n"
-    content += "This will create or update a file named 'myfile.py' with the given content.\n\n"
-    content += "## Note\n"
-    content += "1. Only output one file in each conversation round, based on the user query.\n"
-    content += "2. Once a file is updated, already print the entire new content of the file.\n"
-    content += "3. When no file is needed to update, output \"===end of generation===\".\n"
-
-    return content
-
-
 def clone_all(path, prompts):
     try:
         shutil.copy2(os.path.join(path, '.env'), '.env')
@@ -83,7 +49,7 @@ def clone_all(path, prompts):
     except (FileNotFoundError, shutil.SameFileError, OSError):
         pass  # Silently ignore errors
 
-    system_prompts = load_example(path)
+    system_prompts = load_code_map_to_system_prompt(path)
     generate_backend(prompts, system_prompts)
     generate_frontend(system_prompts)
     generate_run_bash(system_prompts)
