@@ -49,7 +49,7 @@ def clone_all(path, prompts):
     except (FileNotFoundError, shutil.SameFileError, OSError):
         pass  # Silently ignore errors
 
-    system_prompts = load_code_map_to_system_prompt(path)
+    system_prompts = load_code_folder_to_system_prompt(path)
     generate_backend(prompts, system_prompts)
     generate_frontend(system_prompts)
     generate_run_bash(system_prompts)
