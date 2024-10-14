@@ -22,8 +22,10 @@ Output each new file content in the format <filename_extension>content</filename
     responses, histories = query_llm(
         query,
         system_message=system_prompt,
+        previous_history=load_history(prefix="refactor"),
         filename="frontend_refactor"
     )
+    save_history(histories[0], prefix="refactor")
     produce_files(responses[0])
 
 
@@ -35,6 +37,7 @@ def refactor_backend():
     
     query = '''Try to refactor the "server.py", break into smaller, modular ".py" files.
 Each file is better to be less than 100 lines.
+Also make "server.py" to be able to serve ".js" and ".css" files.
 
 Use semantic naming for the new files.
 Update the main server file to properly import and use the new modules.
@@ -43,7 +46,13 @@ Output each new file content in the format <filename_extension>content</filename
     responses, histories = query_llm(
         query,
         system_message=system_prompt,
+        previous_history=load_history(prefix="refactor"),
         filename="backend_refactor"
     )
+    save_history(histories[0], prefix="refactor")
     produce_files(responses[0])
 
+
+def refactor():
+    refactor_frontend()
+    refactor_backend()
