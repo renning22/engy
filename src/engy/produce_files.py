@@ -28,6 +28,7 @@ def produce_files(response_text):
         if block_content is not None:
             with open(filename, "w") as f:
                 f.write(block_content)
+            print(f"New file written: {filename}")
 
     # Then, look for any other blocks with the format <anyname_extension>
     pattern = r"<(\w+)_(\w+)>(.*?)</\1_\2>"
@@ -43,5 +44,6 @@ def produce_files(response_text):
             filename = f"{block_name}.{extension}"
             with open(filename, "w") as f:
                 f.write(content)
+            print(f"New file written: {filename}")
 
     print("Files have been produced based on the response text.")
