@@ -32,7 +32,7 @@ def load_code_folder_to_system_prompt(path):
     content += "This will create or update a file named 'myfile.py' with the given content.\n\n"
     content += "## Note\n"
     content += "1. Only output one file in each conversation round, based on the user query.\n"
-    content += "2. Once a file is updated, already print the entire new content of the file.\n"
-    content += "3. When no file is needed to update, output \"===end of generation===\".\n"
+    content += "2. Once a file is updated, always print the full content (no diff format).\n"
+    content += "3. When no file is to update, output \"===end of generation===\".\n"
 
     return content
