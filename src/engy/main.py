@@ -159,7 +159,7 @@ def main():
         elif args.subcommand == "run_docker":
             generate_run_docker_bash()
         elif args.subcommand == "split":
-            split()  # Updated function call
+            split()
         else:
             print("App builder")
             if not os.path.exists("input.txt"):
