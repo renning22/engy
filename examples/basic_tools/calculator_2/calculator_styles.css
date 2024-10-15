@@ -1,0 +1,24 @@
+
+.btn {
+    @apply bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-4 px-6 rounded-xl transition duration-200 ease-in-out transform hover:scale-105;
+}
+
+.btn-orange {
+    @apply bg-orange-500 hover:bg-orange-600;
+}
+
+.btn-blue {
+    @apply bg-blue-500 hover:bg-blue-600;
+}
+
+.btn-green {
+    @apply bg-green-500 hover:bg-green-600;
+}
+
+.btn-red {
+    @apply bg-red-500 hover:bg-red-600;
+}
+
+.btn-purple {
+    @apply bg-purple-500 hover:bg-purple-600;
+}

@@ -75,6 +75,15 @@ engy frontend
 # Enter prompts to enhance your UI or add new interactive elements
 ```
 
+### 🔧 Refactor Your App
+To refactor your app's frontend and backend into modular files:
+
+```bash
+engy refactor
+```
+
+This command will reorganize your code structure for better maintainability and scalability.
+
 ### 🧬 Clone an Existing App
 To create a new app based on an existing one:
 
