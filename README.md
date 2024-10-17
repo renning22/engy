@@ -85,7 +85,7 @@ engy frontend
 To refactor your app's frontend and backend into modular files:
 
 ```bash
-engy refactor
+engy split
 ```
 
 This command will reorganize your code structure for better maintainability and scalability.
