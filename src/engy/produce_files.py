@@ -1,6 +1,5 @@
 import re
 
-
 _PRODUCE_FILE_MAPPING = {
     "AGENTS_DESIGN": "agents_design.json",
     "TASKS_DESIGN": "tasks_design.json",
@@ -12,6 +11,7 @@ _PRODUCE_FILE_MAPPING = {
     "AGENTS_PYTHON_CODE": "agents.py",
     "DOCKERFILE": "Dockerfile",
     "RUN_DOCKER_BASH": "run_docker.sh",
+    "SERVER_UNIT_TESTS_PYTHON_CODE": "server_test.py",
 }
 
 

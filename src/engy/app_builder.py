@@ -154,8 +154,8 @@ def generate_backend():
 def generate_backend_unit_tests():
     backend_design_prompts = assert_file_exists_and_read("backend_design.txt")
     backend_prompts = assert_file_exists_and_read("server.py")
-    print("Generate server_unit_tests.py", flush=True)
-    query = f"""Generate "server_unit_tests.py". Backend design:
+    print("Generate server_test.py", flush=True)
+    query = f"""Generate "server_test.py". Backend design:
 ```
 {backend_design_prompts}
 ```
@@ -168,7 +168,7 @@ Backend server implementation:
         query,
         system_message=SERVER_UNIT_TESTS_SYSTEM_PROMPT,
         previous_history=load_history(),
-        filename="server_unit_tests.py",
+        filename="server_test.py",
     )
     save_history(histories[0])
     produce_files(responses[0])
@@ -267,7 +267,6 @@ def generate_all(problem):
     revise_backend()
     generate_run_bash()
     generate_dockerfile()
-    generate_backend_unit_tests()
 
 
 def regenerate_backend(prompts):
