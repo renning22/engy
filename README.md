@@ -39,6 +39,12 @@ pip install engy
    echo "ANTHROPIC_API_KEY=your_super_secret_key" > .env
    ```
 
+   The default model is `claude-3.5-sonnet`. You can switch to any model, e.g. gpt-4 by adding the following to your `.env` file:
+   ```bash
+   echo "MODEL=gpt-4" >> .env
+   echo "OPENAI_API_KEY=your_openai_api_key" >> .env
+   ```
+
 4. Let Engy work its magic:
    ```bash
    engy
@@ -75,12 +81,21 @@ engy frontend
 # Enter prompts to enhance your UI or add new interactive elements
 ```
 
+### 🔧 Refactor Your App
+To refactor your app's frontend and backend into modular files:
+
+```bash
+engy split
+```
+
+This command will reorganize your code structure for better maintainability and scalability.
+
 ### 🧬 Clone an Existing App
 To create a new app based on an existing one:
 
 ```bash
 mkdir my_app_2 && cd my_app_2
-echo "make change ..." > input.txt
+echo "new changes..." > input.txt
 engy clone /path/to/my_app
 ```
 
@@ -134,14 +149,16 @@ Engy comes with a wide range of example projects to help you get started and und
 - [Product Roadmap](examples/advance/product_roadmap)
 - [SLA Dashboard](examples/advance/sla_dashboard)
 
-## 🛠️ Contribute to the Magic
+## 🛠️ Contribute
 
-Want to enhance Engy's capabilities or add new features? We'd love your contributions! 🎉
-Reach out to our wizard team:
-- @renning22
-- @mincomp
+This repo is created and mainly maintained by two passionate engineers:
 
-[Detailed contribution guidelines coming soon!]
+- @renning22: ex-MLE at Pony.AI, ex-Googler
+- @mincomp: MLE at ScaleAI, ex-Meta, ex-Uber
+
+They envision and practice that tedious low-level coding work can be replaced by AI.
+
+Any contribution is welcomed! Create issue/PR and at us!
 
 ## 📜 License
 
@@ -150,4 +167,4 @@ Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 ## 🆘 Need Help with Your App?
 
-[We're preparing comprehensive documentation and support. Stay tuned!]
+If you're having trouble generating your app or encountering any issues, don't hesitate to reach out! Feel free to open an issue on our GitHub repository or contact us directly at renning22@gmail.com. We're very happy to pilot you and give help. We're here to help you bring your app ideas to life with Engy!

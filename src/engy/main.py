@@ -15,7 +15,8 @@ from .app_builder import (
     regenerate_frontend,
 )
 from .app_cloner import clone_all
-from .util import assert_file_exists_and_read, run_docker, run_unit_tests
+from .app_split import split
+from .util import assert_file_exists_and_read, run_docker
 
 
 @contextmanager
@@ -75,7 +76,6 @@ def main():
 
     backend_parser = subparsers.add_parser("backend", help="Regenerate the backend")
     frontend_parser = subparsers.add_parser("frontend", help="Regenerate the frontend")
-    iter_parser = subparsers.add_parser("iter", help="Regenerate both backend/frontend")
     bug_parser = subparsers.add_parser("bug", help="Fix the bug in bug.txt")
     feature_parser = subparsers.add_parser(
         "feature", help="Add the feature stated in feature.txt"
@@ -91,14 +91,15 @@ def main():
         "apply", help="Apply diff to match goal configurations (config.yaml)"
     )
     docker_parser = subparsers.add_parser("docker", help="Generate Dockerfile")
-    run_docker_parser = subparsers.add_parser(
-        "run_docker", help="Start the app with docker"
+    run_docker_parser = subparsers.add_parser("run_docker", help="Generate Dockerfile")
+    refactor_parser = subparsers.add_parser(
+        "refactor", help="Refactor the frontend and backend into modular files"
+    )
+    split_parser = subparsers.add_parser(
+        "split", help="Split the frontend and backend into modular files"
     )
     backend_unit_tests_parser = subparsers.add_parser(
         "unit_tests", help="Generate backend unit tests"
-    )
-    backend_run_unit_tests_parser = subparsers.add_parser(
-        "run_unit_tests", help="Run backend unit tests"
     )
 
     args = parser.parse_args()
@@ -110,9 +111,6 @@ def main():
         elif args.subcommand == "frontend":
             prompts = input("Input prompts:")
             regenerate_frontend(prompts)
-        elif args.subcommand == "iter":
-            prompts = input("Input prompts:")
-            regenerate_all(prompts)
         elif args.subcommand == "bug":
             bug_description = assert_file_exists_and_read("bug.txt")
             prompts = f"Fix bug:\n<BUG>\n{bug_description}\n</BUG>"
@@ -170,6 +168,8 @@ def main():
             run_docker()
         elif args.subcommand == "unit_tests":
             generate_backend_unit_tests()
+        elif args.subcommand == "split":
+            split()
         else:
             print("App builder")
             if not os.path.exists("input.txt"):

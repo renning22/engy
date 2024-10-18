@@ -1,0 +1,21 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="calculator_styles.css">
+</head>
+<body class="bg-gradient-to-r from-purple-500 to-pink-500 min-h-screen flex items-center justify-center">
+    <div class="calculator bg-white rounded-3xl shadow-2xl p-8 w-120">
+        <div id="display" class="bg-gray-100 rounded-2xl p-4 text-right text-3xl font-bold mb-4 h-20 flex items-center justify-end overflow-hidden">0</div>
+        <div id="numpad" class="grid grid-cols-5 gap-4 mb-4"></div>
+        <div id="operations" class="grid grid-cols-5 gap-4 mb-4"></div>
+        <div id="advanced-operations" class="grid grid-cols-2 gap-4"></div>
+    </div>
+    <script src="calculator_ui.js"></script>
+    <script src="calculator_logic.js"></script>
+</body>
+</html>
