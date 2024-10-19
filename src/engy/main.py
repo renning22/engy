@@ -1,5 +1,6 @@
 import argparse
 import os
+import subprocess
 import sys
 from contextlib import contextmanager
 
@@ -7,15 +8,15 @@ import yaml
 
 from .app_builder import (
     generate_all,
+    generate_backend_unit_tests,
     generate_dockerfile,
-    generate_run_docker_bash,
     regenerate_all,
     regenerate_backend,
     regenerate_frontend,
 )
 from .app_cloner import clone_all
 from .app_split import split
-from .util import assert_file_exists_and_read
+from .util import assert_file_exists_and_read, run_docker
 
 
 @contextmanager
@@ -91,8 +92,15 @@ def main():
     )
     docker_parser = subparsers.add_parser("docker", help="Generate Dockerfile")
     run_docker_parser = subparsers.add_parser("run_docker", help="Generate Dockerfile")
-    refactor_parser = subparsers.add_parser("refactor", help="Refactor the frontend and backend into modular files")
-    split_parser = subparsers.add_parser("split", help="Split the frontend and backend into modular files")
+    refactor_parser = subparsers.add_parser(
+        "refactor", help="Refactor the frontend and backend into modular files"
+    )
+    split_parser = subparsers.add_parser(
+        "split", help="Split the frontend and backend into modular files"
+    )
+    backend_unit_tests_parser = subparsers.add_parser(
+        "unit_tests", help="Generate backend unit tests"
+    )
 
     args = parser.parse_args()
 
@@ -157,7 +165,9 @@ def main():
         elif args.subcommand == "docker":
             generate_dockerfile()
         elif args.subcommand == "run_docker":
-            generate_run_docker_bash()
+            run_docker()
+        elif args.subcommand == "unit_tests":
+            generate_backend_unit_tests()
         elif args.subcommand == "split":
             split()
         else:

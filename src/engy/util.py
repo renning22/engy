@@ -1,5 +1,6 @@
 import os
 import pickle
+import subprocess
 from pathlib import Path
 from typing import List
 
@@ -30,3 +31,27 @@ def load_history(prefix="default") -> List[ChatMessage]:
     if history_filename.exists():
         return pickle.loads(history_filename.read_bytes())
     return []
+
+
+def run_process(cmd):
+    process = subprocess.Popen(
+        cmd,
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1,
+    )
+
+    for line in iter(process.stdout.readline, ""):
+        print(line, end="")
+
+    exit_code = process.wait()
+    return exit_code
+
+
+def run_docker():
+    current_dir = os.getcwd()
+    current_folder_name = os.path.basename(current_dir)
+    cmd = f"docker build -f Dockerfile -t {current_folder_name}:latest ../ && docker run --network host {current_folder_name}:latest"
+    return run_process(cmd)
