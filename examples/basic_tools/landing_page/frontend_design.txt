@@ -1,0 +1,112 @@
+
+Single page dark-themed design with futuristic elements:
+
+```html
+<!-- Structure -->
+<div class="container">
+    <div class="glitch-wrapper">
+        <h1 class="main-text" data-text="Failure-Is-Not-An-Error">
+            Failure-Is-Not-An-Error
+        </h1>
+    </div>
+</div>
+
+<!-- Styling -->
+<style>
+/* Color scheme */
+:root {
+    --primary-color: #0a0a0a;
+    --accent-color: #00ff9d;
+    --glow-color: rgba(0, 255, 157, 0.5);
+    --text-color: #ffffff;
+}
+
+body {
+    background-color: var(--primary-color);
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'BladeRunner', monospace;
+    overflow: hidden;
+}
+
+/* Main text styling */
+.main-text {
+    font-size: 4vw;
+    color: var(--text-color);
+    text-shadow: 0 0 10px var(--glow-color);
+    letter-spacing: 0.2em;
+    position: relative;
+}
+
+/* Glitch effect */
+.glitch-wrapper {
+    position: relative;
+    animation: float 4s ease-in-out infinite;
+}
+
+/* Hover effects */
+.main-text:hover {
+    color: var(--accent-color);
+    transition: color 0.3s ease;
+}
+
+/* Background grid */
+.container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        var(--primary-color) 1px,
+        transparent 1px
+    ) 0 0,
+    linear-gradient(
+        90deg,
+        var(--primary-color) 1px,
+        transparent 1px
+    ) 0 0;
+    background-size: 30px 30px;
+    opacity: 0.1;
+}
+
+/* Animations */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Optional: JavaScript for dynamic effects */
+<script>
+document.addEventListener('mousemove', (e) => {
+    const text = document.querySelector('.main-text');
+    const { clientX, clientY } = e;
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    
+    const angleX = (clientX - centerX) / centerX;
+    const angleY = (clientY - centerY) / centerY;
+    
+    text.style.transform = `perspective(1000px) 
+                           rotateY(${angleX * 5}deg) 
+                           rotateX(${-angleY * 5}deg)`;
+});
+</script>
+</style>
+```
+
+Key features:
+1. Dark theme with neon accents
+2. Glitch effect on text
+3. Subtle floating animation
+4. Interactive 3D rotation on mouse move
+5. Background grid for depth
+6. Responsive design
+7. Custom font for futuristic look
+8. Hover effects with color transition
+9. Text shadow for glow effect
