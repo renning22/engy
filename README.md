@@ -115,6 +115,7 @@ Engy comes with a wide range of example projects to help you get started and und
 
 - [Airtable CRM](examples/basic_tools/airtable_crm_1)
 - [Calculator](examples/basic_tools/calculator)
+- [Calculator 2](examples/basic_tools/calculator_2)
 - [Daughter School Planner](examples/basic_tools/daughter_school)
 - [Docker Containers Manager](examples/basic_tools/docker_containers)
 - [Document Summary Agent](examples/basic_tools/doc_summary_agent)
@@ -125,6 +126,7 @@ Engy comes with a wide range of example projects to help you get started and und
 - [Invoice Creator (Version 1)](examples/basic_tools/invoice_creator)
 - [Invoice Creator (Version 2)](examples/basic_tools/invoice_creator_2)
 - [Kubernetes Pods Manager](examples/basic_tools/k8s_pods)
+- [Landing Page finae.ai](examples/basic_tools/landing_page)
 - [Trip Planner (Hawaii)](examples/basic_tools/plan_a_trip_hawaii)
 - [Sales Revenue Dashboard](examples/basic_tools/sales_revenue_dashboard)
 - [Text Diff Tool](examples/basic_tools/text_diff)
