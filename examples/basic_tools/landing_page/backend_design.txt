@@ -1,0 +1,31 @@
+
+Simple Flask server with minimal routes:
+
+```python
+# Main server structure
+from flask import Flask, render_template
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    # Serve the single landing page
+    return render_template('index.html')
+
+# Optional: API endpoint for any dynamic effects
+@app.route('/api/glitch-effect')
+def glitch_effect():
+    # Return random glitch parameters for dynamic effects
+    return {
+        'offset': random.randint(-5, 5),
+        'opacity': random.random()
+    }
+
+# Configuration
+app.config.update(
+    DEBUG=True,
+    STATIC_FOLDER='static'
+)
+```
+
+The backend is intentionally minimal since this is primarily a static landing page.

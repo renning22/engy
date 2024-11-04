@@ -1,0 +1,203 @@
+
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>finae.ai - Failure Is Not An Error</title>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom font -->
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <script>
+        // Tailwind Configuration
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'cyber-black': '#0a0a0a',
+                        'cyber-green': '#00ff9d',
+                        'cyber-pink': '#ff00ff',
+                        'cyber-blue': '#00ffff'
+                    },
+                    animation: {
+                        'float': 'float 4s ease-in-out infinite',
+                        'glitch-1': 'glitch-1 2s infinite',
+                        'glitch-2': 'glitch-2 3s infinite',
+                        'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        },
+                        'pulse-glow': {
+                            '0%, 100%': {
+                                opacity: '1'
+                            },
+                            '50%': {
+                                opacity: '0.5'
+                            }
+                        }
+                    },
+                    fontFamily: {
+                        'cyber': ['"Share Tech Mono"', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom styles that can't be handled by Tailwind */
+        .cyber-grid::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(#0a0a0a 1px, transparent 1px) 0 0,
+                linear-gradient(90deg, #0a0a0a 1px, transparent 1px) 0 0;
+            background-size: 30px 30px;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .glitch-text {
+            position: relative;
+        }
+
+        .glitch-text::before,
+        .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            opacity: 0.8;
+        }
+
+        .glitch-text::before {
+            animation: glitch-1 2s infinite;
+            color: #ff00ff;
+            transform: translateX(-2px);
+        }
+
+        .glitch-text::after {
+            animation: glitch-2 3s infinite;
+            color: #00ffff;
+            transform: translateX(2px);
+        }
+
+        @keyframes glitch-1 {
+            0% { clip: rect(132px, 350px, 101px, 30px); }
+            20% { clip: rect(116px, 350px, 14px, 30px); }
+            40% { clip: rect(162px, 350px, 5px, 30px); }
+            60% { clip: rect(17px, 350px, 166px, 30px); }
+            80% { clip: rect(28px, 350px, 150px, 30px); }
+            100% { clip: rect(120px, 350px, 13px, 30px); }
+        }
+
+        @keyframes glitch-2 {
+            0% { clip: rect(129px, 350px, 36px, 30px); }
+            20% { clip: rect(36px, 350px, 4px, 30px); }
+            40% { clip: rect(62px, 350px, 91px, 30px); }
+            60% { clip: rect(15px, 350px, 66px, 30px); }
+            80% { clip: rect(138px, 350px, 1px, 30px); }
+            100% { clip: rect(79px, 350px, 136px, 30px); }
+        }
+    </style>
+</head>
+<body class="bg-cyber-black min-h-screen font-cyber text-white overflow-hidden">
+    <!-- Background particles -->
+    <div class="fixed inset-0 opacity-20">
+        <div class="cyber-grid absolute inset-0"></div>
+    </div>
+
+    <!-- Main container -->
+    <div class="relative min-h-screen flex items-center justify-center px-4">
+        <!-- Glow effects -->
+        <div class="absolute inset-0 flex items-center justify-center">
+            <div class="w-[600px] h-[600px] bg-cyber-green opacity-5 rounded-full blur-[100px] animate-pulse-glow"></div>
+        </div>
+
+        <!-- Content wrapper -->
+        <div class="relative z-10 text-center">
+            <!-- Logo or brand mark (optional) -->
+            <div class="mb-8">
+                <div class="inline-block w-16 h-16 rounded-full border-2 border-cyber-green animate-spin-slow"></div>
+            </div>
+
+            <!-- Main text -->
+            <div class="animate-float">
+                <h1 
+                    class="glitch-text text-4xl md:text-6xl lg:text-7xl tracking-wider font-bold"
+                    data-text="Failure-Is-Not-An-Error"
+                >
+                    Failure-Is-Not-An-Error
+                </h1>
+            </div>
+
+            <!-- Subtle description -->
+            <p class="mt-6 text-cyber-green opacity-70 tracking-widest text-sm md:text-base">
+                ADVANCING THE FUTURE OF AI
+            </p>
+
+            <!-- Interactive button -->
+            <button 
+                class="mt-12 px-8 py-3 bg-transparent border border-cyber-green text-cyber-green 
+                       hover:bg-cyber-green hover:text-cyber-black transition-all duration-300 
+                       tracking-wider transform hover:scale-105"
+            >
+                ENTER
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 3D rotation effect
+        document.addEventListener('mousemove', (e) => {
+            const text = document.querySelector('.glitch-text');
+            const { clientX, clientY } = e;
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            
+            const angleX = (clientX - centerX) / centerX;
+            const angleY = (clientY - centerY) / centerY;
+            
+            text.style.transform = `perspective(1000px) 
+                                  rotateY(${angleX * 5}deg) 
+                                  rotateX(${-angleY * 5}deg)`;
+        });
+
+        // Server connection for glitch effects
+        async function fetchGlitchEffect() {
+            try {
+                const response = await fetch('http://localhost:8933/api/glitch-effect');
+                const data = await response.json();
+                
+                const text = document.querySelector('.glitch-text');
+                const currentTransform = text.style.transform || '';
+                
+                text.style.transform = `${currentTransform} translateX(${data.offset}px)`;
+                text.style.opacity = data.opacity;
+                
+                setTimeout(() => {
+                    text.style.transform = currentTransform;
+                    text.style.opacity = 1;
+                }, 150);
+            } catch (error) {
+                console.error('Error fetching glitch effect:', error);
+            }
+        }
+
+        setInterval(fetchGlitchEffect, 2000);
+    </script>
+</body>
+</html>

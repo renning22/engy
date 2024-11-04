@@ -46,10 +46,9 @@ def query_llm(prompt: str, *,
               image_base64: List[str] = []):
     extra_headers = {}
     if not model:
-        model = os.getenv('MODEL', 'claude-3-5-sonnet-20240620')
+        model = os.getenv('MODEL', 'claude-3-5-sonnet-20241022')
     if '3-5-sonnet' in model:
         max_tokens = 8000
-        extra_headers = {"anthropic-beta": "max-tokens-3-5-sonnet-2024-07-15"}
     n = int(os.getenv('BATCH_INFERENCE_N', '1'))
     if n == 1:
         n = None
