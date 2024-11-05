@@ -1,3 +1,1 @@
-Uncaught ReferenceError: CameraManager is not defined
-    at new PeopleCounterApp ((index):144:42)
-    at HTMLDocument.<anonymous> ((index):225:25)
+It works! but why the detectin is not stable, it only detect 1 person while 2 are actually in the frame.

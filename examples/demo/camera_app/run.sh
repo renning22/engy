@@ -40,7 +40,8 @@ pip install flask \
     opencv-python \
     mediapipe \
     numpy \
-    pillow
+    pillow \
+    mediapipe-model-maker
 
 # Check if installation was successful
 if [ $? -ne 0 ]; then

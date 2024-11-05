@@ -1,5 +1,5 @@
 
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import cv2
 import numpy as np
@@ -7,12 +7,11 @@ import mediapipe as mp
 import base64
 import io
 from PIL import Image
-import os
 
 app = Flask(__name__)
 CORS(app)
 
-# HTML template with complete JavaScript implementation
+# HTML template (same as before)
 HTML_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="en">
@@ -307,40 +306,60 @@ HTML_TEMPLATE = '''
 
 class PersonDetector:
     def __init__(self):
-        self.pose_detector = mp.solutions.pose.Pose(
-            min_detection_confidence=0.5,
-            min_tracking_confidence=0.5
+        # Initialize MediaPipe Object Detection
+        base_options = mp.tasks.BaseOptions(model_asset_path='efficientdet_lite0.tflite')
+        self.options = mp.tasks.vision.ObjectDetectorOptions(
+            base_options=base_options,
+            score_threshold=0.5  # Adjust this threshold as needed
         )
-    
-    def detect(self, frame):
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = self.pose_detector.process(frame_rgb)
+        self.detector = mp.tasks.vision.ObjectDetector.create_from_options(self.options)
         
-        person_count = 0
+        # Download model if not exists
+        self._ensure_model_exists()
+    
+    def _ensure_model_exists(self):
+        import urllib.request
+        import os
+        
+        model_path = 'efficientdet_lite0.tflite'
+        if not os.path.exists(model_path):
+            print("Downloading detection model...")
+            url = "https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float32/1/efficientdet_lite0.tflite"
+            urllib.request.urlretrieve(url, model_path)
+            print("Model downloaded successfully!")
+
+    def detect(self, frame):
+        # Convert frame to RGB
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
+        
+        # Detect objects
+        detection_result = self.detector.detect(mp_image)
+        
+        # Filter for person detections
+        person_detections = [
+            detection for detection in detection_result.detections
+            if detection.categories[0].category_name == "person"
+            and detection.categories[0].score > 0.5
+        ]
+        
+        # Count persons and get bounding boxes
+        person_count = len(person_detections)
         boxes = []
         
-        if results.pose_landmarks:
-            height, width = frame.shape[:2]
-            person_count = 1
-            
-            landmarks = results.pose_landmarks.landmark
-            x_coordinates = [landmark.x for landmark in landmarks]
-            y_coordinates = [landmark.y for landmark in landmarks]
-            
-            x_min = int(min(x_coordinates) * width)
-            x_max = int(max(x_coordinates) * width)
-            y_min = int(min(y_coordinates) * height)
-            y_max = int(max(y_coordinates) * height)
-            
+        for detection in person_detections:
+            bbox = detection.bounding_box
             boxes.append({
-                'x': x_min,
-                'y': y_min,
-                'width': x_max - x_min,
-                'height': y_max - y_min
+                'x': bbox.origin_x,
+                'y': bbox.origin_y,
+                'width': bbox.width,
+                'height': bbox.height,
+                'confidence': float(detection.categories[0].score)
             })
         
         return person_count, boxes
 
+# Create a global instance of PersonDetector
 detector = PersonDetector()
 
 @app.route('/')
@@ -350,27 +369,36 @@ def index():
 @app.route('/process_frame', methods=['POST'])
 def process_frame():
     try:
+        # Get the image data from the request
         image_data = request.json.get('image')
         if not image_data:
             return jsonify({'error': 'No image data received'}), 400
         
+        # Remove the data URL prefix if present
         if 'base64,' in image_data:
             image_data = image_data.split('base64,')[1]
         
+        # Decode base64 image
         image_bytes = base64.b64decode(image_data)
         image = Image.open(io.BytesIO(image_bytes))
+        
+        # Convert PIL Image to OpenCV format
         opencv_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
         
+        # Process the frame
         count, boxes = detector.detect(opencv_image)
         
+        # Return the results
         return jsonify({
             'person_count': count,
             'boxes': boxes
         })
     
     except Exception as e:
+        print(f"Error processing frame: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     print(f"Server running at http://0.0.0.0:5517")
+    print("Initializing person detection model...")
     app.run(host='0.0.0.0', port=5517, debug=True)
