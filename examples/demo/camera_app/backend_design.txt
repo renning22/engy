@@ -1,0 +1,47 @@
+
+Python Flask Server Design:
+
+1. Dependencies:
+- Flask
+- OpenCV (cv2)
+- numpy
+- mediapipe (for person detection)
+
+2. Server Routes:
+```python
+@app.route('/')
+def index():
+    # Serve the main HTML page
+    return render_template('index.html')
+
+@app.route('/process_frame', methods=['POST'])
+def process_frame():
+    # Endpoint to receive frame data and return person count
+    # - Receive base64 encoded image from frontend
+    # - Decode image to numpy array
+    # - Run person detection using mediapipe
+    # - Count detected persons
+    # - Return JSON with count and bounding boxes
+    return {
+        'person_count': count,
+        'boxes': bounding_boxes
+    }
+```
+
+3. Person Detection Logic:
+```python
+class PersonDetector:
+    def __init__(self):
+        # Initialize mediapipe pose detection
+        self.pose_detector = mp.solutions.pose.Pose()
+    
+    def detect(self, frame):
+        # Process frame
+        # Return count and bounding boxes
+        pass
+```
+
+4. Configuration:
+- MIME types for image processing
+- Maximum frame size
+- Detection confidence threshold

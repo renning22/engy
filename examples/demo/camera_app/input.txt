@@ -1,0 +1,1 @@
+Create an app that captures the camera, does the detection and count how many people in the frame.
