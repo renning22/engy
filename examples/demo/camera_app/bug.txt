@@ -1,0 +1,3 @@
+Uncaught ReferenceError: CameraManager is not defined
+    at new PeopleCounterApp ((index):144:42)
+    at HTMLDocument.<anonymous> ((index):225:25)

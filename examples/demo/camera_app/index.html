@@ -5,9 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>People Counter | AI Detection</title>
-    <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Custom Tailwind configuration -->
     <script>
         tailwind.config = {
             theme: {
@@ -21,11 +19,9 @@
             }
         }
     </script>
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 </head>
 <body class="bg-slate-50 min-h-screen">
-    <!-- Navigation Bar -->
     <nav class="bg-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
@@ -40,10 +36,8 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-            <!-- Video Container -->
             <div class="relative w-full aspect-video bg-black">
                 <video id="videoElement" 
                        class="absolute top-0 left-0 w-full h-full object-contain"
@@ -51,7 +45,6 @@
                 <canvas id="overlayCanvas" 
                         class="absolute top-0 left-0 w-full h-full"></canvas>
                 
-                <!-- Camera Status Indicator -->
                 <div id="cameraStatus" 
                      class="absolute top-4 right-4 flex items-center bg-black/50 rounded-full px-3 py-1">
                     <div class="w-2 h-2 rounded-full bg-red-500 mr-2"></div>
@@ -59,10 +52,8 @@
                 </div>
             </div>
 
-            <!-- Stats Panel -->
             <div class="p-6 border-t border-gray-100">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- People Count Card -->
                     <div class="bg-blue-50 rounded-lg p-4">
                         <div class="flex items-center justify-between">
                             <div>
@@ -75,7 +66,6 @@
                         </div>
                     </div>
 
-                    <!-- FPS Counter -->
                     <div class="bg-green-50 rounded-lg p-4">
                         <div class="flex items-center justify-between">
                             <div>
@@ -88,7 +78,6 @@
                         </div>
                     </div>
 
-                    <!-- Status -->
                     <div class="bg-purple-50 rounded-lg p-4">
                         <div class="flex items-center justify-between">
                             <div>
@@ -103,7 +92,6 @@
                 </div>
             </div>
 
-            <!-- Controls -->
             <div class="p-6 bg-gray-50 border-t border-gray-100">
                 <div class="flex justify-center space-x-4">
                     <button id="startButton"
@@ -121,14 +109,88 @@
             </div>
         </div>
 
-        <!-- Footer -->
         <footer class="mt-8 text-center text-gray-500 text-sm">
             <p>© 2024 AI People Counter. All rights reserved.</p>
         </footer>
     </main>
 
     <script>
-        // ... [Previous JavaScript classes remain the same] ...
+        class CameraManager {
+            constructor(videoElement) {
+                this.videoElement = videoElement;
+                this.stream = null;
+            }
+
+            async initialize() {
+                try {
+                    this.stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 }
+                        }
+                    });
+                    this.videoElement.srcObject = this.stream;
+                    return true;
+                } catch (error) {
+                    console.error('Error accessing camera:', error);
+                    return false;
+                }
+            }
+
+            stop() {
+                if (this.stream) {
+                    this.stream.getTracks().forEach(track => track.stop());
+                    this.stream = null;
+                }
+                this.videoElement.srcObject = null;
+            }
+        }
+
+        class FrameProcessor {
+            constructor(videoElement, canvasElement) {
+                this.videoElement = videoElement;
+                this.canvas = canvasElement;
+                this.ctx = canvasElement.getContext('2d');
+            }
+
+            captureFrame() {
+                this.canvas.width = this.videoElement.videoWidth;
+                this.canvas.height = this.videoElement.videoHeight;
+                this.ctx.drawImage(this.videoElement, 0, 0);
+                return this.canvas.toDataURL('image/jpeg', 0.8);
+            }
+
+            async processFrame() {
+                const imageData = this.captureFrame();
+                
+                try {
+                    const response = await fetch('/process_frame', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ image: imageData })
+                    });
+
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    
+                    const result = await response.json();
+                    return result;
+                } catch (error) {
+                    console.error('Error processing frame:', error);
+                    return null;
+                }
+            }
+
+            drawBoxes(boxes) {
+                this.ctx.strokeStyle = '#00ff00';
+                this.ctx.lineWidth = 2;
+                
+                boxes.forEach(box => {
+                    this.ctx.strokeRect(box.x, box.y, box.width, box.height);
+                });
+            }
+        }
 
         class PeopleCounterApp {
             constructor() {
@@ -220,7 +282,6 @@
             }
         }
 
-        // Initialize app when page loads
         document.addEventListener('DOMContentLoaded', () => {
             const app = new PeopleCounterApp();
         });
