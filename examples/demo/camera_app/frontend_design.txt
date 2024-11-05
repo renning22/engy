@@ -1,0 +1,65 @@
+
+Single Page HTML/JavaScript Design:
+
+1. HTML Structure:
+```html
+<div class="container">
+    <!-- Video feed container -->
+    <div class="video-container">
+        <video id="videoElement" autoplay></video>
+        <canvas id="overlayCanvas"></canvas>
+    </div>
+    
+    <!-- Stats display -->
+    <div class="stats-panel">
+        <h2>People Count: <span id="countDisplay">0</span></h2>
+    </div>
+    
+    <!-- Controls -->
+    <div class="controls">
+        <button id="startButton">Start Detection</button>
+        <button id="stopButton">Stop</button>
+    </div>
+</div>
+```
+
+2. JavaScript Components:
+```javascript
+// Camera handling
+class CameraManager {
+    // Initialize camera stream
+    // Handle permissions
+    // Setup video element
+}
+
+// Frame Processing
+class FrameProcessor {
+    // Capture frame from video
+    // Convert to base64
+    // Send to backend
+    // Process response
+    // Draw overlay
+}
+
+// Main App Logic
+class PeopleCounterApp {
+    // Initialize components
+    // Handle start/stop
+    // Update UI
+    // Process frames at interval
+}
+```
+
+3. Styling:
+- Responsive layout
+- Video feed takes 70% of viewport
+- Overlay canvas for drawing bounding boxes
+- Stats panel with large counter
+- Material design-inspired controls
+
+4. Features:
+- Real-time camera feed
+- Bounding box overlay for detected persons
+- Counter display
+- Start/Stop controls
+- Error handling for no camera access
